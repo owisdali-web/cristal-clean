@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Form -->
+    <record id="view_manual_override_wizard_form" model="ir.ui.view">
+        <field name="name">manual.override.wizard.form</field>
+        <field name="model">manual.override.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="order_id" invisible="1"/>
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fa fa-exclamation-triangle"/> 
+                            <strong>Manual Override</strong>: This will bypass the automatic flow.
+                            The car will be moved immediately to the selected location, provided it has capacity.
+                        </div>
+                        <field name="location_id" placeholder="Select target location..." options="{'no_create': True}"/>
+                        <field name="mark_previous_done" 
+                               help="If checked, all unvisited steps before this location are marked as complete. 
+                                     If unchecked, the 'Next' button will still try to follow the original path (temporary jump)."/>
+                    </group>
+                    <footer>
+                        <button name="action_apply_override" string="Apply Override" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action (optional, usually called via button context) -->
+    <record id="action_manual_override_wizard" model="ir.actions.act_window">
+        <field name="name">Send to Specific Location</field>
+        <field name="res_model">manual.override.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_car_wash_order"/>
+        <field name="binding_view_types">form</field>
+    </record>
+</odoo>

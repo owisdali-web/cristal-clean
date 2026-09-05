@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_car_wash_location_user,car.wash.location.user,model_car_wash_location,base.group_user,1,1,1,1
+access_car_wash_service_user,car.wash.service.user,model_car_wash_service,base.group_user,1,1,1,1
+access_car_wash_type_user,car.wash.type.user,model_car_wash_type,base.group_user,1,1,1,1
+access_car_wash_pricelist_user,car.wash.pricelist.user,model_car_wash_pricelist,base.group_user,1,1,1,1
+access_car_wash_order_user,car.wash.order.user,model_car_wash_order,base.group_user,1,1,1,1
+access_order_path_line_user,order.path.line.user,model_order_path_line,base.group_user,1,1,1,1
+access_service_location_line_user,service.location.line.user,model_service_location_line,base.group_user,1,1,1,1
+access_manual_override_wizard_user,manual.override.wizard.user,model_manual_override_wizard,base.group_user,1,1,1,1

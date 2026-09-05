@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="loc_wait" model="car.wash.location">
+        <field name="name">Waiting Zone</field>
+        <field name="capacity">20</field>
+        <field name="is_waiting_zone">1</field>
+    </record>
+    <record id="loc_outside" model="car.wash.location">
+        <field name="name">Outside Wash Bay</field>
+        <field name="capacity">3</field>
+    </record>
+    <record id="loc_dry" model="car.wash.location">
+        <field name="name">Drying Station</field>
+        <field name="capacity">2</field>
+    </record>
+    <record id="loc_inside" model="car.wash.location">
+        <field name="name">Interior Cleaning</field>
+        <field name="capacity">3</field>
+    </record>
+    <record id="loc_done" model="car.wash.location">
+        <field name="name">Done / Pickup</field>
+        <field name="capacity">50</field>
+        <field name="is_final_zone">1</field>
+    </record>
+
+    <record id="service_out" model="car.wash.service">
+        <field name="name">Outside Clean</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="service_inside" model="car.wash.service">
+        <field name="name">Inside Clean</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="service_deep" model="car.wash.service">
+        <field name="name">Deep Clean</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="step_out_wash" model="service.location.line">
+        <field name="service_id" ref="service_out"/>
+        <field name="location_id" ref="loc_outside"/>
+        <field name="step_sequence">1</field>
+    </record>
+    <record id="step_out_dry" model="service.location.line">
+        <field name="service_id" ref="service_out"/>
+        <field name="location_id" ref="loc_dry"/>
+        <field name="step_sequence">2</field>
+    </record>
+    <record id="step_inside_clean" model="service.location.line">
+        <field name="service_id" ref="service_inside"/>
+        <field name="location_id" ref="loc_inside"/>
+        <field name="step_sequence">1</field>
+    </record>
+    <record id="step_deep_clean" model="service.location.line">
+        <field name="service_id" ref="service_deep"/>
+        <field name="location_id" ref="loc_inside"/>
+        <field name="step_sequence">1</field>
+    </record>
+
+    <record id="type_suv" model="car.wash.type">
+        <field name="name">SUV</field>
+    </record>
+    <record id="type_sedan" model="car.wash.type">
+        <field name="name">Sedan</field>
+    </record>
+    <record id="type_hatch" model="car.wash.type">
+        <field name="name">Hatchback</field>
+    </record>
+
+    <record id="price_suv_out" model="car.wash.pricelist">
+        <field name="car_type_id" ref="type_suv"/>
+        <field name="service_id" ref="service_out"/>
+        <field name="price">5.0</field>
+    </record>
+    <record id="price_suv_inside" model="car.wash.pricelist">
+        <field name="car_type_id" ref="type_suv"/>
+        <field name="service_id" ref="service_inside"/>
+        <field name="price">5.0</field>
+    </record>
+    <record id="price_sedan_out" model="car.wash.pricelist">
+        <field name="car_type_id" ref="type_sedan"/>
+        <field name="service_id" ref="service_out"/>
+        <field name="price">4.0</field>
+    </record>
+    <record id="price_sedan_inside" model="car.wash.pricelist">
+        <field name="car_type_id" ref="type_sedan"/>
+        <field name="service_id" ref="service_inside"/>
+        <field name="price">4.0</field>
+    </record>
+    <record id="price_sedan_deep" model="car.wash.pricelist">
+        <field name="car_type_id" ref="type_sedan"/>
+        <field name="service_id" ref="service_deep"/>
+        <field name="price">5.0</field>
+    </record>
+    <record id="price_hatch_out" model="car.wash.pricelist">
+        <field name="car_type_id" ref="type_hatch"/>
+        <field name="service_id" ref="service_out"/>
+        <field name="price">4.0</field>
+    </record>
+
+    <record id="seq_car_wash_order" model="ir.sequence">
+        <field name="name">Car Wash Order</field>
+        <field name="code">car.wash.order</field>
+        <field name="prefix">CW</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

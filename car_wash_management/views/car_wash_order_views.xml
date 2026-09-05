@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_car_wash_order_form" model="ir.ui.view">
+        <field name="name">car.wash.order.form</field>
+        <field name="model">car.wash.order</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <!-- Fixed: Replaced states="draft,in_progress" with invisible expression -->
+                    <button name="action_next_step" string="Next Step" type="object" class="btn-primary" 
+                            invisible="state not in ['draft', 'in_progress']"/>
+                    <button name="action_manual_override" string="Send to Specific Location" type="object" 
+                            invisible="state not in ['draft', 'in_progress']"/>
+                    <button name="action_mark_done" string="Mark as Done" type="object" 
+                            invisible="state not in ['draft', 'in_progress']"/>
+                    <!-- Reset button visible only when done or cancelled -->
+                    <button name="action_reset_to_draft" string="Reset to Draft" type="object" 
+                            invisible="state not in ['done', 'cancelled']"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="customer_name"/>
+                            <field name="customer_phone"/>
+                            <field name="car_type_id"/>
+                            <field name="service_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="current_location_id"/>
+                            <field name="total_price" sum="Total"/>
+                            <field name="current_path_index" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_car_wash_order_list" model="ir.ui.view">
+        <field name="name">car.wash.order.list</field>
+        <field name="model">car.wash.order</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="customer_name"/>
+                <field name="car_type_id"/>
+                <field name="current_location_id"/>
+                <field name="total_price"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_car_wash_order" model="ir.actions.act_window">
+        <field name="name">Tickets</field>
+        <field name="res_model">car.wash.order</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help">Create and track car wash tickets.</field>
+    </record>
+
+    <!-- Root and Configuration Menus -->
+    <menuitem id="menu_car_wash_root" name="Car Wash" sequence="10"/>
+    <menuitem id="menu_car_wash_orders" name="Tickets" parent="menu_car_wash_root" action="action_car_wash_order" sequence="1"/>
+    <menuitem id="menu_car_wash_config" name="Configuration" parent="menu_car_wash_root" sequence="99"/>
+</odoo>
