@@ -186,7 +186,7 @@ CarWashDashboard.template = xml`
                     <div class="cw-card cw-kpi blue">
                         <div class="cw-kpi-icon"><i class="fa fa-file-text-o"/></div>
                         <div>
-                            <p class="cw-kpi-label">Total Orders Today</p>
+                            <p class="cw-kpi-label">أوامر العمل اليوم</p>
                             <div class="cw-kpi-value" t-esc="state.data.total_today"/>
                         </div>
                     </div>
@@ -204,7 +204,7 @@ CarWashDashboard.template = xml`
                     <div class="cw-card cw-kpi green">
                         <div class="cw-kpi-icon"><i class="fa fa-check-circle"/></div>
                         <div>
-                            <p class="cw-kpi-label">Done Today</p>
+                            <p class="cw-kpi-label">تم التنفيذ اليوم</p>
                             <div class="cw-kpi-value" t-esc="state.data.done_today"/>
                         </div>
                     </div>
@@ -225,7 +225,7 @@ CarWashDashboard.template = xml`
             <div class="cw-card mb-4" t-if="state.data.workcenter_load and state.data.workcenter_load.length">
                 <div class="cw-card-head">
                     <div class="cw-card-title">
-                        <i class="fa fa-tachometer"/> Manufacturing Centers Load
+                        <i class="fa fa-tachometer"/> مراكز العمل 
                     </div>
                     <div class="cw-card-actions">
                         <span class="cw-live"><span class="dot"/> Live</span>
@@ -300,7 +300,7 @@ CarWashDashboard.template = xml`
                 <div class="col-lg-6">
                     <div class="cw-card h-100">
                         <div class="cw-card-head">
-                            <div class="cw-card-title"><i class="fa fa-bar-chart"/> Phase Breakdown</div>
+                            <div class="cw-card-title"><i class="fa fa-bar-chart"/>مراحل العمل</div>
                         </div>
                         <div class="cw-chart-body">
                             <canvas id="phaseChart"/>
@@ -310,7 +310,7 @@ CarWashDashboard.template = xml`
                 <div class="col-lg-6">
                     <div class="cw-card h-100">
                         <div class="cw-card-head">
-                            <div class="cw-card-title"><i class="fa fa-pie-chart"/> Workstation Utilisation</div>
+                            <div class="cw-card-title"><i class="fa fa-pie-chart"/> أستخدام مراكز العمل</div>
                         </div>
                         <div class="cw-chart-body">
                             <canvas id="workcenterChart"/>
@@ -324,7 +324,7 @@ CarWashDashboard.template = xml`
                 <div class="col-lg-7">
                     <div class="cw-card h-100">
                         <div class="cw-card-head">
-                            <div class="cw-card-title"><i class="fa fa-history"/> Completed Orders Today</div>
+                            <div class="cw-card-title"><i class="fa fa-history"/> تم التنفيذ اليوم</div>
                         </div>
                         <ul class="cw-timeline">
                             <t t-if="state.data.timeline and state.data.timeline.length">
@@ -339,7 +339,7 @@ CarWashDashboard.template = xml`
                                 </li>
                             </t>
                             <t t-else="">
-                                <li class="cw-empty">No completed orders today</li>
+                                <li class="cw-empty">لم يتم التنفيذ اليوم</li>
                             </t>
                         </ul>
                     </div>
@@ -347,7 +347,7 @@ CarWashDashboard.template = xml`
                 <div class="col-lg-5">
                     <div class="cw-card h-100">
                         <div class="cw-card-head">
-                            <div class="cw-card-title"><i class="fa fa-exclamation-triangle"/> Low Stock Alerts</div>
+                            <div class="cw-card-title"><i class="fa fa-exclamation-triangle"/> تنبيه أنخفاض المخزون</div>
                         </div>
                         <ul class="cw-stock">
                             <t t-if="state.data.low_stock and state.data.low_stock.length">
