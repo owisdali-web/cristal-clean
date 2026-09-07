@@ -8,10 +8,12 @@
     'data': [
         'security/ir.model.access.csv',
         'views/menu_views.xml',
+        'views/sale_order_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
             'car_wash_dashboard/static/src/scss/dashboard.scss',
+            'car_wash_dashboard/static/src/scss/dashboard_additions.scss',
             'car_wash_dashboard/static/src/js/libs/chart.umd.min.js',
             'car_wash_dashboard/static/src/js/dashboard.js',
         ],
