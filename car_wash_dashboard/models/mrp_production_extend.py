@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, time
+import pytz
+
 from odoo import models, fields, api
-from datetime import datetime
+
 
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
@@ -12,124 +15,139 @@ class MrpProduction(models.Model):
         ('deluxe', 'Deluxe'),
     ], string='Wash Type', default='basic')
 
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    @api.model
+    def _cw_today_start(self):
+        """Return the start of *today* in the user's timezone, expressed as a
+        naive UTC datetime string.
+
+        ``create_date`` / ``date_finished`` are stored in UTC, so we convert the
+        user's local midnight to UTC. Returning it as a string lets us reuse the
+        exact same value both for the server-side counts and for the front-end
+        drill-down domains, so the two can never disagree.
+        """
+        user_tz = pytz.timezone(self.env.user.tz or 'UTC')
+        now_local = datetime.now(user_tz)
+        start_local = user_tz.localize(datetime.combine(now_local.date(), time.min))
+        start_utc = start_local.astimezone(pytz.utc).replace(tzinfo=None)
+        return fields.Datetime.to_string(start_utc)
+
+    # ------------------------------------------------------------------
+    # Dashboard payload
+    # ------------------------------------------------------------------
     @api.model
     def get_dashboard_data(self):
-        """Return aggregated data for the dashboard with safety checks."""
-        today = datetime.now().strftime('%Y-%m-%d')
+        """Aggregated KPIs + ready-to-use domains for the dashboard."""
+        today_start = self._cw_today_start()
 
-        # --- KPI Calculations ---
-        total_today = self.search_count([('create_date', '>=', today)])
-        in_progress = self.search_count([('state', '=', 'progress')])
-        done_today = self.search_count([
-            ('state', '=', 'done'),
-            ('date_finished', '>=', today)
-        ])
-        waiting = self.search_count([
-            ('state', 'in', ['confirmed', 'planned']),
-            ('workorder_ids', '=', False)
-        ])
+        # -- KPI domains (kept here so the counts and the click-through always
+        #    resolve to the exact same set of records) --------------------
+        kpi_domains = {
+            'total_today': [('create_date', '>=', today_start)],
+            'in_progress': [('state', '=', 'progress')],
+            'done_today': [
+                ('state', '=', 'done'),
+                ('date_finished', '>=', today_start),
+            ],
+            'waiting': [
+                ('state', 'in', ['confirmed', 'planned']),
+                ('workorder_ids', '=', False),
+            ],
+        }
+        kpis = {key: self.search_count(dom) for key, dom in kpi_domains.items()}
 
-        # --- Phase & Workcenter Counts ---
-        workorder_obj = self.env['mrp.workorder']
-        workorders = workorder_obj.search([
+        # -- Active work orders (read once, reused everywhere below) --------
+        Workorder = self.env['mrp.workorder']
+        workorders = Workorder.search([
             ('production_id.state', 'not in', ['done', 'cancel']),
-            ('state', 'in', ['pending', 'progress'])
+            ('state', 'in', ['pending', 'progress']),
         ])
 
-        phase_counts = {}
+        # -- Distribution by phase (operation) -----------------------------
+        phase_map = {}
         for wo in workorders:
-            op_name = wo.operation_id.name or 'Unknown Operation'
-            phase_counts[op_name] = phase_counts.get(op_name, 0) + 1
+            op = wo.operation_id
+            key = op.id or 0
+            phase_map.setdefault(key, {
+                'operation_id': op.id or False,
+                'name': op.name or 'بدون عملية',
+                'count': 0,
+            })
+            phase_map[key]['count'] += 1
+        phases = sorted(phase_map.values(), key=lambda p: p['count'], reverse=True)
 
-        workcenter_counts = {}
+        # -- Distribution by work center (for the doughnut) ----------------
+        wc_map = {}
         for wo in workorders:
-            if wo.workcenter_id:
-                wc_name = wo.workcenter_id.name or 'Unknown Workcenter'
-                workcenter_counts[wc_name] = workcenter_counts.get(wc_name, 0) + 1
+            wc = wo.workcenter_id
+            if not wc:
+                continue
+            wc_map.setdefault(wc.id, {'id': wc.id, 'name': wc.name or '', 'count': 0})
+            wc_map[wc.id]['count'] += 1
+        workcenter_dist = sorted(wc_map.values(), key=lambda w: w['count'], reverse=True)
 
-        # --- Work Center Load Calculation ---
-        wc_obj = self.env['mrp.workcenter']
-        all_workcenters = wc_obj.search([])
-        
-        # Icon mapping dictionary
+        # -- Work-center load / utilisation --------------------------------
         icon_map = {
-            'غسيل خارجي': 'fa-car-wash',
+            'غسيل خارجي': 'fa-car',
             'غسيل داخلي': 'fa-tint',
             'تجفيف': 'fa-wind',
             'تلميع': 'fa-gem',
             'غسيل': 'fa-car',
-            'default': 'fa-wrench'
         }
+        workcenter_load = []
+        for wc in self.env['mrp.workcenter'].search([]):
+            load = wc_map.get(wc.id, {}).get('count', 0)
 
-        workcenter_load = []  # Ensure this is always a list
-        for wc in all_workcenters:
-            load = workorder_obj.search_count([
-                ('workcenter_id', '=', wc.id),
-                ('state', 'in', ['pending', 'progress']),
-                ('production_id.state', 'not in', ['done', 'cancel'])
-            ])
-
-            # Capacity Logic
-            capacity = wc.default_capacity or 1
+            capacity = wc.default_capacity or 0
             if not capacity and wc.capacity_ids:
-                capacity = wc.capacity_ids[0].capacity or 1
+                capacity = wc.capacity_ids[0].capacity or 0
             if not capacity or capacity <= 0:
                 capacity = 1
 
-            utilization = round((load / capacity * 100), 1) if capacity else 0.0
-            
-            # Get icon, fallback to default
-            icon = icon_map.get(wc.name or 'default', 'fa-wrench')
-
             workcenter_load.append({
+                'id': wc.id,
                 'name': wc.name or 'Unknown Workcenter',
                 'load': load,
                 'capacity': capacity,
-                'utilization': utilization,
-                'icon': icon,
+                'utilization': round((load / capacity) * 100, 1),
+                'icon': icon_map.get(wc.name, 'fa-wrench'),
             })
 
-        # --- Timeline (Completed Orders) ---
-        done_orders = self.search([
-            ('state', '=', 'done'),
-            ('date_finished', '>=', today)
-        ], order='date_finished desc', limit=10)
-        
-        timeline = []
-        for order in done_orders:
-            timeline.append({
-                'name': order.name or 'Order ' + str(order.id),
-                'license_plate': order.license_plate or 'N/A',
-                'completed_at': order.date_finished.strftime('%H:%M') if order.date_finished else '',
-                'wash_type': order.wash_type or 'basic',
-            })
+        # -- Timeline: orders completed today ------------------------------
+        done_orders = self.search(
+            kpi_domains['done_today'], order='date_finished desc', limit=10,
+        )
+        timeline = [{
+            'id': o.id,
+            'name': o.name or ('Order %s' % o.id),
+            'license_plate': o.license_plate or 'N/A',
+            'completed_at': o.date_finished.strftime('%H:%M') if o.date_finished else '',
+            'wash_type': o.wash_type or 'basic',
+        } for o in done_orders]
 
-        # --- Low Stock Alerts ---
-        warehouse = self.env['stock.warehouse'].search([], limit=1)
-        low_stock = []  # Ensure this is always a list
-        if warehouse:
-            reorder_lines = self.env['stock.warehouse.orderpoint'].search([
-                ('warehouse_id', '=', warehouse.id)
-            ])
-            for line in reorder_lines:
-                product = line.product_id
-                qty_available = product.qty_available
-                min_qty = line.product_min_qty or 0
-                if qty_available < min_qty:
-                    low_stock.append({
-                        'product_name': product.display_name,
-                        'available': qty_available,
-                        'min_qty': min_qty,
-                    })
+        # -- Low-stock alerts (all warehouses) -----------------------------
+        low_stock = []
+        for op in self.env['stock.warehouse.orderpoint'].search([]):
+            product = op.product_id
+            available = product.qty_available
+            if available < (op.product_min_qty or 0):
+                low_stock.append({
+                    'product_id': product.id,
+                    'product_name': product.display_name,
+                    'available': available,
+                    'min_qty': op.product_min_qty or 0,
+                })
 
         return {
-            'total_today': total_today,
-            'in_progress': in_progress,
-            'done_today': done_today,
-            'waiting': waiting,
-            'phase_counts': phase_counts or {},
-            'workcenter_counts': workcenter_counts or {},
-            'workcenter_load': workcenter_load or [],
-            'timeline': timeline or [],
-            'low_stock': low_stock or [],
+            **kpis,
+            'phases': phases,
+            'workcenter_dist': workcenter_dist,
+            'workcenter_load': workcenter_load,
+            'timeline': timeline,
+            'low_stock': low_stock,
+            # reused by the front-end to build drill-down domains
+            'kpi_domains': kpi_domains,
+            'today_start': today_start,
         }

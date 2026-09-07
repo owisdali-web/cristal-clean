@@ -8,6 +8,7 @@ import { _t } from "@web/core/l10n/translation";
 class CarWashDashboard extends Component {
     setup() {
         this.orm = useService("orm");
+        this.action = useService("action");
         this.notification = useService("notification");
 
         this.state = useState({
@@ -16,12 +17,15 @@ class CarWashDashboard extends Component {
                 in_progress: 0,
                 done_today: 0,
                 waiting: 0,
-                phase_counts: {},
+                phases: [],
+                workcenter_dist: [],
                 workcenter_load: [],
                 timeline: [],
                 low_stock: [],
+                kpi_domains: {},
             },
             loading: true,
+            lastUpdate: "",
         });
 
         this.phaseChart = null;
@@ -44,14 +48,17 @@ class CarWashDashboard extends Component {
         });
     }
 
+    // ==================================================================
+    // Data
+    // ==================================================================
     async fetchData() {
         try {
-            const result = await this.orm.call(
-                "mrp.production",
-                "get_dashboard_data",
-                []
-            );
+            const result = await this.orm.call("mrp.production", "get_dashboard_data", []);
             this.state.data = result;
+            this.state.lastUpdate = new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+            });
         } catch (error) {
             console.error("Dashboard fetch error:", error);
             this.notification.add(_t("Failed to load dashboard data"), { type: "danger" });
@@ -66,6 +73,89 @@ class CarWashDashboard extends Component {
         this.notification.add(_t("Dashboard updated"), { type: "success" });
     }
 
+    // ==================================================================
+    // Navigation (drill-down to the real records)
+    // ==================================================================
+    _openWindow(options) {
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            target: "current",
+            views: [[false, "list"], [false, "form"]],
+            ...options,
+        });
+    }
+
+    openKpi(key) {
+        const labels = {
+            total_today: _t("Work Orders Today"),
+            in_progress: _t("In Progress"),
+            done_today: _t("Completed Today"),
+            waiting: _t("Waiting"),
+        };
+        this._openWindow({
+            name: labels[key] || _t("Manufacturing Orders"),
+            res_model: "mrp.production",
+            domain: this.state.data.kpi_domains?.[key] || [],
+        });
+    }
+
+    openProduction(orderId) {
+        if (!orderId) return;
+        this._openWindow({
+            res_model: "mrp.production",
+            res_id: orderId,
+            views: [[false, "form"]],
+        });
+    }
+
+    openWorkcenterOrders(wc) {
+        if (!wc?.id) return;
+        this._openWindow({
+            name: wc.name,
+            res_model: "mrp.workorder",
+            domain: [
+                ["workcenter_id", "=", wc.id],
+                ["state", "in", ["pending", "progress"]],
+                ["production_id.state", "not in", ["done", "cancel"]],
+            ],
+        });
+    }
+
+    openOperationOrders(phase) {
+        if (!phase) return;
+        const domain = [
+            ["state", "in", ["pending", "progress"]],
+            ["production_id.state", "not in", ["done", "cancel"]],
+            ["operation_id", "=", phase.operation_id || false],
+        ];
+        this._openWindow({
+            name: phase.name,
+            res_model: "mrp.workorder",
+            domain,
+        });
+    }
+
+    openProduct(productId) {
+        if (!productId) return;
+        this._openWindow({
+            res_model: "product.product",
+            res_id: productId,
+            views: [[false, "form"]],
+        });
+    }
+
+    createSaleOrder() {
+        // The flow starts from a sale order that later triggers manufacturing.
+        this._openWindow({
+            name: _t("New Sales Order"),
+            res_model: "sale.order",
+            views: [[false, "form"]],
+        });
+    }
+
+    // ==================================================================
+    // Charts
+    // ==================================================================
     renderCharts() {
         const Chart = window.Chart;
         if (!Chart) {
@@ -76,21 +166,21 @@ class CarWashDashboard extends Component {
         const phaseCtx = document.getElementById("phaseChart")?.getContext("2d");
         const wcCtx = document.getElementById("workcenterChart")?.getContext("2d");
 
-        if (this.phaseChart) { 
-            this.phaseChart.destroy(); 
-            this.phaseChart = null; 
-        }
-        if (this.workcenterChart) { 
-            this.workcenterChart.destroy(); 
-            this.workcenterChart = null; 
-        }
+        if (this.phaseChart) { this.phaseChart.destroy(); this.phaseChart = null; }
+        if (this.workcenterChart) { this.workcenterChart.destroy(); this.workcenterChart = null; }
 
-        const phaseLabels = Object.keys(this.state.data.phase_counts);
-        const phaseValues = Object.values(this.state.data.phase_counts);
-        const wcLabels = Object.keys(this.state.data.workcenter_counts);
-        const wcValues = Object.values(this.state.data.workcenter_counts);
+        const phases = this.state.data.phases || [];
+        const phaseLabels = phases.map((p) => p.name);
+        const phaseValues = phases.map((p) => p.count);
+
+        const wcDist = this.state.data.workcenter_dist || [];
+        const wcLabels = wcDist.map((w) => w.name);
+        const wcValues = wcDist.map((w) => w.count);
 
         const palette = ["#06b6d4", "#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444", "#ec4899"];
+        const pointer = (evt, els) => {
+            evt.native.target.style.cursor = els.length ? "pointer" : "default";
+        };
 
         if (phaseCtx) {
             this.phaseChart = new Chart(phaseCtx, {
@@ -108,9 +198,13 @@ class CarWashDashboard extends Component {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onHover: pointer,
+                    onClick: (evt, els) => {
+                        if (els.length) this.openOperationOrders(phases[els[0].index]);
+                    },
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: "#f1f5f9" } },
+                        y: { beginAtZero: true, grid: { color: "#f1f5f9" }, ticks: { precision: 0 } },
                         x: { grid: { display: false } },
                     },
                 },
@@ -133,26 +227,17 @@ class CarWashDashboard extends Component {
                     responsive: true,
                     maintainAspectRatio: false,
                     cutout: "68%",
+                    onHover: pointer,
+                    onClick: (evt, els) => {
+                        if (els.length) this.openWorkcenterOrders(wcDist[els[0].index]);
+                    },
                     plugins: { legend: { position: "bottom", labels: { padding: 14, usePointStyle: true } } },
                 },
             });
         }
     }
-
-    getBarClass(wc) {
-        const u = wc.utilization || 0;
-        if (u >= 90) return "critical";
-        if (u >= 70) return "warning";
-        return "normal";
-    }
-
-    getBarStyle(wc) {
-        const pct = Math.min((wc.utilization || 0), 100);
-        return `width: ${pct}%;`;
-    }
 }
 
-// Fixed: Replaced && with 'and' in t-if attributes
 CarWashDashboard.template = xml`
     <div class="o_car_wash_dashboard">
         <t t-if="state.loading">
@@ -174,8 +259,14 @@ CarWashDashboard.template = xml`
                 </div>
                 <div class="cw-actions">
                     <span class="cw-live"><span class="dot"/> Live</span>
+                    <span t-if="state.lastUpdate" class="cw-updated">
+                        <i class="fa fa-clock-o me-1"/> <t t-esc="state.lastUpdate"/>
+                    </span>
                     <button class="btn btn-refresh" t-on-click="manualRefresh">
                         <i class="fa fa-refresh me-1"/> Update
+                    </button>
+                    <button class="btn btn-create" t-on-click="createSaleOrder">
+                        <i class="fa fa-plus me-1"/> طلب جديد
                     </button>
                 </div>
             </div>
@@ -183,7 +274,8 @@ CarWashDashboard.template = xml`
             <!-- ===== KPI Row ===== -->
             <div class="row g-3 mb-4">
                 <div class="col-xl-3 col-md-6">
-                    <div class="cw-card cw-kpi blue">
+                    <div class="cw-card cw-kpi blue cw-clickable" title="عرض أوامر اليوم"
+                         t-on-click="() => this.openKpi('total_today')">
                         <div class="cw-kpi-icon"><i class="fa fa-file-text-o"/></div>
                         <div>
                             <p class="cw-kpi-label">أوامر العمل اليوم</p>
@@ -192,7 +284,8 @@ CarWashDashboard.template = xml`
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <div class="cw-card cw-kpi amber">
+                    <div class="cw-card cw-kpi amber cw-clickable" title="عرض قيد التنفيذ"
+                         t-on-click="() => this.openKpi('in_progress')">
                         <div class="cw-kpi-icon"><i class="fa fa-cog fa-spin"/></div>
                         <div>
                             <p class="cw-kpi-label">In Progress</p>
@@ -201,7 +294,8 @@ CarWashDashboard.template = xml`
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <div class="cw-card cw-kpi green">
+                    <div class="cw-card cw-kpi green cw-clickable" title="عرض المنفذة اليوم"
+                         t-on-click="() => this.openKpi('done_today')">
                         <div class="cw-kpi-icon"><i class="fa fa-check-circle"/></div>
                         <div>
                             <p class="cw-kpi-label">تم التنفيذ اليوم</p>
@@ -210,7 +304,8 @@ CarWashDashboard.template = xml`
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <div class="cw-card cw-kpi violet">
+                    <div class="cw-card cw-kpi violet cw-clickable" title="عرض قائمة الانتظار"
+                         t-on-click="() => this.openKpi('waiting')">
                         <div class="cw-kpi-icon"><i class="fa fa-clock-o"/></div>
                         <div>
                             <p class="cw-kpi-label">Waiting</p>
@@ -221,11 +316,10 @@ CarWashDashboard.template = xml`
             </div>
 
             <!-- ===== Work Center Load - Premium Grid ===== -->
-            <!-- FIXED: Changed && to 'and' -->
             <div class="cw-card mb-4" t-if="state.data.workcenter_load and state.data.workcenter_load.length">
                 <div class="cw-card-head">
                     <div class="cw-card-title">
-                        <i class="fa fa-tachometer"/> مراكز العمل 
+                        <i class="fa fa-tachometer"/> مراكز العمل
                     </div>
                     <div class="cw-card-actions">
                         <span class="cw-live"><span class="dot"/> Live</span>
@@ -233,10 +327,12 @@ CarWashDashboard.template = xml`
                 </div>
                 <div class="cw-wc-grid">
                     <t t-foreach="state.data.workcenter_load" t-as="wc" t-key="wc_index">
-                        <div class="cw-wc-card" 
+                        <div class="cw-wc-card cw-clickable"
+                             title="عرض أوامر عمل هذا المركز"
+                             t-on-click="() => this.openWorkcenterOrders(wc)"
                              t-att-data-wc-color="wc.utilization >= 90 ? '#ef4444' : (wc.utilization >= 70 ? '#f59e0b' : '#10b981')"
                              t-att-data-wc-icon="wc.icon or 'fa-wrench'">
-                            
+
                             <div class="cw-wc-header">
                                 <div class="cw-wc-icon">
                                     <i t-if="wc.icon" t-att-class="'fa ' + wc.icon"/>
@@ -273,7 +369,7 @@ CarWashDashboard.template = xml`
                                               t-esc="(wc.utilization or 0) + '%'"/>
                                     </div>
                                     <div class="cw-progress-track">
-                                        <div class="cw-progress-fill" 
+                                        <div class="cw-progress-fill"
                                              t-att-class="(wc.utilization >= 90 ? 'critical' : (wc.utilization >= 70 ? 'warning' : 'normal'))"
                                              t-att-style="'width: ' + Math.min((wc.utilization or 0), 100) + '%;'"/>
                                     </div>
@@ -281,7 +377,7 @@ CarWashDashboard.template = xml`
 
                                 <div class="cw-wc-details">
                                     <span class="cw-detail">
-                                        <i class="fa fa-check-circle"/> 
+                                        <i class="fa fa-check-circle"/>
                                         <span t-esc="((wc.capacity or 0) - (wc.load or 0)) + ' spots free'"/>
                                     </span>
                                     <span class="cw-detail">
@@ -301,6 +397,7 @@ CarWashDashboard.template = xml`
                     <div class="cw-card h-100">
                         <div class="cw-card-head">
                             <div class="cw-card-title"><i class="fa fa-bar-chart"/>مراحل العمل</div>
+                            <span class="cw-hint">انقر للتفاصيل</span>
                         </div>
                         <div class="cw-chart-body">
                             <canvas id="phaseChart"/>
@@ -311,6 +408,7 @@ CarWashDashboard.template = xml`
                     <div class="cw-card h-100">
                         <div class="cw-card-head">
                             <div class="cw-card-title"><i class="fa fa-pie-chart"/> أستخدام مراكز العمل</div>
+                            <span class="cw-hint">انقر للتفاصيل</span>
                         </div>
                         <div class="cw-chart-body">
                             <canvas id="workcenterChart"/>
@@ -328,7 +426,9 @@ CarWashDashboard.template = xml`
                         </div>
                         <ul class="cw-timeline">
                             <t t-if="state.data.timeline and state.data.timeline.length">
-                                <li t-foreach="state.data.timeline" t-as="order" t-key="order_index">
+                                <li t-foreach="state.data.timeline" t-as="order" t-key="order_index"
+                                    class="cw-clickable" title="فتح أمر التصنيع"
+                                    t-on-click="() => this.openProduction(order.id)">
                                     <span class="cw-time"><t t-esc="order.completed_at"/></span>
                                     <div>
                                         <div class="cw-order-name"><t t-esc="order.name"/></div>
@@ -351,7 +451,9 @@ CarWashDashboard.template = xml`
                         </div>
                         <ul class="cw-stock">
                             <t t-if="state.data.low_stock and state.data.low_stock.length">
-                                <li t-foreach="state.data.low_stock" t-as="item" t-key="item_index">
+                                <li t-foreach="state.data.low_stock" t-as="item" t-key="item_index"
+                                    class="cw-clickable" title="فتح المنتج"
+                                    t-on-click="() => this.openProduct(item.product_id)">
                                     <div class="cw-stock-icon"><i class="fa fa-box"/></div>
                                     <div>
                                         <div class="cw-stock-name"><t t-esc="item.product_name"/></div>

@@ -483,4 +483,59 @@ $cw-violet: #8b5cf6;
     .cw-wc-card[data-wc-icon="fa-automobile"] .cw-wc-icon {
         background: linear-gradient(135deg, #ef4444, #f87171);
     }
+
+    // ---------- Clickable affordances ----------
+    .cw-clickable {
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+
+    .cw-updated {
+        display: inline-flex;
+        align-items: center;
+        font-size: 12px;
+        color: $cw-muted;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 6px 12px;
+    }
+
+    .cw-hint {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .cw-timeline li.cw-clickable:hover,
+    .cw-stock li.cw-clickable:hover {
+        background: #f8fafc;
+        border-radius: 10px;
+    }
+
+    // ---------- Create button ----------
+    .btn-create {
+        border: none;
+        border-radius: 999px;
+        font-weight: 700;
+        padding: 8px 20px;
+        color: #fff;
+        background: linear-gradient(135deg, $cw-green, #059669);
+        box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+        transition: all 0.2s ease;
+
+        &:hover {
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(16, 185, 129, 0.45);
+        }
+    }
 }
