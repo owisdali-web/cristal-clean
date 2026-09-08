@@ -8,7 +8,7 @@ class ResPartner(models.Model):
     @api.constrains('phone')
     def _check_phone_required_and_unique(self):
         for partner in self:
-            # 1. Enforce Mandatory Phone for main records (Companies or Individual People)
+            # 1. Enforce Mandatory Phone for main records
             if not partner.parent_id and not partner.phone:
                 raise ValidationError(_("A phone number is mandatory for all main contacts."))
 
@@ -18,27 +18,28 @@ class ResPartner(models.Model):
             # 2. Normalize current input (Keep only digits)
             current_digits = re.sub(r'\D', '', partner.phone)
             if not current_digits:
-                continue  # Skip if phone only contains symbols like '+++'
+                continue 
 
-            # 3. Retrieve all other contacts to check for digit-level duplicates
+            # 3. Retrieve all other contacts to check for duplicates
             all_partners = self.search([('id', '!=', partner.id), ('phone', '!=', False)])
             
             for existing_partner in all_partners:
                 existing_digits = re.sub(r'\D', '', existing_partner.phone)
                 
                 if current_digits == existing_digits:
-                    # Construct an action dictionary that opens the existing contact layout
-                    action_id = self.env.ref('base.action_partner_form').id
-                    redirect_action = {
-                        'name': _('Go to Existing Contact'),
-                        'type': 'ir.actions.act_window',
-                        'res_model': 'res.partner',
+                    # Look up Odoo's native layout action ID safely
+                    action = self.env.ref('base.action_partner_form')
+                    
+                    # Instead of an inline dict, inject our destination ID into the native context registry
+                    redirect_action = action.read(['name', 'type', 'res_model', 'view_mode'])[0]
+                    redirect_action.update({
                         'res_id': existing_partner.id,
                         'view_mode': 'form',
+                        'views': [(False, 'form')],
                         'target': 'current',
-                    }
+                    })
 
-                    # Trigger a blocking error box that provides a shortcut button to the user
+                    # Trigger the dialog window natively without breaking Javascript
                     raise RedirectWarning(
                         message=_(
                             "The phone number '%s' matches an existing contact record:\n\n"
