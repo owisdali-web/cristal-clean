@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_otp_buttons" model="ir.ui.view">
+        <field name="name">stock.picking.form.otp.buttons</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_send_delivery_otp" 
+                        type="object" 
+                        string="Send OTP" 
+                        class="btn-secondary"
+                        invisible="not delivery_otp_enabled or state in ('done','cancel')"/>
+                <button name="action_verify_delivery_otp" 
+                        type="object" 
+                        string="Verify OTP" 
+                        class="btn-primary"
+                        invisible="not delivery_otp_enabled or state in ('done','cancel')"/>
+            </header>
+            <field name="state" position="after">
+                <field name="otp_verified" invisible="not delivery_otp_enabled"/>
+            </field>
+        </field>
+    </record>
+</odoo>

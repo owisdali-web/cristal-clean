@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_delivery_otp_list" model="ir.ui.view">
+        <field name="name">delivery.otp.list</field>
+        <field name="model">delivery.otp</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="create_date"/>
+                <field name="picking_id"/>
+                <field name="phone"/>
+                <field name="code"/>
+                <field name="expiry"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'verified'"
+                       decoration-danger="status in ('expired','failed')"/>
+                <field name="attempts"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_delivery_otp_form" model="ir.ui.view">
+        <field name="name">delivery.otp.form</field>
+        <field name="model">delivery.otp</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="picking_id"/>
+                        <field name="phone"/>
+                        <field name="code"/>
+                        <field name="expiry"/>
+                        <field name="status" widget="statusbar"
+                               statusbar_visible="pending,sent,verified,expired,failed"/>
+                        <field name="attempts"/>
+                        <field name="last_error"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_delivery_otp" model="ir.actions.act_window">
+        <field name="name">Delivery OTPs</field>
+        <field name="res_model">delivery.otp</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_delivery_otp"
+              name="Delivery OTPs"
+              parent="stock.menu_stock_root"
+              action="action_delivery_otp"
+              sequence="50"/>
+</odoo>

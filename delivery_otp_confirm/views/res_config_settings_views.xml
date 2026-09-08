@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_delivery_otp" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.delivery.otp</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <div class="app_settings_block" data-string="Delivery OTP" string="Delivery OTP">
+                    <h2>Delivery OTP Settings</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6">
+                            <div class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="delivery_otp_enabled"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="delivery_otp_enabled"/>
+                                    <div class="text-muted">Require OTP to validate delivery orders</div>
+                                </div>
+                            </div>
+                            <div class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="delivery_otp_expiry_minutes"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="delivery_otp_expiry_minutes"/>
+                                    <div class="text-muted">Minutes before OTP expires</div>
+                                </div>
+                            </div>
+
+                            <!-- - API Credentials - -->
+                            <div class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="sms_otp_username"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="sms_otp_username"/>
+                                    <div class="text-muted">Username for SMS API</div>
+                                </div>
+                            </div>
+                            <div class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="sms_otp_password" password="True"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="sms_otp_password"/>
+                                    <div class="text-muted">Password for SMS API</div>
+                                </div>
+                            </div>
+                            <div class="o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <button name="action_fetch_token" type="object" string="Fetch Token" class="btn-primary"/>
+                                </div>
+                            </div>
+                            <div class="o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="sms_otp_token" readonly="1"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="sms_otp_token"/>
+                                    <div class="text-muted">Token valid for one year (fetched from API)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
