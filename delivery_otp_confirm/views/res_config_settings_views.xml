@@ -4,15 +4,15 @@
     <record id="res_config_settings_view_form_delivery_otp" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.delivery.otp</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
 
         <field name="arch" type="xml">
 
             <xpath expr="//form" position="inside">
 
                 <div class="app_settings_block"
-                     data-string="Delivery OTP"
-                     string="Delivery OTP">
+                    data-string="Delivery OTP"
+                    string="Delivery OTP">
 
                     <h2>Delivery OTP Settings</h2>
 
@@ -27,7 +27,7 @@
                             </div>
 
                             <div class="delivery_otp_field">
-                                <field name="delivery_otp_enabled"/>
+                                <field name="delivery_otp_enabled" />
                                 <div class="text-muted">
                                     Require OTP to validate delivery orders.
                                 </div>
@@ -44,7 +44,7 @@
                             </div>
 
                             <div class="delivery_otp_field">
-                                <field name="delivery_otp_expiry_minutes"/>
+                                <field name="delivery_otp_expiry_minutes" />
                                 <div class="text-muted">
                                     Number of minutes before the OTP expires.
                                 </div>
@@ -53,23 +53,53 @@
 
 
                         <!-- Warehouses -->
+                        <!-- OTP Required Warehouses -->
                         <div class="delivery_otp_row">
+
                             <div class="delivery_otp_label">
                                 <label for="otp_warehouse_ids">
-                                    Warehouses
+                                    OTP Required Warehouses
                                 </label>
                             </div>
 
                             <div class="delivery_otp_field">
+
                                 <field name="otp_warehouse_ids"
-                                       widget="many2many_tags"
-                                       context="{'default_company_id': company_id}"/>
+                                    widget="many2many_tags"
+                                    context="{'default_company_id': company_id}" />
 
                                 <div class="text-muted">
-                                    OTP is required only for deliveries
+                                    OTP will be required for operations
                                     from these warehouses.
                                 </div>
+
                             </div>
+
+                        </div>
+
+
+                        <!-- OTP Required Operation Types -->
+                        <div class="delivery_otp_row">
+
+                            <div class="delivery_otp_label">
+                                <label for="otp_operation_type_ids">
+                                    OTP Required Operation Types
+                                </label>
+                            </div>
+
+                            <div class="delivery_otp_field">
+
+                                <field name="otp_operation_type_ids"
+                                    widget="many2many_tags" />
+
+                                <div class="text-muted">
+                                    OTP will be required only for these operation types.
+                                    Leave empty to require OTP for all operation types
+                                    in the selected warehouses.
+                                </div>
+
+                            </div>
+
                         </div>
 
 
@@ -82,7 +112,7 @@
                             </div>
 
                             <div class="delivery_otp_field">
-                                <field name="sms_otp_username"/>
+                                <field name="sms_otp_username" />
 
                                 <div class="text-muted">
                                     Username used to access the SMS API.
@@ -101,7 +131,7 @@
 
                             <div class="delivery_otp_field">
                                 <field name="sms_otp_password"
-                                       password="True"/>
+                                    password="True" />
 
                                 <div class="text-muted">
                                     Password used to access the SMS API.
@@ -118,9 +148,9 @@
 
                             <div class="delivery_otp_field">
                                 <button name="action_fetch_token"
-                                        type="object"
-                                        string="Fetch Token"
-                                        class="btn btn-primary"/>
+                                    type="object"
+                                    string="Fetch Token"
+                                    class="btn btn-primary" />
 
                                 <div class="text-muted">
                                     Fetch a new authentication token
@@ -140,7 +170,7 @@
 
                             <div class="delivery_otp_field">
                                 <field name="sms_otp_token"
-                                       readonly="1"/>
+                                    readonly="1" />
 
                                 <div class="text-muted">
                                     Token is valid for one year
