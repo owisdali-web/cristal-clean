@@ -1,72 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <record id="res_config_settings_view_form_delivery_otp" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.delivery.otp</field>
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+
         <field name="arch" type="xml">
+
             <xpath expr="//form" position="inside">
-                <div class="app_settings_block" data-string="Delivery OTP" string="Delivery OTP">
+
+                <div class="app_settings_block"
+                     data-string="Delivery OTP"
+                     string="Delivery OTP">
+
                     <h2>Delivery OTP Settings</h2>
-                    <div class="row mt16 o_settings_container">
-                        <div class="col-12 col-lg-6">
-                            <div class="o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="delivery_otp_enabled"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="delivery_otp_enabled"/>
-                                    <div class="text-muted">Require OTP to validate delivery orders</div>
-                                </div>
-                            </div>
-                            <div class="o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="delivery_otp_expiry_minutes"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="delivery_otp_expiry_minutes"/>
-                                    <div class="text-muted">Minutes before OTP expires</div>
-                                </div>
+
+                    <div class="delivery_otp_settings">
+
+                        <!-- Enable OTP -->
+                        <div class="delivery_otp_row">
+                            <div class="delivery_otp_label">
+                                <label for="delivery_otp_enabled">
+                                    Enable Delivery OTP
+                                </label>
                             </div>
 
-                            <!-- - API Credentials - -->
-                            <div class="o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="sms_otp_username"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="sms_otp_username"/>
-                                    <div class="text-muted">Username for SMS API</div>
-                                </div>
-                            </div>
-                            <div class="o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="sms_otp_password" password="True"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="sms_otp_password"/>
-                                    <div class="text-muted">Password for SMS API</div>
-                                </div>
-                            </div>
-                            <div class="o_setting_box">
-                                <div class="o_setting_left_pane"/>
-                                <div class="o_setting_right_pane">
-                                    <button name="action_fetch_token" type="object" string="Fetch Token" class="btn-primary"/>
-                                </div>
-                            </div>
-                            <div class="o_setting_box">
-                                <div class="o_setting_left_pane">
-                                    <field name="sms_otp_token" readonly="1"/>
-                                </div>
-                                <div class="o_setting_right_pane">
-                                    <label for="sms_otp_token"/>
-                                    <div class="text-muted">Token valid for one year (fetched from API)</div>
+                            <div class="delivery_otp_field">
+                                <field name="delivery_otp_enabled"/>
+                                <div class="text-muted">
+                                    Require OTP to validate delivery orders.
                                 </div>
                             </div>
                         </div>
+
+
+                        <!-- Expiry -->
+                        <div class="delivery_otp_row">
+                            <div class="delivery_otp_label">
+                                <label for="delivery_otp_expiry_minutes">
+                                    OTP Expiry
+                                </label>
+                            </div>
+
+                            <div class="delivery_otp_field">
+                                <field name="delivery_otp_expiry_minutes"/>
+                                <div class="text-muted">
+                                    Number of minutes before the OTP expires.
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Warehouses -->
+                        <div class="delivery_otp_row">
+                            <div class="delivery_otp_label">
+                                <label for="otp_warehouse_ids">
+                                    Warehouses
+                                </label>
+                            </div>
+
+                            <div class="delivery_otp_field">
+                                <field name="otp_warehouse_ids"
+                                       widget="many2many_tags"
+                                       context="{'default_company_id': company_id}"/>
+
+                                <div class="text-muted">
+                                    OTP is required only for deliveries
+                                    from these warehouses.
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- API Username -->
+                        <div class="delivery_otp_row">
+                            <div class="delivery_otp_label">
+                                <label for="sms_otp_username">
+                                    API Username
+                                </label>
+                            </div>
+
+                            <div class="delivery_otp_field">
+                                <field name="sms_otp_username"/>
+
+                                <div class="text-muted">
+                                    Username used to access the SMS API.
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- API Password -->
+                        <div class="delivery_otp_row">
+                            <div class="delivery_otp_label">
+                                <label for="sms_otp_password">
+                                    API Password
+                                </label>
+                            </div>
+
+                            <div class="delivery_otp_field">
+                                <field name="sms_otp_password"
+                                       password="True"/>
+
+                                <div class="text-muted">
+                                    Password used to access the SMS API.
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Fetch Token -->
+                        <div class="delivery_otp_row">
+                            <div class="delivery_otp_label">
+                                <span>API Token</span>
+                            </div>
+
+                            <div class="delivery_otp_field">
+                                <button name="action_fetch_token"
+                                        type="object"
+                                        string="Fetch Token"
+                                        class="btn btn-primary"/>
+
+                                <div class="text-muted">
+                                    Fetch a new authentication token
+                                    from the SMS API.
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Token -->
+                        <div class="delivery_otp_row">
+                            <div class="delivery_otp_label">
+                                <label for="sms_otp_token">
+                                    Current Token
+                                </label>
+                            </div>
+
+                            <div class="delivery_otp_field">
+                                <field name="sms_otp_token"
+                                       readonly="1"/>
+
+                                <div class="text-muted">
+                                    Token is valid for one year
+                                    after being fetched from the API.
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+
                 </div>
+
             </xpath>
+
         </field>
     </record>
+
 </odoo>

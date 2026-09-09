@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import requests
+import json
 
 API_LOGIN_URL = "https://rasael.almasafa.ly/api/MasafaRasaelLogin"
 
@@ -30,12 +31,44 @@ class ResConfigSettings(models.TransientModel):
         string="SMS API Password",
         config_parameter='vehicle_rental_sms_otp.password'
     )
-    # Stored token (readonly)
     sms_otp_token = fields.Char(
         string="Current Token",
         config_parameter='vehicle_rental_sms_otp.token',
         readonly=True
     )
+
+    # --- Warehouse selection ---
+    otp_warehouse_ids = fields.Many2many(
+        'stock.warehouse',
+        string='OTP Required Warehouses',
+        help="OTP verification will be required only for deliveries from these warehouses."
+    )
+
+    def set_values(self):
+        """Save m2m warehouse IDs as a JSON string in ir.config_parameter."""
+        super(ResConfigSettings, self).set_values()
+        # Save the m2m
+        warehouse_ids = self.otp_warehouse_ids.ids
+        self.env['ir.config_parameter'].sudo().set_param(
+            'delivery_otp.warehouse_ids',
+            json.dumps(warehouse_ids)
+        )
+
+    @api.model
+    def get_values(self):
+        """Load m2m warehouse IDs from ir.config_parameter."""
+        res = super(ResConfigSettings, self).get_values()
+        # Load warehouse IDs
+        param = self.env['ir.config_parameter'].sudo().get_param(
+            'delivery_otp.warehouse_ids', default='[]'
+        )
+        try:
+            ids = json.loads(param)
+        except:
+            ids = []
+        # Set the field value (m2m requires a list of ids)
+        res['otp_warehouse_ids'] = [(6, 0, ids)]  # replace with these ids
+        return res
 
     def action_fetch_token(self):
         """Call login endpoint and save token."""
@@ -65,7 +98,6 @@ class ResConfigSettings(models.TransientModel):
 
     @api.model
     def get_api_token(self):
-        """Helper to retrieve stored token."""
         return self.env['ir.config_parameter'].sudo().get_param(
             'vehicle_rental_sms_otp.token'
         )

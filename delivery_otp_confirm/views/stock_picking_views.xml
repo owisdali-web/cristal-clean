@@ -10,15 +10,23 @@
                         type="object" 
                         string="Send OTP" 
                         class="btn-secondary"
-                        invisible="not delivery_otp_enabled or state in ('done','cancel')"/>
+                        invisible="not delivery_otp_required or state in ('done','cancel')"/>
                 <button name="action_verify_delivery_otp" 
                         type="object" 
                         string="Verify OTP" 
                         class="btn-primary"
-                        invisible="not delivery_otp_enabled or state in ('done','cancel')"/>
+                        invisible="not delivery_otp_required or state in ('done','cancel')"/>
+                <!-- Skip OTP button – only for Inventory Administrators -->
+                <button name="action_skip_otp" 
+                        type="object" 
+                        string="Skip OTP" 
+                        class="btn-warning"
+                        invisible="not delivery_otp_required or state in ('done','cancel')"
+                        groups="stock.group_stock_manager"/>
             </header>
             <field name="state" position="after">
-                <field name="otp_verified" invisible="not delivery_otp_enabled"/>
+                <field name="otp_verified" invisible="not delivery_otp_required"/>
+                <field name="delivery_otp_required" invisible="1"/>
             </field>
         </field>
     </record>
