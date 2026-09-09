@@ -66,7 +66,10 @@ class MrpProduction(models.Model):
                             bom = []
 
                         if bom:
-                            # --- Create MO with routing from BOM ---
+                            # --- Safe routing_id retrieval ---
+                            routing_id = getattr(bom, 'routing_id', False)
+                            routing_id = routing_id.id if routing_id else False
+
                             vals = {
                                 'origin': 'POS-' + prod['pos_reference'],
                                 'state': 'confirmed',
@@ -75,15 +78,15 @@ class MrpProduction(models.Model):
                                 'product_uom_id': prod['uom_id'],
                                 'product_qty': prod['qty'],
                                 'bom_id': bom.id,
-                                'routing_id': bom.routing_id.id,   # <-- FIX: set routing
+                                'routing_id': routing_id,
                             }
                             mrp_order = self.sudo().create(vals)
 
-                            # --- Generate work orders if a routing exists ---
+                            # Generate work orders if routing is set
                             if mrp_order.routing_id:
                                 mrp_order._generate_workorders()
 
-                            # --- Create raw material moves ---
+                            # --- Create raw material moves (existing code) ---
                             list_value = []
                             for bom_line in mrp_order.bom_id.bom_line_ids:
                                 list_value.append((0, 0, {
@@ -123,7 +126,6 @@ class MrpProduction(models.Model):
                                 'propagate_cancel': mrp_order.propagate_cancel,
                             }
 
-                            # --- Update MO with moves ---
                             mrp_order.update({
                                 'move_raw_ids': list_value,
                                 'move_finished_ids': [(0, 0, finished_vals)]
