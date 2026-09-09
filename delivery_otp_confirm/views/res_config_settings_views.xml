@@ -52,6 +52,31 @@
                         </div>
 
 
+                        <!-- OTP Required Operation Types -->
+                        <div class="delivery_otp_row">
+
+                            <div class="delivery_otp_label">
+                                <label for="otp_operation_type_ids">
+                                    OTP Required Operation Types
+                                </label>
+                            </div>
+
+                            <div class="delivery_otp_field">
+
+                                <field name="otp_operation_type_ids"
+                                    widget="many2many_tags" />
+
+                                <div class="text-muted">
+                                    OTP will be required only for these operation types.
+                                    Leave empty to require OTP for all operation types
+                                    in the selected warehouses.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
                         <!-- API Username -->
                         <div class="delivery_otp_row">
                             <div class="delivery_otp_label">
