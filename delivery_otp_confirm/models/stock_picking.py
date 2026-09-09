@@ -36,11 +36,14 @@ class StockPicking(models.Model):
             warehouse_ids = json.loads(param)
         except:
             warehouse_ids = []
+
         for rec in self:
+            # Determine the warehouse from picking type or location
+            warehouse = rec.picking_type_id.warehouse_id or rec.location_id.warehouse_id
             rec.delivery_otp_required = (
                 rec.delivery_otp_enabled and
-                rec.warehouse_id and
-                rec.warehouse_id.id in warehouse_ids
+                warehouse and
+                warehouse.id in warehouse_ids
             )
 
     @api.model
@@ -102,11 +105,9 @@ class StockPicking(models.Model):
     def action_skip_otp(self):
         """Allow inventory admin to bypass OTP verification."""
         self.ensure_one()
-        # Only users with Inventory Administrator (stock.group_stock_manager) can skip
         if not self.env.user.has_group('stock.group_stock_manager'):
             raise UserError(_("Only Inventory Administrators can skip OTP verification."))
         self.otp_verified = True
-        # Optionally log a note
         self.message_post(body=_("OTP verification skipped by %s") % self.env.user.name)
         return {
             'type': 'ir.actions.act_window_close',
