@@ -4,10 +4,12 @@ from odoo.exceptions import UserError
 from datetime import timedelta
 import json
 
+
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    otp_verified = fields.Boolean(string='OTP Verified', default=False, copy=False)
+    otp_verified = fields.Boolean(
+        string='OTP Verified', default=False, copy=False)
     otp_ids = fields.One2many('delivery.otp', 'picking_id', string='OTPs')
 
     delivery_otp_enabled = fields.Boolean(
@@ -66,10 +68,12 @@ class StockPicking(models.Model):
             raise UserError(_("OTP is not required for this warehouse."))
 
         # Invalidate previous pending OTPs
-        self.otp_ids.filtered(lambda o: o.status in ['pending', 'sent']).write({'status': 'expired'})
+        self.otp_ids.filtered(lambda o: o.status in [
+            'pending', 'sent']).write({'status': 'expired'})
 
         code = self.env['delivery.otp']._generate_otp(length=4)
-        expiry = fields.Datetime.now() + timedelta(minutes=settings['expiry_minutes'])
+        expiry = fields.Datetime.now(
+        ) + timedelta(minutes=settings['expiry_minutes'])
         otp = self.env['delivery.otp'].create({
             'picking_id': self.id,
             'phone': self.partner_id.phone,
@@ -78,18 +82,24 @@ class StockPicking(models.Model):
             'status': 'pending',
         })
         otp.send_otp()
+
+        # Return a simple notification instead of opening the OTP record
         return {
-            'type': 'ir.actions.act_window',
-            'name': _('OTP Sent'),
-            'res_model': 'delivery.otp',
-            'res_id': otp.id,
-            'view_mode': 'form',
-            'target': 'new',
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('OTP Sent'),
+                'message': _('A 4-digit OTP has been sent to the customer\'s phone.'),
+                'sticky': False,
+                'type': 'success',
+                'next': {'type': 'ir.actions.act_window_close'},
+            }
         }
 
     def action_verify_delivery_otp(self):
         self.ensure_one()
-        otp = self.otp_ids.filtered(lambda o: o.status == 'sent' and o.expiry > fields.Datetime.now())
+        otp = self.otp_ids.filtered(
+            lambda o: o.status == 'sent' and o.expiry > fields.Datetime.now())
         if not otp:
             raise UserError(_("No valid OTP found. Please send a new one."))
         otp = otp[0]
@@ -106,9 +116,11 @@ class StockPicking(models.Model):
         """Allow inventory admin to bypass OTP verification."""
         self.ensure_one()
         if not self.env.user.has_group('stock.group_stock_manager'):
-            raise UserError(_("Only Inventory Administrators can skip OTP verification."))
+            raise UserError(
+                _("Only Inventory Administrators can skip OTP verification."))
         self.otp_verified = True
-        self.message_post(body=_("OTP verification skipped by %s") % self.env.user.name)
+        self.message_post(
+            body=_("OTP verification skipped by %s") % self.env.user.name)
         return {
             'type': 'ir.actions.act_window_close',
             'effect': {
