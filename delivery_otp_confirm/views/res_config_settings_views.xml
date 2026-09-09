@@ -51,18 +51,6 @@
                             </div>
                         </div>
 
-                        <!-- OTP Required Warehouses  ← احذف هذه الكتلة كاملة -->
-                        <div class="delivery_otp_row">
-                            <div class="delivery_otp_label">
-                                <label for="otp_warehouse_ids">OTP Required Warehouses</label>
-                            </div>
-                            <div class="delivery_otp_field">
-                                <field name="otp_warehouse_ids" widget="many2many_tags"
-                                    context="{'default_company_id': company_id}" />
-                                <div class="text-muted">...</div>
-                            </div>
-                        </div>
-
 
                         <!-- API Username -->
                         <div class="delivery_otp_row">
