@@ -1,5 +1,26 @@
 # -*- coding: utf-8 -*-
+##############################################################################
+#
+#    Cybrosys Technologies Pvt. Ltd.
+#
+#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>
+#    Author: Gayathri V (odoo@cybrosys.com)
+#
+#    you can modify it under the terms of the GNU AFFERO
+#    GENERAL PUBLIC LICENSE (AGPL v3), Version 3.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU AFFERO GENERAL PUBLIC LICENSE (AGPL v3) for more details.
+#
+#    You should have received a copy of the GNU AFFERO GENERAL PUBLIC LICENSE
+#    (AGPL v3) along with this program.
+#    If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
 from odoo import models
+
 
 class MrpProduction(models.Model):
     """ Extends MRP Production model for creating manufacturing orders from POS
@@ -7,7 +28,7 @@ class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
     def create_mrp_from_pos(self, products):
-        """ Function for creating manufacturing orders with standard v18 logic."""
+        """Function for creating manufacturing orders."""
         product_ids = []
         if products:
             for product in products:
@@ -21,61 +42,91 @@ class MrpProduction(models.Model):
                                 flag = 0
                     if flag:
                         product_ids.append(product)
-            
+
             for prod in product_ids:
                 if prod['qty'] > 0:
-                    product_template_id = self.env['product.product'].browse(prod['id']).product_tmpl_id.id
+                    product_template_id = self.env['product.product'].browse(
+                        prod['id']).product_tmpl_id.id
                     bom_count = self.env['mrp.bom'].search([
-                        ('product_tmpl_id', '=', product_template_id)])
-                    
+                        ('product_tmpl_id', '=', product_template_id)
+                    ])
                     if bom_count:
                         bom_temp = self.env['mrp.bom'].search([
                             ('product_tmpl_id', '=', product_template_id),
-                            ('product_id', '=', False)])
+                            ('product_id', '=', False)
+                        ])
                         bom_prod = self.env['mrp.bom'].search([
-                            ('product_id', '=', prod['id'])])
-                        
+                            ('product_id', '=', prod['id'])
+                        ])
                         if bom_prod:
                             bom = bom_prod[0]
                         elif bom_temp:
                             bom = bom_temp[0]
                         else:
                             bom = []
-                        
+
                         if bom:
-                            # 1. Gather all default values to prevent missing fields in v18
+                            # --- Create MO with routing from BOM ---
                             vals = {
                                 'origin': 'POS-' + prod['pos_reference'],
+                                'state': 'confirmed',
                                 'product_tmpl_id': product_template_id,
                                 'product_id': prod['id'],
                                 'product_uom_id': prod['uom_id'],
                                 'product_qty': prod['qty'],
                                 'bom_id': bom.id,
+                                'routing_id': bom.routing_id.id,   # <-- FIX: set routing
                             }
-                            
-                            # 2. Use Odoo virtual record cache to natively trigger operations/routing calculations
-                            mo_cache = self.env['mrp.production'].new(vals)
-                            mo_cache._onchange_product_id()  # Sets picking types, locations, and structural properties
-                            mo_cache._onchange_bom_id()      # Pulls operations from BoM into virtual memory
-                            
-                            # Convert virtual data back into standard writable dictionary values
-                            final_vals = mo_cache._convert_to_write(mo_cache._cache)
-                            
-                            # Ensure the fields are set cleanly
-                            final_vals.update({
-                                'origin': vals['origin'],
-                                'product_qty': vals['product_qty'],
+                            mrp_order = self.sudo().create(vals)
+
+                            # --- Generate work orders if a routing exists ---
+                            if mrp_order.routing_id:
+                                mrp_order._generate_workorders()
+
+                            # --- Create raw material moves ---
+                            list_value = []
+                            for bom_line in mrp_order.bom_id.bom_line_ids:
+                                list_value.append((0, 0, {
+                                    'raw_material_production_id': mrp_order.id,
+                                    'name': mrp_order.name,
+                                    'product_id': bom_line.product_id.id,
+                                    'product_uom': bom_line.product_uom_id.id,
+                                    'product_uom_qty': (
+                                        bom_line.product_qty * mrp_order.product_qty
+                                    ) / self.env['mrp.bom'].search([
+                                        ("product_tmpl_id", "=",
+                                         product_template_id)
+                                    ]).product_qty,
+                                    'picking_type_id': mrp_order.picking_type_id.id,
+                                    'location_id': mrp_order.location_src_id.id,
+                                    'location_dest_id': bom_line.product_id.with_company(
+                                        self.company_id.id
+                                    ).property_stock_production.id,
+                                    'company_id': mrp_order.company_id.id,
+                                }))
+
+                            # --- Create finished product move ---
+                            finished_vals = {
+                                'product_id': prod['id'],
+                                'product_uom_qty': prod['qty'],
+                                'product_uom': prod['uom_id'],
+                                'name': mrp_order.name,
+                                'date_deadline': mrp_order.date_deadline,
+                                'picking_type_id': mrp_order.picking_type_id.id,
+                                'location_id': mrp_order.location_src_id.id,
+                                'location_dest_id': mrp_order.location_dest_id.id,
+                                'company_id': mrp_order.company_id.id,
+                                'production_id': mrp_order.id,
+                                'warehouse_id': mrp_order.location_dest_id.warehouse_id.id,
+                                'origin': mrp_order.name,
+                                'group_id': mrp_order.procurement_group_id.id,
+                                'propagate_cancel': mrp_order.propagate_cancel,
+                            }
+
+                            # --- Update MO with moves ---
+                            mrp_order.update({
+                                'move_raw_ids': list_value,
+                                'move_finished_ids': [(0, 0, finished_vals)]
                             })
-                            
-                            # 3. Create the physical Manufacturing Order record in the database
-                            mrp_order = self.sudo().create(final_vals)
-                            
-                            # 4. Generate the proper background Move Raw/Finished lines
-                            mrp_order._pre_button_plan()
-                            
-                            # 5. Confirm and plan work centers into the Odoo Shop Floor app
-                            mrp_order.action_confirm()
-                            if mrp_order.workorder_ids:
-                                mrp_order.button_plan()
-                                
+
         return True
