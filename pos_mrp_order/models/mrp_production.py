@@ -1,26 +1,5 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Cybrosys Technologies Pvt. Ltd.
-#
-#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>
-#    Author: Gayathri V (odoo@cybrosys.com)
-#
-#    you can modify it under the terms of the GNU AFFERO
-#    GENERAL PUBLIC LICENSE (AGPL v3), Version 3.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU AFFERO GENERAL PUBLIC LICENSE (AGPL v3) for more details.
-#
-#    You should have received a copy of the GNU AFFERO GENERAL PUBLIC LICENSE
-#    (AGPL v3) along with this program.
-#    If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
 from odoo import models
-
 
 class MrpProduction(models.Model):
     """ Extends MRP Production model for creating manufacturing orders from POS
@@ -39,15 +18,15 @@ class MrpProduction(models.Model):
                         for product_id in product_ids:
                             if product_id['id'] == product['id']:
                                 product_id['qty'] += product['qty']
-                                product_id
                                 flag = 0
                     if flag:
                         product_ids.append(product)
+            
             for prod in product_ids:
                 if prod['qty'] > 0:
                     product_template_id = self.env['product.product'].browse(prod['id']).product_tmpl_id.id
                     bom_count = self.env['mrp.bom'].search([
-                        ('product_tmpl_id', '=',product_template_id)])
+                        ('product_tmpl_id', '=', product_template_id)])
                     if bom_count:
                         bom_temp = self.env['mrp.bom'].search([
                             ('product_tmpl_id', '=', product_template_id),
@@ -60,10 +39,11 @@ class MrpProduction(models.Model):
                             bom = bom_temp[0]
                         else:
                             bom = []
+                        
                         if bom:
+                            # 1. Base values for creation
                             vals = {
                                 'origin': 'POS-' + prod['pos_reference'],
-                                'state': 'confirmed',
                                 'product_tmpl_id': product_template_id,
                                 'product_id': prod['id'],
                                 'product_uom_id': prod['uom_id'],
@@ -71,6 +51,11 @@ class MrpProduction(models.Model):
                                 'bom_id': bom.id,
                             }
                             mrp_order = self.sudo().create(vals)
+                            
+                            # 2. FORCE ODOO CORE TO LOAD OPERATIONS & WORK ORDERS
+                            mrp_order._onchange_bom_id()
+                            
+                            # 3. Manually compute raw and finished moves using standard Odoo triggers
                             list_value = []
                             for bom_line in mrp_order.bom_id.bom_line_ids:
                                 list_value.append((0, 0, {
@@ -78,12 +63,13 @@ class MrpProduction(models.Model):
                                     'name': mrp_order.name,
                                     'product_id': bom_line.product_id.id,
                                     'product_uom': bom_line.product_uom_id.id,
-                                    'product_uom_qty': (bom_line.product_qty * mrp_order.product_qty)/self.env['mrp.bom'].search([("product_tmpl_id", "=", product_template_id)]).product_qty,
+                                    'product_uom_qty': (bom_line.product_qty * mrp_order.product_qty) / bom.product_qty,
                                     'picking_type_id': mrp_order.picking_type_id.id,
                                     'location_id': mrp_order.location_src_id.id,
                                     'location_dest_id': bom_line.product_id.with_company(self.company_id.id).property_stock_production.id,
                                     'company_id': mrp_order.company_id.id,
                                 }))
+                            
                             finished_vals = {
                                 'product_id': prod['id'],
                                 'product_uom_qty': prod['qty'],
@@ -100,9 +86,15 @@ class MrpProduction(models.Model):
                                 'group_id': mrp_order.procurement_group_id.id,
                                 'propagate_cancel': mrp_order.propagate_cancel,
                             }
+                            
                             mrp_order.update({
                                 'move_raw_ids': list_value,
-                                'move_finished_ids': [
-                                    (0, 0, finished_vals)]
+                                'move_finished_ids': [(0, 0, finished_vals)]
                             })
+                            
+                            # 4. CONFIRM THE ORDER AND AUTOMATICALLY PLAN WORKSTATIONS
+                            mrp_order.action_confirm()
+                            if mrp_order.workorder_ids:
+                                mrp_order.button_plan()
+                                
         return True
