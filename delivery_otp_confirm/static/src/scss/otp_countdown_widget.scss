@@ -1,0 +1,30 @@
+.otp-countdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    background: #e8f5e9;
+    color: #1b5e20;
+    border-left: 4px solid #4caf50;
+    border-radius: 4px;
+    gap: 6px;                         /* replaces the &nbsp; spacing */
+
+    .otp-countdown-label,
+    .otp-countdown-note {
+        margin-right: 4px;            /* small gap after the text */
+    }
+
+    .otp-countdown-timer {
+        font-family: monospace;
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    }
+
+    &.otp-countdown-expired {
+        background: #ffebee;
+        color: #b71c1c;
+        border-left-color: #f44336;
+    }
+}

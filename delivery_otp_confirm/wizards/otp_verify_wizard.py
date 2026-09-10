@@ -2,12 +2,20 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
+
 class DeliveryOtpVerifyWizard(models.TransientModel):
     _name = 'delivery.otp.verify.wizard'
     _description = 'Verify Delivery OTP Wizard'
 
     otp_id = fields.Many2one('delivery.otp', string='OTP', required=True)
     code = fields.Char(string='OTP Code', required=True, size=10)
+
+    # NEW: related expiry so the OWL widget can read it live
+    expiry = fields.Datetime(
+        related='otp_id.expiry',
+        string='Expiry Time',
+        readonly=True,
+    )
 
     def action_verify(self):
         self.ensure_one()

@@ -5,12 +5,19 @@
         <field name="model">delivery.otp.verify.wizard</field>
         <field name="arch" type="xml">
             <form>
+                <!-- Countdown banner at the top -->
+                <field name="expiry" widget="otp_countdown" nolabel="1"/>
+
                 <group>
                     <field name="otp_id" invisible="1"/>
                     <field name="code" placeholder="Enter 4-digit OTP" password="True"/>
                 </group>
+
                 <footer>
-                    <button name="action_verify" string="Verify" type="object" class="btn-primary"/>
+                    <button name="action_verify"
+                            string="Verify"
+                            type="object"
+                            class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

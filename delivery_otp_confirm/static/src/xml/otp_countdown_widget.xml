@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="delivery_otp_confirm.OtpCountdown">
+        <div t-attf-class="otp-countdown #{isExpired ? 'otp-countdown-expired' : ''}">
+            <i class="fa fa-clock-o me-2"/>
+            <t t-if="!isExpired">
+                <span class="otp-countdown-label">Time remaining:</span>
+                <strong class="otp-countdown-timer" t-esc="displayText"/>
+            </t>
+            <t t-else="">
+                <strong>OTP Expired</strong>
+                <span class="otp-countdown-note">— please request a new one.</span>
+            </t>
+        </div>
+    </t>
+
+</templates>
