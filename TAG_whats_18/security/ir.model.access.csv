@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_adv_whatsapp_out_all_users,adv.whatsapp.out all users,model_adv_whatsapp_out,base.group_user,1,1,1,1
+access_whatsapp_composer_all_users,whatsapp.composer all users,model_whatsapp_composer,base.group_user,1,1,1,1
+access_whatsapp_multi_recipient_wizard,whatsapp.multi.recipient.wizard,model_whatsapp_multi_recipient_wizard,base.group_user,1,1,1,1
