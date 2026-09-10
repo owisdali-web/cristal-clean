@@ -10,32 +10,42 @@
                         type="object"
                         string="Send OTP"
                         class="btn-secondary"
-                        invisible="not delivery_otp_required or state in ('done','cancel')"/>
+                        invisible="not delivery_otp_required or otp_verified or state in ('done','cancel')"/>
 
-                <!-- NEW: WhatsApp OTP -->
+                <!-- WhatsApp OTP -->
                 <button name="action_send_delivery_otp_whatsapp"
                         type="object"
                         string="Send OTP via WhatsApp"
                         class="btn-success"
                         icon="fa-whatsapp"
-                        invisible="not delivery_otp_required or state in ('done','cancel')"/>
+                        invisible="not delivery_otp_required or otp_verified or state in ('done','cancel')"/>
 
                 <button name="action_verify_delivery_otp"
                         type="object"
                         string="Verify OTP"
                         class="btn-primary"
-                        invisible="not delivery_otp_required or state in ('done','cancel')"/>
+                        invisible="not delivery_otp_required or otp_verified or state in ('done','cancel')"/>
 
-                <!-- Skip OTP button – only for Inventory Administrators -->
+                <!-- Skip OTP button - only for Inventory Administrators -->
                 <button name="action_skip_otp"
                         type="object"
                         string="Skip OTP"
                         class="btn-warning"
-                        invisible="not delivery_otp_required or state in ('done','cancel')"
+                        invisible="not delivery_otp_required or otp_verified or otp_skipped or state in ('done','cancel')"
                         groups="stock.group_stock_manager"/>
             </header>
+
+            <!-- OTP status ribbon -->
+            <xpath expr="//sheet" position="inside">
+                <widget name="web_ribbon" title="OTP Verified" bg_color="text-bg-success"
+                        invisible="not delivery_otp_required or not otp_verified"/>
+                <widget name="web_ribbon" title="OTP Skipped" bg_color="text-bg-warning"
+                        invisible="not delivery_otp_required or not otp_skipped"/>
+            </xpath>
+
             <field name="state" position="after">
-                <field name="otp_verified" invisible="not delivery_otp_required"/>
+                <field name="otp_verified" invisible="not delivery_otp_required" readonly="1"/>
+                <field name="otp_skipped" invisible="1"/>
                 <field name="delivery_otp_required" invisible="1"/>
             </field>
         </field>
