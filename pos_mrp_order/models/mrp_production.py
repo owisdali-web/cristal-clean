@@ -28,107 +28,59 @@ class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
     def create_mrp_from_pos(self, products):
-        """Function for creating manufacturing orders."""
+        """ Create manufacturing orders for the POS order lines.
+
+        The manufacturing order is created in ``draft`` state so that Odoo's
+        own computed fields build the component moves (``move_raw_ids``) *and*
+        the work orders / operations (``workorder_ids``) from the Bill of
+        Material. ``action_confirm()`` then confirms those moves and work
+        orders and links them together, exactly like a manually created MO.
+        """
+        if not products:
+            return True
+
+        # Aggregate the quantities of identical products across order lines.
         product_ids = []
-        if products:
-            for product in products:
-                if self.env['product.product'].browse(
-                        int(product['id'])).to_make_mrp:
-                    flag = 1
-                    if product_ids:
-                        for product_id in product_ids:
-                            if product_id['id'] == product['id']:
-                                product_id['qty'] += product['qty']
-                                flag = 0
-                    if flag:
-                        product_ids.append(product)
+        for product in products:
+            if not self.env['product.product'].browse(
+                    int(product['id'])).to_make_mrp:
+                continue
+            existing = next(
+                (p for p in product_ids if p['id'] == product['id']), False)
+            if existing:
+                existing['qty'] += product['qty']
+            else:
+                product_ids.append(dict(product))
 
-            for prod in product_ids:
-                if prod['qty'] > 0:
-                    product_template_id = self.env['product.product'].browse(
-                        prod['id']).product_tmpl_id.id
-                    bom_count = self.env['mrp.bom'].search([
-                        ('product_tmpl_id', '=', product_template_id)
-                    ])
-                    if bom_count:
-                        bom_temp = self.env['mrp.bom'].search([
-                            ('product_tmpl_id', '=', product_template_id),
-                            ('product_id', '=', False)
-                        ])
-                        bom_prod = self.env['mrp.bom'].search([
-                            ('product_id', '=', prod['id'])
-                        ])
-                        if bom_prod:
-                            bom = bom_prod[0]
-                        elif bom_temp:
-                            bom = bom_temp[0]
-                        else:
-                            bom = []
+        for prod in product_ids:
+            if prod['qty'] <= 0:
+                continue
 
-                        if bom:
-                            # --- Safe routing_id retrieval ---
-                            routing_id = getattr(bom, 'routing_id', False)
-                            routing_id = routing_id.id if routing_id else False
+            product_template_id = self.env['product.product'].browse(
+                int(prod['id'])).product_tmpl_id.id
 
-                            vals = {
-                                'origin': 'POS-' + prod['pos_reference'],
-                                'state': 'confirmed',
-                                'product_tmpl_id': product_template_id,
-                                'product_id': prod['id'],
-                                'product_uom_id': prod['uom_id'],
-                                'product_qty': prod['qty'],
-                                'bom_id': bom.id,
-                                'routing_id': routing_id,
-                            }
-                            mrp_order = self.sudo().create(vals)
+            # A BoM tied to this exact variant wins over a template level BoM.
+            bom_prod = self.env['mrp.bom'].search([
+                ('product_id', '=', prod['id'])], limit=1)
+            bom_temp = self.env['mrp.bom'].search([
+                ('product_tmpl_id', '=', product_template_id),
+                ('product_id', '=', False)], limit=1)
+            bom = bom_prod or bom_temp
+            if not bom:
+                continue
 
-                            # Generate work orders if routing is set
-                            if mrp_order.routing_id:
-                                mrp_order._generate_workorders()
+            # Create the MO in draft: Odoo now computes move_raw_ids AND
+            # workorder_ids (the operations) from the BoM automatically.
+            mrp_order = self.sudo().create({
+                'origin': 'POS-' + prod['pos_reference'],
+                'product_id': prod['id'],
+                'product_uom_id': prod['uom_id'],
+                'product_qty': prod['qty'],
+                'bom_id': bom.id,
+            })
 
-                            # --- Create raw material moves (existing code) ---
-                            list_value = []
-                            for bom_line in mrp_order.bom_id.bom_line_ids:
-                                list_value.append((0, 0, {
-                                    'raw_material_production_id': mrp_order.id,
-                                    'name': mrp_order.name,
-                                    'product_id': bom_line.product_id.id,
-                                    'product_uom': bom_line.product_uom_id.id,
-                                    'product_uom_qty': (
-                                        bom_line.product_qty * mrp_order.product_qty
-                                    ) / self.env['mrp.bom'].search([
-                                        ("product_tmpl_id", "=",
-                                         product_template_id)
-                                    ]).product_qty,
-                                    'picking_type_id': mrp_order.picking_type_id.id,
-                                    'location_id': mrp_order.location_src_id.id,
-                                    'location_dest_id': bom_line.product_id.with_company(
-                                        self.company_id.id
-                                    ).property_stock_production.id,
-                                    'company_id': mrp_order.company_id.id,
-                                }))
-
-                            # --- Create finished product move ---
-                            finished_vals = {
-                                'product_id': prod['id'],
-                                'product_uom_qty': prod['qty'],
-                                'product_uom': prod['uom_id'],
-                                'name': mrp_order.name,
-                                'date_deadline': mrp_order.date_deadline,
-                                'picking_type_id': mrp_order.picking_type_id.id,
-                                'location_id': mrp_order.location_src_id.id,
-                                'location_dest_id': mrp_order.location_dest_id.id,
-                                'company_id': mrp_order.company_id.id,
-                                'production_id': mrp_order.id,
-                                'warehouse_id': mrp_order.location_dest_id.warehouse_id.id,
-                                'origin': mrp_order.name,
-                                'group_id': mrp_order.procurement_group_id.id,
-                                'propagate_cancel': mrp_order.propagate_cancel,
-                            }
-
-                            mrp_order.update({
-                                'move_raw_ids': list_value,
-                                'move_finished_ids': [(0, 0, finished_vals)]
-                            })
+            # Confirm the MO: this confirms the component moves and the work
+            # orders and links each move to its operation.
+            mrp_order.action_confirm()
 
         return True
