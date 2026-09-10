@@ -6,20 +6,30 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
             <header position="inside">
-                <button name="action_send_delivery_otp" 
-                        type="object" 
-                        string="Send OTP" 
+                <button name="action_send_delivery_otp"
+                        type="object"
+                        string="Send OTP"
                         class="btn-secondary"
                         invisible="not delivery_otp_required or state in ('done','cancel')"/>
-                <button name="action_verify_delivery_otp" 
-                        type="object" 
-                        string="Verify OTP" 
+
+                <!-- NEW: WhatsApp OTP -->
+                <button name="action_send_delivery_otp_whatsapp"
+                        type="object"
+                        string="Send OTP via WhatsApp"
+                        class="btn-success"
+                        icon="fa-whatsapp"
+                        invisible="not delivery_otp_required or state in ('done','cancel')"/>
+
+                <button name="action_verify_delivery_otp"
+                        type="object"
+                        string="Verify OTP"
                         class="btn-primary"
                         invisible="not delivery_otp_required or state in ('done','cancel')"/>
+
                 <!-- Skip OTP button – only for Inventory Administrators -->
-                <button name="action_skip_otp" 
-                        type="object" 
-                        string="Skip OTP" 
+                <button name="action_skip_otp"
+                        type="object"
+                        string="Skip OTP"
                         class="btn-warning"
                         invisible="not delivery_otp_required or state in ('done','cancel')"
                         groups="stock.group_stock_manager"/>

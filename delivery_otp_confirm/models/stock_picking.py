@@ -3,12 +3,16 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from datetime import timedelta
 import json
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    otp_verified = fields.Boolean(string='OTP Verified', default=False, copy=False)
+    otp_verified = fields.Boolean(
+        string='OTP Verified', default=False, copy=False)
     otp_skipped = fields.Boolean(
         string='OTP Skipped', default=False, copy=False,
         help='OTP requirement was bypassed by an authorized user.',
@@ -47,28 +51,34 @@ class StockPicking(models.Model):
         Config = self.env['ir.config_parameter'].sudo()
         return {
             'enabled': str(Config.get_param('delivery_otp.enabled', 'False')).lower()
-                       in ('true', '1', 'yes'),
+            in ('true', '1', 'yes'),
             'expiry_minutes': int(Config.get_param('delivery_otp.expiry_minutes', 5)),
         }
 
-    def action_send_delivery_otp(self):
+    # ------------------------------------------------------------------
+    #  Shared helper: create (or reset) an OTP record for this picking
+    # ------------------------------------------------------------------
+    def _create_delivery_otp(self):
+        """Create a fresh OTP for this picking and return the delivery.otp record."""
         self.ensure_one()
-        if not self.partner_id.phone:
-            raise UserError(_("Customer has no phone number."))
-
         settings = self._get_otp_settings()
+
         if not settings['enabled']:
             raise UserError(_("OTP feature is disabled in settings."))
         if not self.delivery_otp_required:
             raise UserError(_("OTP is not required for this operation."))
+        if not self.partner_id.phone:
+            raise UserError(_("Customer has no phone number."))
 
+        # reset previous state
         self.write({'otp_verified': False, 'otp_skipped': False})
         self.otp_ids.filtered(lambda o: o.status in ('pending', 'sent')).write(
             {'status': 'expired'}
         )
 
         code = self.env['delivery.otp']._generate_otp(length=4)
-        expiry = fields.Datetime.now() + timedelta(minutes=settings['expiry_minutes'])
+        expiry = fields.Datetime.now(
+        ) + timedelta(minutes=settings['expiry_minutes'])
 
         otp = self.env['delivery.otp'].create({
             'picking_id': self.id,
@@ -77,19 +87,87 @@ class StockPicking(models.Model):
             'expiry': expiry,
             'status': 'pending',
         })
+        return otp, settings
+
+    # ------------------------------------------------------------------
+    #  Existing: Send OTP via SMS
+    # ------------------------------------------------------------------
+
+    def action_send_delivery_otp(self):
+        self.ensure_one()
+        channel = self.env['ir.config_parameter'].sudo().get_param(
+            'delivery_otp.send_channel', 'sms'
+        )
+        if channel == 'whatsapp':
+            return self.action_send_delivery_otp_whatsapp()
+
+        otp, _settings = self._create_delivery_otp()
         otp.send_otp()
+        return {...}   # unchanged notification
+
+    # ------------------------------------------------------------------
+    #  NEW: Send OTP via WhatsApp (using adv.whatsapp.out from TAG_whats_18)
+    # ------------------------------------------------------------------
+    def action_send_delivery_otp_whatsapp(self):
+        self.ensure_one()
+
+        if 'adv.whatsapp.out' not in self.env:
+            raise UserError(_(
+                "WhatsApp module (TAG_whats_18) is not installed. "
+                "Please install it to use this feature."
+            ))
+
+        otp, settings = self._create_delivery_otp()
+
+        # Build message (same wording as SMS)
+        message = _(
+            "Your delivery confirmation code is: %s. It will expire in %d minutes."
+        ) % (otp.code, settings['expiry_minutes'])
+
+        # Create outgoing WhatsApp message record
+        wa_out = self.env['adv.whatsapp.out'].sudo().create({
+            'phone': self.partner_id.phone,
+            'type': 'text',
+            'body': message,
+            'status': 'pending',
+        })
+
+        try:
+            wa_out.action_send_whatsapp()
+        except Exception as e:
+            _logger.exception(
+                "Delivery OTP WhatsApp send failed for picking %s", self.name)
+            otp.status = 'failed'
+            otp.last_error = str(e)
+            raise UserError(_("Failed to send OTP via WhatsApp: %s") % e)
+
+        if wa_out.status == 'sent':
+            otp.status = 'sent'
+            otp.last_error = False
+            notif_type = 'success'
+            notif_msg = _(
+                "A 4-digit OTP has been sent to the customer's phone via WhatsApp.")
+        else:
+            otp.status = 'failed'
+            otp.last_error = wa_out.last_error or _("WhatsApp send failed.")
+            notif_type = 'danger'
+            notif_msg = _("WhatsApp send failed: %s") % (
+                wa_out.last_error or '')
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('OTP Sent'),
-                'message': _("A 4-digit OTP has been sent to the customer's phone."),
+                'title': _('OTP WhatsApp'),
+                'message': notif_msg,
                 'sticky': False,
-                'type': 'success',
+                'type': notif_type,
             },
         }
 
+    # ------------------------------------------------------------------
+    #  Verification wizard (unchanged)
+    # ------------------------------------------------------------------
     def action_verify_delivery_otp(self):
         self.ensure_one()
         otp = self.otp_ids.filtered(
@@ -110,13 +188,14 @@ class StockPicking(models.Model):
         """Bypass OTP (Inventory Admins only) then continue normal validation."""
         self.ensure_one()
         if not self.env.user.has_group('stock.group_stock_manager'):
-            raise UserError(_("Only Inventory Administrators can skip OTP verification."))
+            raise UserError(
+                _("Only Inventory Administrators can skip OTP verification."))
         if self.state in ('done', 'cancel'):
             raise UserError(_("This delivery has already been processed."))
 
         self.otp_skipped = True
-        self.message_post(body=_("OTP verification skipped by %s.", self.env.user.name))
-        # button_validate() will now pass because otp_skipped is True.
+        self.message_post(
+            body=_("OTP verification skipped by %s.", self.env.user.name))
         return self.button_validate()
 
     def button_validate(self):

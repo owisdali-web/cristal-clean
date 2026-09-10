@@ -34,6 +34,19 @@
                             </div>
                         </div>
 
+                        <div class="delivery_otp_row">
+                            <div class="delivery_otp_label">
+                                <label for="otp_send_channel">Send OTP Via</label>
+                            </div>
+                            <div class="delivery_otp_field">
+                                <field name="otp_send_channel" widget="radio"
+                                    options="{'horizontal': true}" />
+                                <div class="text-muted">
+                                    Choose which channel the standard "Send OTP" button uses.
+                                </div>
+                            </div>
+                        </div>
+
 
                         <!-- Expiry -->
                         <div class="delivery_otp_row">

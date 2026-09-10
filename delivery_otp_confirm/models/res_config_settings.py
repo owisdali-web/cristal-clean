@@ -45,6 +45,17 @@ class ResConfigSettings(models.TransientModel):
              'If none are selected, OTP is not required anywhere.',
     )
 
+    otp_send_channel = fields.Selection(
+        [
+            ('sms', 'SMS'),
+            ('whatsapp', 'WhatsApp'),
+        ],
+        string='OTP Send Channel',
+        config_parameter='delivery_otp.send_channel',
+        default='sms',
+        help='Which channel to use when the "Send OTP" button is clicked.',
+    )
+
     def set_values(self):
         super().set_values()
         self.env['ir.config_parameter'].sudo().set_param(
