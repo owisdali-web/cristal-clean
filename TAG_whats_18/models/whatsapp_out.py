@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 API_URL = "https://wasenderapi.com/api/send-message" 
 UPLOAD_URL = "https://www.wasenderapi.com/api/upload"
-HARDCODED_API_KEY = "ebc42cdec0e1ebf86ab219ae2308574952e4ac99197925898a8439916ea4e69e"
+HARDCODED_API_KEY = "abfbb0189ccd55e90910c2a1060e2aa98099c97f410b7e2809d0373d84ec6cfb"
 
 class WhatsappOut(models.Model):
     _name = 'adv.whatsapp.out'
