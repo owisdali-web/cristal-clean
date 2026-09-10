@@ -2,10 +2,9 @@
 import { registry } from "@web/core/registry";
 import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
-import { DateTime } from "luxon";
+import { DateTime } from "@web/core/l10n/dates";
 
-console.log("[OTP Widget] JS file loaded");     // ← ADD THIS
-
+console.log("[OTP Widget] JS file loaded");
 
 export class OtpCountdown extends Component {
     static template = "delivery_otp_confirm.OtpCountdown";
@@ -13,12 +12,10 @@ export class OtpCountdown extends Component {
 
     setup() {
         this.state = useState({
-            seconds: 0,
             text: "--:--",
             expired: false,
         });
         this.timer = null;
-
         this._tick = this._tick.bind(this);
 
         onMounted(() => {
@@ -35,35 +32,47 @@ export class OtpCountdown extends Component {
     }
 
     _tick() {
-        const raw = this.props.record.data.expiry;
+        // Use the actual field name the widget is bound to
+        const raw = this.props.record.data[this.props.name];
+
         if (!raw) {
             this.state.text = "--:--";
             this.state.expired = true;
-            this.state.seconds = 0;
             return;
         }
 
-        // In Odoo 17/18 the value can be a luxon DateTime or a raw SQL string.
         let exp;
-        if (typeof raw === "string") {
-            exp = DateTime.fromSQL(raw, { zone: "utc" });
-        } else {
-            // Already a DateTime object
-            exp = raw.setZone ? raw : DateTime.fromJSDate(raw);
+        try {
+            if (typeof raw === "string") {
+                exp = DateTime.fromSQL(raw, { zone: "utc" });
+            } else if (raw && raw.isLuxonDateTime) {
+                exp = raw;
+            } else if (raw instanceof Date) {
+                exp = DateTime.fromJSDate(raw, { zone: "utc" });
+            } else {
+                exp = DateTime.fromISO(String(raw), { zone: "utc" });
+            }
+        } catch (e) {
+            exp = null;
         }
+
         if (!exp || !exp.isValid) {
             this.state.text = "--:--";
             this.state.expired = true;
             return;
         }
 
-        const diff = Math.max(0, Math.floor(exp.diff(DateTime.utc(), "seconds").seconds));
-        this.state.seconds = diff;
+        const diff = Math.max(
+            0,
+            Math.floor(exp.diff(DateTime.utc(), "seconds").seconds)
+        );
+
         this.state.expired = diff <= 0;
 
         const m = Math.floor(diff / 60);
         const s = diff % 60;
-        this.state.text = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        this.state.text =
+            `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     }
 
     get isExpired() {
@@ -78,5 +87,4 @@ export class OtpCountdown extends Component {
 OtpCountdown.supportedTypes = ["datetime"];
 
 registry.category("fields").add("otp_countdown", OtpCountdown);
-
-console.log("[OTP Widget] registered as otp_countdown");   // ← AND THIS
+console.log("[OTP Widget] registered as otp_countdown");
