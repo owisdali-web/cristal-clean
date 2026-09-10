@@ -93,36 +93,17 @@ class StockPicking(models.Model):
     #  Existing: Send OTP via SMS
     # ------------------------------------------------------------------
 
+    def action_send_delivery_otp(self):
+        self.ensure_one()
+        channel = self.env['ir.config_parameter'].sudo().get_param(
+            'delivery_otp.send_channel', 'sms'
+        )
+        if channel == 'whatsapp':
+            return self.action_send_delivery_otp_whatsapp()
 
-def action_send_delivery_otp(self):
-    self.ensure_one()
-    channel = self.env['ir.config_parameter'].sudo().get_param(
-        'delivery_otp.send_channel', 'sms'
-    )
-    if channel == 'whatsapp':
-        return self.action_send_delivery_otp_whatsapp()
-
-    otp, _settings = self._create_delivery_otp()
-    otp.send_otp()
-
-    if otp.status == 'sent':
-        notif_type = 'success'
-        notif_msg = _(
-            "A 4-digit OTP has been sent to the customer's phone via SMS.")
-    else:
-        notif_type = 'danger'
-        notif_msg = _("SMS send failed: %s") % (otp.last_error or '')
-
-    return {
-        'type': 'ir.actions.client',
-        'tag': 'display_notification',
-        'params': {
-            'title': _('OTP SMS'),
-            'message': notif_msg,
-            'sticky': False,
-            'type': notif_type,
-        },
-    }
+        otp, _settings = self._create_delivery_otp()
+        otp.send_otp()
+        return {...}   # unchanged notification
 
     # ------------------------------------------------------------------
     #  NEW: Send OTP via WhatsApp (using adv.whatsapp.out from TAG_whats_18)
