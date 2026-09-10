@@ -1,0 +1,570 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* delivery_otp_confirm
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-10 20:25+0000\n"
+"PO-Revision-Date: 2026-09-10 20:25+0000\n"
+"Last-Translator: \n"
+"Language-Team: Arabic\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "<span>API Token</span>"
+msgstr "<span>رمز API</span>"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "A 4-digit OTP has been sent to the customer's phone via WhatsApp."
+msgstr "تم إرسال كلمة السر المتكونة من 4 أرقام إلى رقم الزبون عبر واتساب"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "API Password"
+msgstr "كلمة مرور الاتصال API"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "API Username"
+msgstr "اسم مستخدم الاتصال API"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_delivery_otp_verify_wizard
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Choose which channel the standard \"Send OTP\" button uses."
+msgstr "اختر القناة التي يستخدمها زر \"إرسال كلمة السر\" الأساسي."
+
+#. module: delivery_otp_confirm
+#: model:ir.model,name:delivery_otp_confirm.model_res_config_settings
+msgid "Config Settings"
+msgstr "تهيئة الإعدادات"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__create_uid
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__create_date
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__create_date
+msgid "Created on"
+msgstr "أنشئ في"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_res_config_settings__sms_otp_token
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Current Token"
+msgstr "الرمز الحالي"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "Customer has no phone number."
+msgstr "الزبون لا يمتلك رقم هاتف"
+
+#. module: delivery_otp_confirm
+#: model:ir.model,name:delivery_otp_confirm.model_delivery_otp
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Delivery OTP"
+msgstr "كلمة سر التوصيل"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Delivery OTP Settings"
+msgstr "إعدادات كلمة سر التوصيل"
+
+#. module: delivery_otp_confirm
+#: model:ir.actions.act_window,name:delivery_otp_confirm.action_delivery_otp
+#: model:ir.ui.menu,name:delivery_otp_confirm.menu_delivery_otp
+msgid "Delivery OTPs"
+msgstr "كلمات سر التوصيل"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__picking_id
+msgid "Delivery Order"
+msgstr "أمر التوصيل"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__display_name
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_res_config_settings__delivery_otp_enabled
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Enable Delivery OTP"
+msgstr "تفعيل كلمة سر التوصيل"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_delivery_otp_verify_wizard
+msgid "Enter 4-digit OTP"
+msgstr "أدخل كلمة السر المتكونة من 4 أرقام"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields.selection,name:delivery_otp_confirm.selection__delivery_otp__status__expired
+msgid "Expired"
+msgstr "منتهية الصلاحية"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__expiry
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__expiry
+msgid "Expiry Time"
+msgstr "وقت انتهاء الصلاحية"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields.selection,name:delivery_otp_confirm.selection__delivery_otp__status__failed
+msgid "Failed"
+msgstr "فشل"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/res_config_settings.py:0
+msgid "Failed to fetch token: %s"
+msgstr "فشل في جلب الرمز: %s"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "Failed to send OTP via WhatsApp: %s"
+msgstr "فشل في الإرسال عبر واتساب: %s"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Fetch Token"
+msgstr "جلب الرمز"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid ""
+"Fetch a new authentication token\n"
+"                                    from the SMS API."
+msgstr ""
+"جلب رمز مصادقة جديد\n"
+"                                    من واجهة الرسائل النصية API."
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__id
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+msgid "Incorrect OTP. Please try again."
+msgstr "كلمة مرور خاطئة. الرجاء إعادة المحاولة"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__last_error
+msgid "Last Error"
+msgstr "آخر خطأ"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__write_uid
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__write_date
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/res_config_settings.py:0
+msgid "No token in response: %s"
+msgstr "لا يوجد رمز في الاستجابة: %s"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "No valid OTP found. Please send a new one."
+msgstr "لا توجد كلمة سر صالحة. الرجاء إرسال واحدة جديدة"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,help:delivery_otp_confirm.field_res_config_settings__delivery_otp_expiry_minutes
+msgid "Number of minutes after which the OTP expires."
+msgstr "عدد الدقائق التي تنتهي بعدها صلاحية كلمة السر."
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Number of minutes before the OTP expires."
+msgstr "عدد الدقائق قبل انتهاء صلاحية كلمة السر."
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__otp_id
+msgid "OTP"
+msgstr "كلمة السر"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__code
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp_verify_wizard__code
+msgid "OTP Code"
+msgstr "كلمة السر"
+
+#. module: delivery_otp_confirm
+#. odoo-javascript
+#: code:addons/delivery_otp_confirm/static/src/xml/otp_countdown_widget.xml:0
+msgid "OTP Expired"
+msgstr "انتهت صلاحية كلمة السر"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "OTP Expiry"
+msgstr "انتهاء صلاحية كلمة السر"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_res_config_settings__delivery_otp_expiry_minutes
+msgid "OTP Expiry (minutes)"
+msgstr "انتهاء صلاحية كلمة السر (بالدقائق)"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_res_config_settings__otp_operation_type_ids
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "OTP Required Operation Types"
+msgstr "أنواع العمليات التي تتطلب كلمة السر"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_stock_picking__delivery_otp_required
+msgid "OTP Required for this Operation"
+msgstr "كلمة السر مطلوبة لهذه العملية"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_res_config_settings__otp_send_channel
+msgid "OTP Send Channel"
+msgstr "قناة إرسال كلمة السر"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_stock_picking__otp_skipped
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_picking_form_otp_buttons
+msgid "OTP Skipped"
+msgstr "تم تخطي التأكيد"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_stock_picking__otp_verified
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_picking_form_otp_buttons
+msgid "OTP Verified"
+msgstr "تم التحقق من كلمة السر"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "OTP WhatsApp"
+msgstr "واتساب كلمة السر"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+msgid "OTP already verified."
+msgstr "تم التحقق من كلمة السر بالفعل."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "OTP feature is disabled in settings."
+msgstr "ميزة كلمة السر معطلة في الإعدادات."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid ""
+"OTP has been sent but not yet verified. Please enter the OTP to confirm "
+"delivery."
+msgstr ""
+"تم إرسال كلمة السر ولكن لم يتم التحقق منها بعد. الرجاء إدخال كلمة السر لتأكيد "
+"التوصيل."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+msgid "OTP has expired. Please request a new one."
+msgstr "انتهت صلاحية كلمة السر. الرجاء طلب واحدة جديدة."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "OTP is not required for this operation."
+msgstr "كلمة السر غير مطلوبة لهذه العملية."
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,help:delivery_otp_confirm.field_stock_picking__otp_skipped
+msgid "OTP requirement was bypassed by an authorized user."
+msgstr "تم تجاوز متطلب كلمة السر بواسطة مستخدم مصرح له."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid ""
+"OTP verification is required for this delivery. Please send an OTP first."
+msgstr ""
+"التحقق من كلمة السر مطلوب لهذا التوصيل. الرجاء إرسال كلمة السر أولاً."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "OTP verification skipped by %s."
+msgstr "تم تخطي التحقق من كلمة السر بواسطة %s."
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,help:delivery_otp_confirm.field_res_config_settings__otp_operation_type_ids
+msgid ""
+"OTP verification will be required for these operation types. If none are "
+"selected, OTP is not required anywhere."
+msgstr ""
+"سيتم طلب التحقق من كلمة السر لأنواع العمليات هذه. في حال عدم تحديد أي منها، "
+"لن تُطلب كلمة السر في أي مكان."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/wizards/otp_verify_wizard.py:0
+msgid "OTP verified successfully!"
+msgstr "تم التحقق من كلمة السر بنجاح!"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid ""
+"OTP will be required only for these operation types.\n"
+"                                    Leave empty to require OTP for all operation types\n"
+"                                    in the selected warehouses."
+msgstr ""
+"ستُطلب كلمة السر لأنواع العمليات هذه فقط.\n"
+"                                    اتركه فارغاً لطلب كلمة السر لجميع أنواع العمليات\n"
+"                                    في المستودعات المحددة."
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_stock_picking__otp_ids
+msgid "OTPs"
+msgstr "كلمات السر"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "Only Inventory Administrators can skip OTP verification."
+msgstr "فقط مدراء المخزون يمكنهم تخطي التحقق من كلمة السر."
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Password used to access the SMS API."
+msgstr "كلمة المرور المستخدمة للوصول إلى واجهة الرسائل النصية API."
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields.selection,name:delivery_otp_confirm.selection__delivery_otp__status__pending
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__phone
+msgid "Phone Number"
+msgstr "رقم الهاتف"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+msgid "Phone number is required."
+msgstr "رقم الهاتف مطلوب."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+msgid "Phone number too short."
+msgstr "رقم الهاتف قصير جداً."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/wizards/otp_verify_wizard.py:0
+msgid "Please enter the OTP code."
+msgstr "الرجاء إدخال كلمة السر."
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Require OTP to validate delivery orders."
+msgstr "طلب كلمة السر لتأكيد أوامر التوصيل."
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields.selection,name:delivery_otp_confirm.selection__res_config_settings__otp_send_channel__sms
+msgid "SMS"
+msgstr "رسالة نصية"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_res_config_settings__sms_otp_password
+msgid "SMS API Password"
+msgstr "كلمة مرور واجهة الرسائل النصية"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_res_config_settings__sms_otp_username
+msgid "SMS API Username"
+msgstr "اسم مستخدم واجهة الرسائل النصية"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+msgid "SMS token not configured. Please set it in Settings."
+msgstr "لم يتم تكوين رمز الرسائل النصية. الرجاء ضبطه في الإعدادات."
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_picking_form_otp_buttons
+msgid "Send OTP"
+msgstr "إرسال كلمة السر"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Send OTP Via"
+msgstr "إرسال كلمة السر عبر"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_picking_form_otp_buttons
+msgid "Send OTP via WhatsApp"
+msgstr "إرسال كلمة السر عبر واتساب"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields.selection,name:delivery_otp_confirm.selection__delivery_otp__status__sent
+msgid "Sent"
+msgstr "تم الإرسال"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_picking_form_otp_buttons
+msgid "Skip OTP"
+msgstr "تخطي كلمة السر"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__status
+msgid "Status"
+msgstr "الحالة"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+msgid "This OTP has already been verified."
+msgstr "تم التحقق من كلمة السر هذه بالفعل."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "This delivery has already been processed."
+msgstr "تمت معالجة هذا التوصيل بالفعل."
+
+#. module: delivery_otp_confirm
+#. odoo-javascript
+#: code:addons/delivery_otp_confirm/static/src/xml/otp_countdown_widget.xml:0
+msgid "Time remaining:"
+msgstr "الوقت المتبقي:"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid ""
+"Token is valid for one year\n"
+"                                    after being fetched from the API."
+msgstr ""
+"الرمز صالح لمدة سنة كاملة\n"
+"                                    بعد جلبه من واجهة API."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+msgid "Too many failed attempts. OTP invalidated."
+msgstr "محاولات فاشلة كثيرة. تم إبطال كلمة السر."
+
+#. module: delivery_otp_confirm
+#: model:ir.model,name:delivery_otp_confirm.model_stock_picking
+msgid "Transfer"
+msgstr "التحويل"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/res_config_settings.py:0
+msgid "Username and password are required."
+msgstr "اسم المستخدم وكلمة المرور مطلوبان."
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.res_config_settings_view_form_delivery_otp
+msgid "Username used to access the SMS API."
+msgstr "اسم المستخدم المستخدم للوصول إلى واجهة الرسائل النصية API."
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,field_description:delivery_otp_confirm.field_delivery_otp__attempts
+msgid "Verification Attempts"
+msgstr "محاولات التحقق"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields.selection,name:delivery_otp_confirm.selection__delivery_otp__status__verified
+msgid "Verified"
+msgstr "تم التحقق"
+
+#. module: delivery_otp_confirm
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_delivery_otp_verify_wizard
+msgid "Verify"
+msgstr "تحقق"
+
+#. module: delivery_otp_confirm
+#: model:ir.model,name:delivery_otp_confirm.model_delivery_otp_verify_wizard
+msgid "Verify Delivery OTP Wizard"
+msgstr "معالج التحقق من كلمة سر التوصيل"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+#: model:ir.actions.act_window,name:delivery_otp_confirm.action_delivery_otp_verify_wizard
+#: model_terms:ir.ui.view,arch_db:delivery_otp_confirm.view_picking_form_otp_buttons
+msgid "Verify OTP"
+msgstr "التحقق من كلمة السر"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields.selection,name:delivery_otp_confirm.selection__res_config_settings__otp_send_channel__whatsapp
+msgid "WhatsApp"
+msgstr "واتساب"
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid ""
+"WhatsApp module (TAG_whats_18) is not installed. Please install it to use "
+"this feature."
+msgstr ""
+"وحدة واتساب (TAG_whats_18) غير مثبتة. الرجاء تثبيتها لاستخدام "
+"هذه الميزة."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "WhatsApp send failed."
+msgstr "فشل الإرسال عبر واتساب."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "WhatsApp send failed: %s"
+msgstr "فشل الإرسال عبر واتساب: %s"
+
+#. module: delivery_otp_confirm
+#: model:ir.model.fields,help:delivery_otp_confirm.field_res_config_settings__otp_send_channel
+msgid "Which channel to use when the \"Send OTP\" button is clicked."
+msgstr "القناة المستخدمة عند الضغط على زر \"إرسال كلمة السر\"."
+
+#. module: delivery_otp_confirm
+#. odoo-python
+#: code:addons/delivery_otp_confirm/models/delivery_otp.py:0
+#: code:addons/delivery_otp_confirm/models/stock_picking.py:0
+msgid "Your delivery confirmation code is: %s. It will expire in %d minutes."
+msgstr "رمز تأكيد التوصيل الخاص بك هو: %s. ستنتهي صلاحيته خلال %d دقيقة."
+
+#. module: delivery_otp_confirm
+#. odoo-javascript
+#: code:addons/delivery_otp_confirm/static/src/xml/otp_countdown_widget.xml:0
+msgid "— please request a new one."
+msgstr "— الرجاء طلب واحدة جديدة."
