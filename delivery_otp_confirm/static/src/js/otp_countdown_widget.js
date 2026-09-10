@@ -4,6 +4,9 @@ import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { DateTime } from "luxon";
 
+console.log("[OTP Widget] JS file loaded");     // ← ADD THIS
+
+
 export class OtpCountdown extends Component {
     static template = "delivery_otp_confirm.OtpCountdown";
     static props = { ...standardFieldProps };
@@ -75,3 +78,5 @@ export class OtpCountdown extends Component {
 OtpCountdown.supportedTypes = ["datetime"];
 
 registry.category("fields").add("otp_countdown", OtpCountdown);
+
+console.log("[OTP Widget] registered as otp_countdown");   // ← AND THIS
