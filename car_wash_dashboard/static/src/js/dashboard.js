@@ -27,6 +27,7 @@ class CarWashDashboard extends Component {
                 active_total: 0,
                 in_progress: 0,
                 waiting: 0,
+                ready_delivery: 0,
                 ready: 0,
                 station_busy: 0,
                 station_queue: 0,
@@ -37,9 +38,13 @@ class CarWashDashboard extends Component {
                 invoiced_today: 0,
                 posted_invoices_today: 0,
                 receivable_open: 0,
+                pos_orders_today: 0,
+                pos_revenue_today: 0,
+                pos_avg_ticket: 0,
                 data_quality: 100,
                 kpi_domains: {},
                 accounting_domains: {},
+                pos_domains: {},
                 shop_floor_action: "mrp_workorder.action_mrp_display",
                 journey_car: false,
             },
@@ -128,15 +133,40 @@ class CarWashDashboard extends Component {
     }
 
     sceneJourneyStyle() {
-        return `--cc-position:${this.sceneInfo.pos};`;
+        return `--cc-position:${this.heroProgress / 100};`;
     }
 
     sceneTrackStyle() {
-        return `width:${this.sceneInfo.progress}%;`;
+        return `width:${this.heroProgress}%;`;
     }
 
     get heroCar() {
         return this.state.data.journey_car || this.state.data.active_cars?.[0] || false;
+    }
+
+    get heroProgress() {
+        return this.heroCar ? Number(this.heroCar.progress || 0) : this.sceneInfo.progress;
+    }
+
+    get heroSceneEffect() {
+        if (!this.heroCar) return this.state.sceneEffect;
+        return {
+            waiting: "wait",
+            ready: "inspect",
+            washing: "wash",
+            ready_delivery: "ready",
+            done: "ready",
+        }[this.heroCar.status_code] || "wash";
+    }
+
+    get heroStatusTitle() {
+        return this.heroCar?.status_label || this.sceneInfo.title;
+    }
+
+    get heroStatusDescription() {
+        if (!this.heroCar) return this.sceneInfo.desc;
+        const stage = this.heroCar.current_stage || "بانتظار المرحلة";
+        return `${this.heroCar.service_name} · ${stage}`;
     }
 
     get readyCar() {
@@ -152,8 +182,9 @@ class CarWashDashboard extends Component {
             || this.state.data.workcenter_load?.[0] || false;
     }
 
-    stationCode(index) {
-        return `A${index}`;
+    stationCode(station, index) {
+        const match = String(station?.name || "").match(/A\s*(\d+)/i);
+        return match ? `A${match[1]}` : `A${Number(index || 0) + 1}`;
     }
 
     stationKind(station) {
@@ -230,6 +261,11 @@ class CarWashDashboard extends Component {
         const domain = this.state.data.accounting_domains?.[key];
         if (!domain) return;
         this._openWindow({ name: _t("المحاسبة"), res_model: "account.move", domain });
+    }
+
+    openPosOrders() {
+        const domain = this.state.data.pos_domains?.orders_today || [];
+        this._openWindow({ name: _t("طلبات نقطة البيع اليوم"), res_model: "pos.order", domain });
     }
 
     openProduct(id) {
