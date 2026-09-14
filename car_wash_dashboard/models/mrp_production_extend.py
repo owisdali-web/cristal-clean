@@ -71,36 +71,71 @@ class MrpProduction(models.Model):
     @api.model
     def _cw_wash_domain(self):
         domain = [('company_id', '=', self.env.company.id)]
-        if 'x_cc_is_wash_order' in self._fields:
+        # POS is the source of truth in this database.  The installed
+        # ``pos_mrp_order`` module marks every sellable wash service with
+        # ``to_make_mrp`` and creates the MO from that product.  Prefer this
+        # standard, populated relation over optional Studio flags which may
+        # exist but are not populated on older/current records.
+        if 'to_make_mrp' in self.env['product.template']._fields:
+            domain.append(('product_id.product_tmpl_id.to_make_mrp', '=', True))
+        elif 'x_cc_is_wash_order' in self._fields:
             domain.append(('x_cc_is_wash_order', '=', True))
+        else:
+            domain.append(('origin', '=like', 'POS-%'))
         return domain
+
+    @api.model
+    def _cw_workorder_wash_domain(self):
+        if 'to_make_mrp' in self.env['product.template']._fields:
+            return [('production_id.product_id.product_tmpl_id.to_make_mrp', '=', True)]
+        if 'x_cc_is_wash_order' in self._fields:
+            return [('production_id.x_cc_is_wash_order', '=', True)]
+        return [('production_id.origin', '=like', 'POS-%')]
 
     @api.model
     def _cw_service_templates(self):
         ProductTemplate = self.env['product.template']
-        domain = [('active', '=', True), ('type', '=', 'service')]
-        if 'x_cc_recipe_bom_id' in ProductTemplate._fields:
+        domain = [('active', '=', True)]
+        if 'to_make_mrp' in ProductTemplate._fields:
+            domain.append(('to_make_mrp', '=', True))
+        elif 'x_cc_recipe_bom_id' in ProductTemplate._fields:
             domain.append(('x_cc_recipe_bom_id', '!=', False))
         return ProductTemplate.search(domain)
 
     @api.model
     def _cw_material_products(self, service_templates):
         Product = self.env['product.product']
-        if not service_templates or 'x_cc_recipe_bom_id' not in service_templates._fields:
+        if not service_templates:
             return Product.browse()
-        products = Product.browse()
-        for bom in service_templates.mapped('x_cc_recipe_bom_id'):
-            products |= bom.bom_line_ids.mapped('product_id')
-        return products
+        Bom = self.env['mrp.bom']
+        boms = Bom.search([
+            '|',
+            ('product_tmpl_id', 'in', service_templates.ids),
+            ('product_id', 'in', service_templates.mapped('product_variant_ids').ids),
+        ])
+        return boms.mapped('bom_line_ids.product_id')
+
+    @api.model
+    def _cw_pos_order_for_mo(self, mo):
+        """Resolve the real POS ticket without creating a hard data link."""
+        if 'pos.order' not in self.env or not (mo.origin or '').startswith('POS-'):
+            return self.env['pos.order'] if 'pos.order' in self.env else False
+        return self.env['pos.order'].search([
+            ('company_id', '=', mo.company_id.id),
+            ('name', '=', mo.origin[4:]),
+        ], limit=1)
 
     @api.model
     def _cw_mo_vehicle_payload(self, mo):
         sale = mo.sale_line_id.order_id if mo.sale_line_id else self.env['sale.order']
+        pos_order = self._cw_pos_order_for_mo(mo)
         service = False
         if 'x_cc_service_product_id' in mo._fields:
             service = mo.x_cc_service_product_id
         if not service and mo.sale_line_id:
             service = mo.sale_line_id.product_id
+        if not service:
+            service = mo.product_id
 
         def mo_value(field_name):
             return getattr(mo, field_name, False) if field_name in mo._fields else False
@@ -137,12 +172,30 @@ class MrpProduction(models.Model):
         else:
             status_code, status_label = 'waiting', 'في الانتظار'
 
+        order_reference = (
+            mo_value('x_cc_sale_order_ref')
+            or mo.origin
+            or (sale.name if sale else '')
+            or (pos_order.name if pos_order else '')
+            or mo.name
+            or ''
+        )
+        customer = (
+            sale.partner_id.display_name if sale and sale.partner_id
+            else pos_order.partner_id.display_name if pos_order and pos_order.partner_id
+            else ''
+        )
+        public_reference = plate or (
+            (pos_order.name or '').rsplit('/', 1)[-1] if pos_order else ''
+        ) or mo.name or ''
+
         return {
             'id': mo.id,
             'name': mo.name or '',
-            'sale_order': mo_value('x_cc_sale_order_ref') or mo.origin or (sale.name if sale else '') or '',
-            'customer': sale.partner_id.display_name if sale and sale.partner_id else '',
+            'sale_order': order_reference,
+            'customer': customer,
             'plate': plate or 'بدون لوحة',
+            'public_reference': public_reference,
             'vehicle_model': model or '',
             'vehicle_color': color or '',
             'vehicle_notes': notes or '',
@@ -186,6 +239,7 @@ class MrpProduction(models.Model):
             'in_progress': base + [('state', '=', 'progress')],
             'done_today': base + [('state', '=', 'done'), ('date_finished', '>=', today_start), ('date_finished', '<', today_end)],
             'waiting': base + [('state', '=', 'confirmed')],
+            'ready_delivery': base + [('state', '=', 'to_close')],
             'active_total': base + [('state', 'not in', ['done', 'cancel'])],
         }
         kpis = {key: self.search_count(domain) for key, domain in kpi_domains.items()}
@@ -223,8 +277,7 @@ class MrpProduction(models.Model):
             ('production_id.state', 'not in', ['done', 'cancel']),
             ('state', 'in', ACTIVE_WO_STATES),
         ]
-        if 'x_cc_is_wash_order' in self._fields:
-            wo_base.append(('production_id.x_cc_is_wash_order', '=', True))
+        wo_base += self._cw_workorder_wash_domain()
 
         workorders = Workorder.search(wo_base)
 
@@ -236,8 +289,7 @@ class MrpProduction(models.Model):
                 ('date_finished', '>=', today_start),
                 ('date_finished', '<', today_end),
             ]
-            if 'x_cc_is_wash_order' in self._fields:
-                finished_domain.append(('production_id.x_cc_is_wash_order', '=', True))
+            finished_domain += self._cw_workorder_wash_domain()
             finished_wo = Workorder.search(finished_domain)
             real = sum(finished_wo.mapped('duration'))
             expected = sum(finished_wo.mapped('duration_expected'))
@@ -419,6 +471,31 @@ class MrpProduction(models.Model):
         avg_ticket = round(revenue_today / wash_sales_orders_today, 2) if wash_sales_orders_today else 0.0
 
         # ------------------------------------------------------------------
+        # 4b) Point of Sale: the real commercial source for this wash center.
+        # ------------------------------------------------------------------
+        pos_domains = {}
+        pos_orders_today = 0
+        pos_revenue_today = 0.0
+        pos_avg_ticket = 0.0
+        if 'pos.order' in self.env and 'pos.order.line' in self.env:
+            PosLine = self.env['pos.order.line']
+            pos_line_domain = [
+                ('order_id.company_id', '=', company.id),
+                ('order_id.date_order', '>=', today_start),
+                ('order_id.date_order', '<', today_end),
+                ('order_id.state', 'in', ['paid', 'done', 'invoiced']),
+                ('product_id', 'in', service_products.ids),
+            ]
+            pos_lines_today = PosLine.search(pos_line_domain)
+            pos_order_records = pos_lines_today.mapped('order_id')
+            pos_orders_today = len(pos_order_records)
+            pos_revenue_today = round(sum(pos_lines_today.mapped('price_subtotal_incl')), 2)
+            pos_avg_ticket = round(pos_revenue_today / pos_orders_today, 2) if pos_orders_today else 0.0
+            pos_domains['orders_today'] = [
+                ('id', 'in', pos_order_records.ids),
+            ]
+
+        # ------------------------------------------------------------------
         # 5) Accounting KPIs (posted customer invoices only)
         # ------------------------------------------------------------------
         accounting_domains = {}
@@ -511,7 +588,12 @@ class MrpProduction(models.Model):
                 ('create_date', '<', today_end),
             ]
             if 'production_id' in Scrap._fields:
-                scrap_domain += [('production_id.x_cc_is_wash_order', '=', True)] if 'x_cc_is_wash_order' in self._fields else [('production_id', '!=', False)]
+                if 'to_make_mrp' in self.env['product.template']._fields:
+                    scrap_domain += [('production_id.product_id.product_tmpl_id.to_make_mrp', '=', True)]
+                elif 'x_cc_is_wash_order' in self._fields:
+                    scrap_domain += [('production_id.x_cc_is_wash_order', '=', True)]
+                else:
+                    scrap_domain += [('production_id.origin', '=like', 'POS-%')]
             scraps = Scrap.search(scrap_domain)
             scrap_count = len(scraps)
             scrap_qty = round(sum(scraps.mapped('scrap_qty')), 2)
@@ -525,7 +607,7 @@ class MrpProduction(models.Model):
         data_quality = round((known_plate_count / len(active_cars)) * 100, 1) if active_cars else 100.0
 
         return {
-            'dashboard_version': '5.0-concept-replica',
+            'dashboard_version': '6.0-operations-command-center',
             'company_id': company.id,
             'company_name': company.display_name,
             'currency_symbol': company.currency_id.symbol or '',
@@ -546,6 +628,9 @@ class MrpProduction(models.Model):
             'wash_sales_orders_today': wash_sales_orders_today,
             'avg_ticket': avg_ticket,
             'pending_quotations': pending_quotations,
+            'pos_orders_today': pos_orders_today,
+            'pos_revenue_today': pos_revenue_today,
+            'pos_avg_ticket': pos_avg_ticket,
             'invoiced_today': invoiced_today,
             'posted_invoices_today': posted_invoices_today,
             'receivable_open': receivable_open,
@@ -566,7 +651,9 @@ class MrpProduction(models.Model):
             'mfg_domains': mfg_domains,
             'sale_domains': sale_domains,
             'accounting_domains': accounting_domains,
+            'pos_domains': pos_domains,
             'scrap_domain': scrap_domain,
             'today_start': today_start,
+            'journey_car': active_cars[0] if active_cars else False,
             'shop_floor_action': 'mrp_workorder.action_mrp_display',
         }
