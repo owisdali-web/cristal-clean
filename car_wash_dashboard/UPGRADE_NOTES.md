@@ -1,3 +1,24 @@
+# Car Wash Dashboard 18.0.6.0 — Operations Command Center
+
+## Database-backed corrections
+- Wash orders now follow the populated POS configuration (`to_make_mrp`) instead
+  of excluding real orders when an unused optional Studio flag exists.
+- Active work orders, station load, completed orders and scrap use the same
+  wash-order definition.
+- Service materials are resolved from the real standard BoMs.
+- POS ticket, customer and service information are resolved from the actual MO
+  origin and product; no vehicle or plate information is invented.
+- Added real POS order count and wash-service revenue for the current day.
+- Added an explicit `to_close` / ready-for-delivery KPI.
+
+## Interface improvements
+- Fixed the `Aundefined` station code defect.
+- The main car and journey now reflect the active Odoo order and stage.
+- When no plate exists, the public POS ticket number is shown instead.
+- Customer lounge states now use live waiting/working/ready data.
+- Added a denser, responsive command-center visual layer with clearer live,
+  queue and ready states, plus reduced-motion support.
+
 # Car Wash Dashboard 18.0.5.2 — OWL Template Runtime Fix
 
 ## Root cause fixed
