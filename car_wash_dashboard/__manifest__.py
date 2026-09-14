@@ -1,6 +1,7 @@
 {
     'name': 'Crystal Clean Car Wash Dashboard',
     'version': '18.0.6.0',
+    'license': 'LGPL-3',
     'category': 'Operations/Car Wash',
     'summary': 'Crystal Clean concept-replica dashboard with live Odoo operations data',
     'author': 'Crystal Clean',
