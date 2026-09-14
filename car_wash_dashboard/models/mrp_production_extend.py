@@ -95,12 +95,18 @@ class MrpProduction(models.Model):
     @api.model
     def _cw_service_templates(self):
         ProductTemplate = self.env['product.template']
-        domain = [('active', '=', True)]
+        templates = ProductTemplate.browse()
         if 'to_make_mrp' in ProductTemplate._fields:
-            domain.append(('to_make_mrp', '=', True))
-        elif 'x_cc_recipe_bom_id' in ProductTemplate._fields:
-            domain.append(('x_cc_recipe_bom_id', '!=', False))
-        return ProductTemplate.search(domain)
+            templates |= ProductTemplate.search([
+                ('active', '=', True),
+                ('to_make_mrp', '=', True),
+            ])
+        if 'x_cc_recipe_bom_id' in ProductTemplate._fields:
+            templates |= ProductTemplate.search([
+                ('active', '=', True),
+                ('x_cc_recipe_bom_id', '!=', False),
+            ])
+        return templates
 
     @api.model
     def _cw_material_products(self, service_templates):
@@ -113,6 +119,11 @@ class MrpProduction(models.Model):
             ('product_tmpl_id', 'in', service_templates.ids),
             ('product_id', 'in', service_templates.mapped('product_variant_ids').ids),
         ])
+        # The live database also keeps curated wash recipes in a Studio field.
+        # Combine both sources: POS/MRP BoMs define operational services while
+        # the curated recipe relation preserves the full material catalogue.
+        if 'x_cc_recipe_bom_id' in service_templates._fields:
+            boms |= service_templates.mapped('x_cc_recipe_bom_id')
         return boms.mapped('bom_line_ids.product_id')
 
     @api.model
