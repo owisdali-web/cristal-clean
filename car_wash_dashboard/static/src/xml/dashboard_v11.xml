@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="car_wash_dashboard.DashboardV9">
+  <div class="cc11-root" dir="rtl">
+    <div t-if="state.loading" class="cc11-loader">
+      <img src="/car_wash_dashboard/static/src/img/premium_real/logo_white.png" alt="Crystal Clean"/>
+      <strong>يتم تجهيز لوحة كريستال كلين...</strong>
+      <span></span>
+    </div>
+
+    <div t-else="" class="cc11-app">
+      <header class="cc11-hero">
+        <div class="cc11-hero-shade"></div>
+        <img class="cc11-brand-logo" src="/car_wash_dashboard/static/src/img/premium_real/logo_white.png" alt="Crystal Clean"/>
+        <div class="cc11-hero-copy">
+          <h1>نظام إدارة مغاسل السيارات</h1>
+          <p>تشغيل أذكى .. تجربة أنظف .. عملاء أكثر سعادة</p>
+        </div>
+        <div class="cc11-hero-slogan">
+          <b>بريق</b><b>يستمر</b><b>معك</b>
+          <small>CLEANER CARS · HAPPIER PEOPLE</small>
+        </div>
+      </header>
+
+      <div class="cc11-frame">
+        <div class="cc11-toolbar">
+          <nav class="cc11-tabs">
+            <button t-att-class="state.page === 'dashboard' ? 'active' : ''" t-on-click="() => this.setPage('dashboard')"><i class="fa fa-home"></i><span>لوحة</span></button>
+            <button t-att-class="state.page === 'customers' ? 'active' : ''" t-on-click="() => this.setPage('customers')"><i class="fa fa-television"></i><span>زبائن</span></button>
+            <button t-att-class="state.page === 'finance' ? 'active' : ''" t-on-click="() => this.setPage('finance')"><i class="fa fa-cubes"></i><span>مواد</span></button>
+            <button t-att-class="state.page === 'hr' ? 'active' : ''" t-on-click="() => this.setPage('hr')"><i class="fa fa-users"></i><span>موارد</span></button>
+            <button t-att-class="state.page === 'clients' ? 'active' : ''" t-on-click="() => this.setPage('clients')"><i class="fa fa-user"></i><span>عملاء</span></button>
+          </nav>
+          <div class="cc11-session">
+            <div class="cc11-user"><span t-esc="userInitial"></span><div><b t-esc="state.data.current_user_name || 'المستخدم الحالي'"></b><small t-esc="state.data.company_name"></small></div></div>
+            <div class="cc11-clock"><small t-esc="dateLabel"></small><b t-esc="timeLabel"></b></div>
+            <button class="cc11-refresh" t-on-click="manualRefresh" title="تحديث"><i class="fa fa-refresh"></i></button>
+          </div>
+        </div>
+
+        <!-- CONTROL BOARD -->
+        <section t-if="state.page === 'dashboard'" class="cc11-page cc11-dashboard">
+          <div class="cc11-page-title">
+            <div><h2>لوحة التحكم الرئيسية</h2><p>مراقبة المحطات والعمليات في الوقت الفعلي</p></div>
+            <span class="cc11-live"><i></i> مباشر</span>
+          </div>
+
+          <div class="cc11-kpis">
+            <button t-on-click="() => this.setPage('finance')" class="green"><i class="fa fa-money"></i><div><small>إيرادات اليوم</small><b t-esc="formatMoney(state.data.pos_page.revenue_today)"></b><em>من نقطة البيع</em></div></button>
+            <button t-on-click="() => this.openKpi('total_today')" class="blue"><i class="fa fa-car"></i><div><small>إجمالي السيارات اليوم</small><b t-esc="state.data.total_today"></b><em>أمر غسيل</em></div></button>
+            <button t-on-click="() => this.openKpi('in_progress')" class="orange"><i class="fa fa-circle-o-notch"></i><div><small>قيد التنفيذ حالياً</small><b t-esc="state.data.in_progress"></b><em>سيارة</em></div></button>
+            <button t-on-click="() => this.openKpi('waiting')" class="amber"><i class="fa fa-hourglass-half"></i><div><small>في الانتظار</small><b t-esc="state.data.waiting"></b><em>سيارة</em></div></button>
+            <button t-on-click="() => this.openKpi('ready_delivery')" class="emerald"><i class="fa fa-check-circle"></i><div><small>جاهزة للتسليم</small><b t-esc="state.data.ready_delivery"></b><em>سيارة</em></div></button>
+            <article class="cc11-standard">
+              <img src="/car_wash_dashboard/static/src/img/premium_real/station_worker.webp" alt=""/>
+              <div><b>أعلى معايير النظافة والعناية</b><span>بأحدث التقنيات وفريق متخصص</span><em>CRYSTAL STANDARD</em></div>
+            </article>
+          </div>
+
+          <div class="cc11-station-section">
+            <div class="cc11-section-head"><div><h3>محطات الغسيل</h3><span>الحالة الفعلية لكل محطة الآن</span></div><button t-on-click="openShopFloor"><i class="fa fa-external-link"></i> شاشة التشغيل</button></div>
+            <div class="cc11-stations-grid">
+              <t t-foreach="stationSlots" t-as="station" t-key="station.id">
+                <button t-att-class="'cc11-station is-' + stationStatus(station) + ' kind-' + stationKind(station)" t-on-click="() => this.openWorkcenter(station)">
+                  <div class="cc11-station-top"><b>المحطة <t t-esc="station.slot"/></b><span t-att-class="'status ' + stationStatus(station)"><i></i><t t-esc="stationStatusLabel(station)"/></span></div>
+                  <div class="cc11-media"><img t-att-src="stationPhoto(station)" alt=""/><span class="cc11-photo-shade"></span><span class="cc11-station-number"><t t-esc="station.slot"/></span></div>
+                  <div class="cc11-station-body">
+                    <t t-if="stationCar(station)">
+                      <strong t-esc="focusedOperation(station).name"></strong>
+                      <small t-esc="stationCar(station).vehicle_model || stationCar(station).service_name"></small>
+                      <div class="cc11-progress"><i t-att-style="progressWidth(stationCar(station).progress)"></i></div>
+                      <div class="cc11-station-meta"><span t-esc="stationCar(station).public_reference || stationCar(station).plate || 'بدون لوحة'"></span><b t-esc="remainingLabel(stationCar(station))"></b></div>
+                    </t>
+                    <t t-else="">
+                      <strong t-esc="stationIdleLabel(station)"></strong>
+                      <small>جاهزة لاستقبال السيارة التالية</small>
+                      <div class="cc11-empty-line"><i class="fa fa-check-circle"></i> جاهزة للعمل</div>
+                    </t>
+                  </div>
+                </button>
+              </t>
+            </div>
+          </div>
+
+          <div class="cc11-preview-row">
+            <button class="cc11-preview" t-on-click="() => this.setPage('finance')"><div><small>المواد والحسابات</small><b><t t-esc="state.data.materials.length"/> مادة تشغيلية</b><span>إيرادات ومخزون وفواتير</span></div><i class="fa fa-cubes"></i></button>
+            <button class="cc11-preview" t-on-click="() => this.setPage('hr')"><div><small>الموارد البشرية</small><b><t t-esc="state.data.client_hr_page.present_today"/> متواجد الآن</b><span>المستخدمون والورديات</span></div><i class="fa fa-users"></i></button>
+            <button class="cc11-preview" t-on-click="() => this.setPage('clients')"><div><small>العملاء</small><b><t t-esc="state.data.client_hr_page.total_customers"/> عميل</b><span>الزيارات والخدمات المفضلة</span></div><i class="fa fa-user"></i></button>
+          </div>
+        </section>
+
+        <!-- CUSTOMER LOUNGE -->
+        <section t-if="state.page === 'customers'" class="cc11-page cc11-customer-page">
+          <div class="cc11-page-title"><div><h2>شاشة الزبائن</h2><p>عرض بسيط ومباشر لصالة الانتظار</p></div><button class="cc11-outline" t-on-click="toggleCustomerFullscreen"><i class="fa fa-arrows-alt"></i> ملء الشاشة</button></div>
+          <div class="cc11-lounge">
+            <div class="cc11-lounge-photo"><img src="/car_wash_dashboard/static/src/img/premium_real/station_auto.webp" alt=""/><span></span><img class="cc11-lounge-logo" src="/car_wash_dashboard/static/src/img/premium_real/logo_white.png" alt=""/></div>
+            <div class="cc11-lounge-info">
+              <t t-if="customerFocusCar">
+                <span class="eyebrow">سيارتك قيد العناية</span>
+                <h3 t-esc="customerFocusCar.public_reference || customerFocusCar.plate || 'رقم الدور'"/>
+                <p t-esc="customerFocusCar.vehicle_model || customerFocusCar.service_name"/>
+                <div class="cc11-lounge-status"><span><i class="fa fa-tint"></i><b t-esc="statusLabel(customerFocusCar)"></b></span><span><i class="fa fa-clock-o"></i><b t-esc="remainingLabel(customerFocusCar)"></b></span></div>
+                <div class="cc11-lounge-progress"><i t-att-style="progressWidth(customerFocusCar.progress)"></i></div>
+                <small><t t-esc="customerFocusCar.progress"/>% مكتمل</small>
+              </t>
+              <t t-else=""><span class="eyebrow">كريستال كلين</span><h3>أهلاً بكم</h3><p>لا توجد سيارات قيد الخدمة حالياً</p></t>
+              <div class="cc11-thanks"><i class="fa fa-heart"></i><div><b>شكراً لاختياركم كريستال كلين</b><span>العناية التي تستحقها سيارتكم</span></div></div>
+            </div>
+          </div>
+          <div class="cc11-ready-strip"><b>جاهزة للتسليم</b><div><t t-foreach="readyCars.slice(0,5)" t-as="car" t-key="car.id"><span><i class="fa fa-check-circle"></i><t t-esc="car.public_reference || car.plate || car.name"/></span></t><small t-if="!readyCars.length">لا توجد سيارات جاهزة الآن</small></div></div>
+        </section>
+
+        <!-- MATERIALS / FINANCE -->
+        <section t-if="state.page === 'finance'" class="cc11-page cc11-data-page">
+          <div class="cc11-page-title"><div><h2>المواد والحسابات</h2><p>المخزون والإيرادات والمصروفات في شاشة واحدة</p></div><button class="cc11-outline" t-on-click="openAccounting">فتح الحسابات</button></div>
+          <div class="cc11-data-kpis">
+            <article><i class="fa fa-cubes"></i><small>عدد المواد</small><b t-esc="state.data.materials.length"></b></article>
+            <article><i class="fa fa-line-chart"></i><small>إيرادات الشهر</small><b t-esc="formatMoney(state.data.pos_page.month_revenue)"></b></article>
+            <article><i class="fa fa-arrow-down"></i><small>مصروفات اليوم</small><b t-esc="formatMoney(state.data.finance_page.expense_today)"></b></article>
+            <article><i class="fa fa-money"></i><small>صافي اليوم</small><b t-esc="formatMoney(state.data.finance_page.net_today)"></b></article>
+          </div>
+          <div class="cc11-data-grid">
+            <article class="cc11-table-card wide"><header><h3>المواد التشغيلية</h3><button t-on-click="openMaterials">عرض الكل</button></header><table><thead><tr><th>المادة</th><th>المتوفر</th><th>الوحدة</th><th>يكفي</th><th>الحالة</th></tr></thead><tbody><t t-foreach="displayMaterials" t-as="item" t-key="item.product_id"><tr t-on-click="() => this.openProduct(item.product_id)"><td><b t-esc="item.product_name"></b></td><td t-esc="item.free"></td><td t-esc="item.uom"></td><td t-esc="materialDaysLabel(item)"></td><td><span t-att-class="'cc11-pill ' + (item.burn_status || 'good')" t-esc="burnStatusLabel(item)"></span></td></tr></t><tr t-if="!displayMaterials.length"><td colspan="5" class="cc11-empty">لا توجد مواد مرتبطة بالخدمات حالياً.</td></tr></tbody></table></article>
+            <article class="cc11-finance-card"><header><h3>ملخص مالي</h3></header><div class="cc11-money-line"><span>المقبوضات</span><b class="up" t-esc="formatMoney(state.data.finance_page.collected_today)"></b></div><div class="cc11-money-line"><span>المصروفات</span><b class="down" t-esc="formatMoney(state.data.finance_page.expense_today)"></b></div><div class="cc11-money-line"><span>صافي التشغيل</span><b t-esc="formatMoney(state.data.finance_page.net_today)"></b></div><div class="cc11-mini-bars"><t t-foreach="state.data.finance_page.week_pos_sales" t-as="item" t-key="item.label"><i t-att-style="financeBarStyle(item)"><small t-esc="item.label"></small></i></t></div></article>
+          </div>
+        </section>
+
+        <!-- HR -->
+        <section t-if="state.page === 'hr'" class="cc11-page cc11-data-page">
+          <div class="cc11-page-title"><div><h2>الموارد البشرية</h2><p>المستخدمون والموظفون والورديات المرتبطة بالتشغيل</p></div><button class="cc11-outline" t-on-click="openUsersList">فتح المستخدمين</button></div>
+          <div class="cc11-data-kpis">
+            <article><i class="fa fa-users"></i><small>إجمالي المستخدمين</small><b t-esc="state.data.client_hr_page.total_users"></b></article>
+            <article><i class="fa fa-user-circle"></i><small>متواجد حالياً</small><b t-esc="state.data.client_hr_page.present_today"></b></article>
+            <article><i class="fa fa-calendar"></i><small>الورديات</small><b t-esc="state.data.client_hr_page.shift_count"></b></article>
+            <article><i class="fa fa-line-chart"></i><small>نسبة الحضور</small><b><t t-esc="state.data.client_hr_page.attendance_rate"/>%</b></article>
+          </div>
+          <article class="cc11-table-card"><header><h3>المستخدمون والموظفون</h3></header><table><thead><tr><th>الموظف</th><th>الوظيفة</th><th>القسم / المحطة</th><th>الوردية</th><th>الحالة</th></tr></thead><tbody><t t-foreach="hrUserRows" t-as="row" t-key="row.id"><tr><td><b t-esc="row.name"></b></td><td t-esc="row.role"></td><td t-esc="row.station || row.department"></td><td t-esc="row.shift"></td><td><span t-att-class="'cc11-pill ' + staffStatusClass(row)" t-esc="row.status_label"></span></td></tr></t><tr t-if="!hrUserRows.length"><td colspan="5" class="cc11-empty">لا توجد بيانات موظفين حالياً.</td></tr></tbody></table></article>
+        </section>
+
+        <!-- CLIENTS -->
+        <section t-if="state.page === 'clients'" class="cc11-page cc11-data-page">
+          <div class="cc11-page-title"><div><h2>العملاء</h2><p>ملف العميل والزيارات والخدمات الأكثر استخداماً</p></div><button class="cc11-outline" t-on-click="openCustomerList">فتح العملاء</button></div>
+          <div class="cc11-data-kpis">
+            <article><i class="fa fa-users"></i><small>إجمالي العملاء</small><b t-esc="state.data.client_hr_page.total_customers"></b></article>
+            <article><i class="fa fa-repeat"></i><small>عملاء متكررون</small><b t-esc="state.data.client_hr_page.repeat_customers"></b></article>
+            <article><i class="fa fa-user-plus"></i><small>هذا الشهر</small><b t-esc="state.data.client_hr_page.new_customers_month"></b></article>
+            <article><i class="fa fa-star"></i><small>أفضل العملاء</small><b t-esc="topCustomerRows.length"></b></article>
+          </div>
+          <article class="cc11-table-card"><header><h3>قائمة العملاء</h3></header><table><thead><tr><th>العميل</th><th>الهاتف</th><th>عدد الزيارات</th><th>آخر زيارة</th><th>الخدمة المفضلة</th></tr></thead><tbody><t t-foreach="clientHrRows.slice(0,12)" t-as="row" t-key="row.id"><tr t-on-click="() => this.openPartner(row.id)"><td><b t-esc="row.name"></b></td><td t-esc="row.phone || '—'"></td><td t-esc="row.visits"></td><td t-esc="row.last_visit || '—'"></td><td t-esc="row.favorite_service || '—'"></td></tr></t><tr t-if="!clientHrRows.length"><td colspan="5" class="cc11-empty">لا توجد بيانات عملاء كافية بعد.</td></tr></tbody></table></article>
+        </section>
+
+        <footer class="cc11-footer"><span>CRYSTAL CLEAN · PREMIUM CAR CARE MANAGEMENT SYSTEM</span><b>كريستال كلين .. حيث تبدأ الرحلة الأنظف</b><span>V11.0.0</span></footer>
+      </div>
+    </div>
+  </div>
+</t>
+</templates>

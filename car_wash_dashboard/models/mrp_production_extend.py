@@ -404,6 +404,390 @@ class MrpProduction(models.Model):
         }
 
     @api.model
+    def _cw_customer_page_payload(self, service_products, today_start, today_end):
+        """Customer analytics derived from real paid POS wash-service orders."""
+        defaults = {
+            'rows': [], 'total': 0, 'repeat': 0, 'new_today': 0, 'inactive_30': 0,
+        }
+        if 'pos.order.line' not in self.env or not service_products:
+            return defaults
+
+        company = self.env.company
+        PosLine = self.env['pos.order.line']
+        year_start = fields.Datetime.to_string(fields.Datetime.now() - timedelta(days=365))
+        lines = PosLine.search([
+            ('order_id.company_id', '=', company.id),
+            ('order_id.date_order', '>=', year_start),
+            ('order_id.state', 'in', ['paid', 'done', 'invoiced']),
+            ('product_id', 'in', service_products.ids),
+            ('order_id.partner_id', '!=', False),
+        ], order='order_id.date_order desc', limit=12000)
+
+        buckets = {}
+        today_partner_ids = set()
+        for line in lines:
+            order = line.order_id
+            partner = order.partner_id
+            if not partner:
+                continue
+            bucket = buckets.setdefault(partner.id, {
+                'partner': partner, 'orders': set(), 'spend': 0.0,
+                'last_visit': False, 'services': defaultdict(float),
+            })
+            bucket['orders'].add(order.id)
+            bucket['spend'] += line.price_subtotal_incl
+            bucket['services'][line.product_id.display_name] += line.qty
+            if order.date_order and (not bucket['last_visit'] or order.date_order > bucket['last_visit']):
+                bucket['last_visit'] = order.date_order
+            if order.date_order and today_start <= fields.Datetime.to_string(order.date_order) < today_end:
+                today_partner_ids.add(partner.id)
+
+        cutoff = fields.Datetime.now() - timedelta(days=30)
+        rows = []
+        repeat = 0
+        inactive = 0
+        for partner_id, vals in buckets.items():
+            partner = vals['partner']
+            visits = len(vals['orders'])
+            if visits > 1:
+                repeat += 1
+            last_visit = vals['last_visit']
+            if last_visit and last_visit < cutoff:
+                inactive += 1
+            favorite = ''
+            if vals['services']:
+                favorite = max(vals['services'].items(), key=lambda item: item[1])[0]
+            rows.append({
+                'id': partner_id,
+                'name': partner.display_name or '',
+                'phone': partner.mobile or partner.phone or '',
+                'visits': visits,
+                'last_visit': fields.Datetime.context_timestamp(self, last_visit).strftime('%Y-%m-%d') if last_visit else '',
+                'total_spend': round(vals['spend'], 2),
+                'favorite_service': favorite,
+            })
+        rows.sort(key=lambda r: (r['visits'], r['total_spend']), reverse=True)
+        return {
+            'rows': rows[:80],
+            'total': len(rows),
+            'repeat': repeat,
+            'new_today': len(today_partner_ids),
+            'inactive_30': inactive,
+        }
+
+    @api.model
+    def _cw_client_hr_payload(self, service_products, today_start, today_end):
+        """Combined customer + internal users payload for the people page."""
+        customer_page = self._cw_customer_page_payload(service_products, today_start, today_end)
+        defaults = {
+            'customer_rows': customer_page.get('rows', []),
+            'top_customers': customer_page.get('rows', [])[:5],
+            'total_customers': customer_page.get('total', 0),
+            'repeat_customers': customer_page.get('repeat', 0),
+            'new_customers_month': 0,
+            'inactive_30': customer_page.get('inactive_30', 0),
+            'user_rows': [],
+            'total_users': 0,
+            'present_today': 0,
+            'attendance_rate': 0.0,
+            'shift_rows': [],
+            'shift_count': 0,
+            'station_workers': 0,
+        }
+
+        company = self.env.company
+        user_domain = [('share', '=', False), ('active', '=', True)]
+        if 'company_ids' in self.env['res.users']._fields:
+            user_domain.append(('company_ids', 'in', company.ids))
+
+        relevant_group_ids = []
+        for xmlid in [
+            'mrp.group_mrp_user', 'mrp.group_mrp_manager',
+            'mrp_workorder.group_mrp_routing',
+            'point_of_sale.group_pos_user', 'point_of_sale.group_pos_manager',
+            'stock.group_stock_user', 'stock.group_stock_manager',
+        ]:
+            rec = self.env.ref(xmlid, raise_if_not_found=False)
+            if rec:
+                relevant_group_ids.append(rec.id)
+        if relevant_group_ids and 'groups_id' in self.env['res.users']._fields:
+            user_domain.append(('groups_id', 'in', relevant_group_ids))
+
+        users = self.env['res.users'].search(user_domain, order='name', limit=40)
+        employee_model = self.env['hr.employee'] if 'hr.employee' in self.env.registry.models else False
+        attendance_model = self.env['hr.attendance'] if 'hr.attendance' in self.env.registry.models else False
+        workcenter_model = self.env['mrp.workcenter'] if 'mrp.workcenter' in self.env.registry.models else False
+        users_count = len(users)
+        present_today = 0
+        shift_map = defaultdict(lambda: {'name': '', 'present': 0, 'total': 0})
+        user_rows = []
+        station_workers = 0
+
+        def shift_label(hour):
+            if hour < 12:
+                return 'صباحي'
+            if hour < 18:
+                return 'مسائي'
+            return 'ليلي'
+
+        today_date = fields.Date.context_today(self)
+        month_start = today_date.replace(day=1)
+        new_customer_ids = set()
+        try:
+            if 'pos.order.line' in self.env and service_products:
+                lines = self.env['pos.order.line'].search([
+                    ('order_id.company_id', '=', company.id),
+                    ('order_id.state', 'in', ['paid', 'done', 'invoiced']),
+                    ('product_id', 'in', service_products.ids),
+                    ('order_id.partner_id', '!=', False),
+                    ('order_id.date_order', '>=', fields.Datetime.to_string(datetime.combine(month_start, time.min))),
+                ], limit=4000)
+                for line in lines:
+                    if line.order_id.partner_id:
+                        new_customer_ids.add(line.order_id.partner_id.id)
+        except Exception:
+            pass
+
+        attendance_cache = {}
+        if attendance_model:
+            for user in users:
+                employee = getattr(user, 'employee_id', False)
+                if not employee and employee_model and 'user_id' in employee_model._fields:
+                    employee = employee_model.search([('user_id', '=', user.id)], limit=1)
+                if employee:
+                    attendance_cache[user.id] = attendance_model.search([
+                        ('employee_id', '=', employee.id),
+                        ('check_in', '>=', today_start),
+                        ('check_in', '<', today_end),
+                    ], order='check_in desc', limit=5)
+
+        workcenter_names = set()
+        if workcenter_model:
+            try:
+                workcenter_names = {w.name for w in workcenter_model.search([])}
+            except Exception:
+                workcenter_names = set()
+
+        for user in users:
+            employee = getattr(user, 'employee_id', False)
+            if not employee and employee_model and 'user_id' in employee_model._fields:
+                employee = employee_model.search([('user_id', '=', user.id)], limit=1)
+
+            checkins = attendance_cache.get(user.id, attendance_model.browse() if attendance_model else [])
+            open_att = checkins.filtered(lambda a: not a.check_out)[:1] if attendance_model else []
+            last_att = checkins[:1] if attendance_model else []
+
+            if open_att:
+                status = 'present'
+                status_label = 'متصل'
+                present_today += 1
+                checkin_dt = fields.Datetime.context_timestamp(self, open_att[0].check_in)
+                shift = shift_label(checkin_dt.hour)
+            elif checkins:
+                status = 'done'
+                status_label = 'أنهى الوردية'
+                checkin_dt = fields.Datetime.context_timestamp(self, last_att[0].check_in)
+                shift = shift_label(checkin_dt.hour)
+            else:
+                status = 'absent'
+                status_label = 'غائب'
+                shift = 'غير محدد'
+                checkin_dt = False
+
+            role = ''
+            department = ''
+            station = ''
+            if employee:
+                role = getattr(employee, 'job_title', False) or (employee.job_id.name if 'job_id' in employee._fields and employee.job_id else '')
+                department = employee.department_id.name if 'department_id' in employee._fields and employee.department_id else ''
+                if 'work_location_name' in employee._fields:
+                    station = employee.work_location_name or ''
+            if not role:
+                role = 'مستخدم تشغيلي'
+            if not department:
+                department = 'التشغيل'
+            if not station:
+                station = department
+            station_workers += 1
+
+            shift_map[shift]['name'] = shift
+            shift_map[shift]['total'] += 1
+            if status == 'present':
+                shift_map[shift]['present'] += 1
+
+            user_rows.append({
+                'id': user.id,
+                'name': user.name or '',
+                'role': role,
+                'department': department,
+                'station': station,
+                'shift': shift,
+                'status': status,
+                'status_label': status_label,
+                'phone': getattr(employee, 'mobile_phone', False) if employee and 'mobile_phone' in employee._fields else (user.partner_id.mobile or user.partner_id.phone or ''),
+                'last_seen': fields.Datetime.context_timestamp(self, user.login_date).strftime('%Y-%m-%d %H:%M') if user.login_date else '',
+            })
+
+        shift_rows = []
+        for key in ['صباحي', 'مسائي', 'ليلي', 'غير محدد']:
+            if key in shift_map:
+                row = shift_map[key]
+                total = row['total'] or 0
+                pct = round((row['present'] / total) * 100, 1) if total else 0.0
+                shift_rows.append({'name': row['name'], 'present': row['present'], 'total': total, 'pct': pct})
+
+        defaults.update({
+            'new_customers_month': len(new_customer_ids),
+            'user_rows': user_rows,
+            'total_users': users_count,
+            'present_today': present_today,
+            'attendance_rate': round((present_today / users_count) * 100, 1) if users_count else 0.0,
+            'shift_rows': shift_rows,
+            'shift_count': len(shift_rows),
+            'station_workers': station_workers,
+        })
+        return defaults
+
+    @api.model
+    def _cw_apply_material_burn_rate(self, materials):
+        """Add real 30-day raw-material consumption and days remaining to material cards."""
+        if not materials or 'stock.move' not in self.env:
+            return materials
+        product_ids = [m['product_id'] for m in materials]
+        Move = self.env['stock.move']
+        if 'raw_material_production_id' not in Move._fields:
+            return materials
+
+        start = fields.Datetime.to_string(fields.Datetime.now() - timedelta(days=30))
+        domain = [
+            ('product_id', 'in', product_ids),
+            ('state', '=', 'done'),
+            ('date', '>=', start),
+            ('raw_material_production_id', '!=', False),
+            ('raw_material_production_id.company_id', '=', self.env.company.id),
+        ]
+        if 'to_make_mrp' in self.env['product.template']._fields:
+            domain.append(('raw_material_production_id.product_id.product_tmpl_id.to_make_mrp', '=', True))
+        elif 'x_cc_is_wash_order' in self._fields:
+            domain.append(('raw_material_production_id.x_cc_is_wash_order', '=', True))
+        else:
+            domain.append(('raw_material_production_id.origin', '=like', 'POS-%'))
+
+        moves = Move.search(domain)
+        qty_field = 'quantity' if 'quantity' in Move._fields else 'product_uom_qty'
+        consumed = defaultdict(float)
+        for move in moves:
+            consumed[move.product_id.id] += abs(getattr(move, qty_field, 0.0) or 0.0)
+
+        for item in materials:
+            total_30 = consumed.get(item['product_id'], 0.0)
+            daily = total_30 / 30.0
+            free = max(0.0, item.get('free', 0.0))
+            days = round(free / daily, 1) if daily > 0 else False
+            item['consumed_30d'] = round(total_30, 2)
+            item['daily_consumption'] = round(daily, 2)
+            item['days_remaining'] = days
+            if item.get('is_low') or (days is not False and days < 3):
+                item['burn_status'] = 'danger'
+            elif days is not False and days < 7:
+                item['burn_status'] = 'warning'
+            else:
+                item['burn_status'] = 'good'
+        return materials
+
+    @api.model
+    def _cw_maintenance_page_payload(self, today):
+        defaults = {
+            'available': False, 'rows': [], 'equipment_count': 0,
+            'due_soon': 0, 'open_faults': 0, 'health_avg': 0,
+        }
+        if 'maintenance.equipment' not in self.env.registry.models:
+            return defaults
+
+        Equipment = self.env['maintenance.equipment']
+        eq_domain = []
+        if 'company_id' in Equipment._fields:
+            eq_domain = ['|', ('company_id', '=', False), ('company_id', '=', self.env.company.id)]
+        equipments = Equipment.search(eq_domain, order='name,id')
+
+        Request = self.env['maintenance.request'] if 'maintenance.request' in self.env.registry.models else False
+        Stage = self.env['maintenance.stage'] if 'maintenance.stage' in self.env.registry.models else False
+        rows = []
+        health_values = []
+        due_soon = 0
+        open_faults = 0
+
+        for eq in equipments[:30]:
+            requests = Request.browse() if Request else False
+            open_requests = Request.browse() if Request else False
+            if Request:
+                requests = Request.search([('equipment_id', '=', eq.id)], order='request_date desc, id desc', limit=30)
+                open_requests = requests
+                if Stage and 'stage_id' in Request._fields:
+                    if 'done' in Stage._fields:
+                        open_requests = requests.filtered(lambda r: not r.stage_id.done)
+                    elif 'fold' in Stage._fields:
+                        open_requests = requests.filtered(lambda r: not r.stage_id.fold)
+
+            corrective = open_requests.filtered(lambda r: getattr(r, 'maintenance_type', '') == 'corrective') if open_requests else open_requests
+            preventive = open_requests.filtered(lambda r: getattr(r, 'maintenance_type', '') == 'preventive') if open_requests else open_requests
+            if corrective:
+                open_faults += 1
+
+            schedule_dates = []
+            if open_requests and 'schedule_date' in Request._fields:
+                schedule_dates = [r.schedule_date for r in open_requests if r.schedule_date]
+            next_date = min(schedule_dates) if schedule_dates else False
+            days_to_next = (next_date - today).days if next_date else False
+            if days_to_next is not False and days_to_next <= 14:
+                due_soon += 1
+
+            if corrective:
+                health = 55
+                status = 'fault'
+                status_label = 'يحتاج متابعة'
+            elif days_to_next is not False and days_to_next <= 7:
+                health = 75
+                status = 'warning'
+                status_label = 'صيانة قريبة'
+            elif preventive:
+                health = 88
+                status = 'warning'
+                status_label = 'مجدولة'
+            else:
+                health = 95
+                status = 'good'
+                status_label = 'جيد'
+            health_values.append(health)
+
+            last_done = False
+            if requests:
+                closed = requests.filtered(lambda r: bool(getattr(r, 'close_date', False))) if 'close_date' in Request._fields else Request.browse()
+                if closed:
+                    last_done = max(closed.mapped('close_date'))
+
+            rows.append({
+                'id': eq.id,
+                'name': eq.display_name or eq.name or 'معدة',
+                'category': eq.category_id.display_name if 'category_id' in eq._fields and eq.category_id else '',
+                'health': health,
+                'status': status,
+                'status_label': status_label,
+                'last_maintenance': fields.Date.to_string(last_done) if last_done else '',
+                'next_maintenance': fields.Date.to_string(next_date) if next_date else '',
+                'open_requests': len(open_requests) if open_requests else 0,
+            })
+
+        return {
+            'available': True,
+            'rows': rows,
+            'equipment_count': len(equipments),
+            'due_soon': due_soon,
+            'open_faults': open_faults,
+            'health_avg': round(sum(health_values) / len(health_values)) if health_values else 100,
+        }
+
+    @api.model
     def _cw_mo_vehicle_payload(self, mo):
         sale = mo.sale_line_id.order_id if mo.sale_line_id else self.env['sale.order']
         pos_order = self._cw_pos_order_for_mo(mo)
@@ -493,6 +877,10 @@ class MrpProduction(models.Model):
             'name': mo.name or '',
             'sale_order': order_reference,
             'customer': customer,
+            'customer_id': (sale.partner_id.id if sale and sale.partner_id else pos_order.partner_id.id if pos_order and pos_order.partner_id else False),
+            'customer_phone': (sale.partner_id.mobile or sale.partner_id.phone if sale and sale.partner_id else pos_order.partner_id.mobile or pos_order.partner_id.phone if pos_order and pos_order.partner_id else '') or '',
+            'pos_amount': round(pos_order.amount_total, 2) if pos_order else 0.0,
+            'payment_state': pos_order.state if pos_order else '',
             'plate': plate or 'بدون لوحة',
             'public_reference': public_reference,
             'vehicle_model': model or '',
@@ -587,6 +975,7 @@ class MrpProduction(models.Model):
         workorders = Workorder.search(wo_base)
 
         wo_efficiency = 0
+        finished_wo = Workorder.browse()
         if {'duration', 'duration_expected', 'date_finished'} <= set(Workorder._fields):
             finished_domain = [
                 ('production_id.company_id', '=', company.id),
@@ -664,6 +1053,11 @@ class MrpProduction(models.Model):
                     icon = mapped_icon
                     break
 
+            wc_done = finished_wo.filtered(lambda w: w.workcenter_id.id == wc.id) if finished_wo else Workorder.browse()
+            wc_real = sum(wc_done.mapped('duration')) if wc_done and 'duration' in Workorder._fields else 0.0
+            wc_expected = sum(wc_done.mapped('duration_expected')) if wc_done and 'duration_expected' in Workorder._fields else 0.0
+            wc_efficiency = round((wc_expected / wc_real) * 100) if wc_real > 0 else 0
+
             workcenter_load.append({
                 'id': wc.id,
                 'name': wc.name or 'محطة غسيل',
@@ -674,6 +1068,8 @@ class MrpProduction(models.Model):
                 # Occupancy, not queue pressure. This intentionally avoids the old misleading 400% figure.
                 'utilization': round((len(in_progress_wos) / capacity) * 100, 1),
                 'queue_pressure': round((len(wc_wos) / capacity) * 100, 1),
+                'efficiency': wc_efficiency,
+                'done_today': len(wc_done),
                 'icon': icon,
                 'cars': current_cars,
                 'domain': wo_base + [('workcenter_id', '=', wc.id)],
@@ -720,7 +1116,7 @@ class MrpProduction(models.Model):
                     ('date_start', '!=', False),
                     ('date_start', '>=', today_start),
                 ],
-                order='date_start asc', limit=8,
+                order='date_start asc', limit=30,
             )
             upcoming = [self._cw_mo_vehicle_payload(mo) for mo in ups]
 
@@ -878,6 +1274,7 @@ class MrpProduction(models.Model):
                 low_stock.append(item)
 
         materials.sort(key=lambda item: (item['free'], item['product_name']))
+        materials = self._cw_apply_material_burn_rate(materials)
 
         # ------------------------------------------------------------------
         # 7) Scrap: only scrap linked to real wash MOs.
@@ -917,6 +1314,8 @@ class MrpProduction(models.Model):
             item.get('free', 0.0) * (self.env['product.product'].browse(item['product_id']).standard_price or 0.0)
             for item in materials
         ), 2)
+        current_user = self.env.user
+        client_hr_page = self._cw_client_hr_payload(service_products, today_start, today_end)
         customer_screen = {
             'cars': sorted(active_cars, key=lambda c: (0 if c.get('status_code') == 'ready_delivery' else 1, -c.get('progress', 0), c.get('elapsed_minutes', 0))),
             'ready_count': sum(1 for c in active_cars if c.get('status_code') == 'ready_delivery'),
@@ -924,9 +1323,21 @@ class MrpProduction(models.Model):
             'waiting_count': sum(1 for c in active_cars if c.get('status_code') in ('waiting', 'ready')),
             'avg_turnaround': avg_turnaround,
         }
+        customer_page = self._cw_customer_page_payload(service_products, today_start, today_end)
+        maintenance_page = self._cw_maintenance_page_payload(today)
+        station_utilization = round(sum(w.get('utilization', 0.0) for w in workcenter_load) / len(workcenter_load), 1) if workcenter_load else 0.0
+        reports_page = {
+            'avg_service_minutes': avg_turnaround,
+            'workorder_efficiency': wo_efficiency,
+            'station_utilization': station_utilization,
+            'data_quality': data_quality,
+            'trend': trend,
+            'hourly': pos_extra.get('hourly', []),
+            'top_services': pos_extra.get('top_services', []),
+        }
 
         return {
-            'dashboard_version': '9.0-pixel-show',
+            'dashboard_version': '11.0-premium-real',
             'company_id': company.id,
             'company_name': company.display_name,
             'currency_symbol': company.currency_id.symbol or '',
@@ -978,6 +1389,13 @@ class MrpProduction(models.Model):
             'pos_page': pos_extra,
             'finance_page': finance_extra,
             'customer_screen': customer_screen,
+            'customer_page': customer_page,
+            'client_hr_page': client_hr_page,
+            'current_user_name': current_user.name or '',
+            'current_user_initial': (current_user.name or 'U')[:1],
+            'current_user_role': '',
+            'maintenance_page': maintenance_page,
+            'reports_page': reports_page,
             'stock_value': stock_value,
             'bus_channel': self._cw_dashboard_channel(company.id),
             'realtime_enabled': 'bus.bus' in self.env.registry.models,

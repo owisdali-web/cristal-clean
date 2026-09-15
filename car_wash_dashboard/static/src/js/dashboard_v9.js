@@ -16,7 +16,7 @@ export class CarWashDashboardV9 extends Component {
         this.bus = useService("bus_service");
         this.state = useState({
             loading: true, page: "dashboard", query: "", lastUpdate: "", realtime: false,
-            livePulse: false, liveMessage: "", animationTick: 0, customerFocusIndex: 0,
+            livePulse: false, liveMessage: "", animationTick: 0, customerFocusIndex: 0, selectedCarId: false, selectedStationId: false, vehicleFilter: "all", reportPeriod: "week",
             data: this.emptyData(),
         });
         this.refreshTimer = null; this.animationTimer = null; this.customerTimer = null;
@@ -37,12 +37,16 @@ export class CarWashDashboardV9 extends Component {
 
     emptyData() {
         return {
-            dashboard_version: "9.0-pixel-show", company_id: false, company_name: "كريستال كلين", currency_symbol: "",
+            dashboard_version: "11.0-premium-real", company_id: false, company_name: "كريستال كلين", currency_symbol: "", current_user_name: "", current_user_initial: "U", current_user_role: "",
             active_total: 0, in_progress: 0, waiting: 0, ready_delivery: 0, done_today: 0, total_today: 0,
             overdue: 0, avg_turnaround: 0, workcenter_load: [], active_cars: [], materials: [], low_stock: [], upcoming: [],
             pos_page: { orders: [], top_services: [], hourly: [], orders_today: 0, revenue_today: 0, avg_ticket: 0, customers_today: 0, month_revenue: 0, month_orders: 0 },
             finance_page: { recent_moves: [], expense_breakdown: [], week_pos_sales: [], customer_invoices_today: 0, vendor_bills_today: 0, receivable_open: 0, payable_open: 0, pos_revenue_today: 0, pos_month_revenue: 0, collected_today: 0, expense_today: 0, net_today: 0, month_expense: 0 },
             customer_screen: { cars: [], ready_count: 0, washing_count: 0, waiting_count: 0, avg_turnaround: 0 },
+            customer_page: { rows: [], total: 0, repeat: 0, new_today: 0, inactive_30: 0 },
+            client_hr_page: { customer_rows: [], top_customers: [], total_customers: 0, repeat_customers: 0, new_customers_month: 0, inactive_30: 0, user_rows: [], total_users: 0, present_today: 0, attendance_rate: 0, shift_rows: [], shift_count: 0, station_workers: 0 },
+            maintenance_page: { available: false, rows: [], equipment_count: 0, due_soon: 0, open_faults: 0, health_avg: 0 },
+            reports_page: { avg_service_minutes: 0, workorder_efficiency: 0, station_utilization: 0, data_quality: 0, trend: [], hourly: [], top_services: [] },
             stock_value: 0, bus_channel: "", realtime_enabled: false, kpi_domains: {}, accounting_domains: {}, pos_domains: {},
             shop_floor_action: "mrp_workorder.action_mrp_display",
         };
@@ -86,10 +90,18 @@ export class CarWashDashboardV9 extends Component {
     }
 
     async manualRefresh() { await this.fetchData(); this.notification.add(_t("تم تحديث البيانات"), { type: "success" }); }
-    setPage(page) { this.state.page = page; this.state.query = ""; if (page === "customers") this.state.customerFocusIndex = 0; }
+    setPage(page) {
+        this.state.page = page;
+        this.state.query = "";
+        if (page === "customers") this.state.customerFocusIndex = 0;
+        if (page === "vehicles" && !this.state.selectedCarId && this.state.data.active_cars?.length) this.state.selectedCarId = this.state.data.active_cars[0].id;
+        if (page === "stations" && !this.state.selectedStationId && this.stationSlots.length) this.state.selectedStationId = this.stationSlots[0].id;
+    }
     onSearchInput(ev) { this.state.query = ev.target.value || ""; }
     get dateLabel() { return new Intl.DateTimeFormat("ar", { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(new Date()); }
     get timeLabel() { return new Date().toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" }); }
+    get userInitial() { return (this.state.data.current_user_initial || this.state.data.current_user_name || 'U').toString().trim().charAt(0) || 'U'; }
+    get userSubLabel() { return this.state.data.current_user_role || this.state.data.company_name || 'المستخدم الحالي'; }
     formatMoney(v) { return `${Number(v || 0).toLocaleString("ar", { maximumFractionDigits: 2 })} ${this.state.data.currency_symbol || ""}`; }
     formatCount(v) { return `${Number(v || 0)}`.padStart(2, "0"); }
 
@@ -165,6 +177,28 @@ export class CarWashDashboardV9 extends Component {
         if (kind === "polish") return "تلميع ولمعة";
         return "جاهزة لاستقبال السيارات";
     }
+    stationPhoto(station) {
+        const base = "/car_wash_dashboard/static/src/img/premium_real/";
+        const kind = this.stationKind(station);
+        if (kind === "auto") return base + "station_auto.webp";
+        if (kind === "polish") return base + "station_worker.webp";
+        const photos = [
+            "station_toyota.webp",
+            "station_nissan.webp",
+            "station_worker.webp",
+            "station_mercedes.webp",
+            "hero_storefront.webp",
+            "parking_overhead.webp",
+            "night_lineup.webp",
+            "station_toyota.webp",
+        ];
+        const slot = Math.max(1, Number(station?.slot || 1));
+        return base + photos[(slot - 1) % photos.length];
+    }
+    progressWidth(value) {
+        const pct = Math.max(0, Math.min(100, Number(value || 0)));
+        return `--cc11-progress:${pct}%`;
+    }
     stationOperations(station) { const car = this.stationCar(station); return (car?.operations || []).filter(op => op.state !== "done").slice(0, 4); }
     operationKind(name) { const t = `${name || ""}`.toLowerCase(); if (t.includes("آلي") || t.includes("الي") || t.includes("auto")) return "auto"; if (t.includes("لمعة") || t.includes("تلميع") || t.includes("باستا")) return "polish"; if (t.includes("داخلي") || t.includes("صالون") || t.includes("صالة") || t.includes("فرشة") || t.includes("سقف")) return "interior"; if (t.includes("عميق")) return "deep"; if (t.includes("فودرة")) return "powder"; if (t.includes("محرك")) return "engine"; if (t.includes("سفلي")) return "underbody"; if (t.includes("فحص")) return "qc"; return "external"; }
     focusedOperation(station) { const ops = this.stationOperations(station); if (!ops.length) return { name: this.stationCar(station)?.current_stage || station?.name || "جاهزة", kind: this.operationKind(this.stationCar(station)?.current_stage || station?.name) }; const op = ops[this.state.animationTick % ops.length]; return { ...op, kind: op.kind || this.operationKind(op.name) }; }
@@ -173,6 +207,84 @@ export class CarWashDashboardV9 extends Component {
     statusLabel(car) { return car?.status_label || "في الانتظار"; }
     carDurationLabel(car) { const m = Number(car?.elapsed_minutes || 0); return m < 60 ? `${m} دقيقة` : `${Math.floor(m / 60)}س ${m % 60}د`; }
     remainingLabel(car) { const m = Number(car?.remaining_minutes || 0); return m ? `متبقي ${m} دقيقة` : "الوقت يحدّث حسب المراحل"; }
+
+    get vehiclePageCars() {
+        const cars = this.filteredCars;
+        const filter = this.state.vehicleFilter;
+        if (filter === "service") return cars.filter(c => ["washing", "ready"].includes(c.status_code));
+        if (filter === "waiting") return cars.filter(c => c.status_code === "waiting");
+        if (filter === "ready") return cars.filter(c => c.status_code === "ready_delivery");
+        return cars;
+    }
+    setVehicleFilter(filter) { this.state.vehicleFilter = filter; this.state.selectedCarId = false; }
+    selectCar(id) { this.state.selectedCarId = id; }
+    get selectedCar() {
+        const rows = this.vehiclePageCars;
+        return rows.find(c => c.id === this.state.selectedCarId) || rows[0] || null;
+    }
+    progressStyle(value) { return `--cc10-progress:${Math.max(0, Math.min(100, Number(value || 0)))}%`; }
+    get appointmentRows() { return this.state.data.upcoming || []; }
+    appointmentStatus(car) {
+        if (car?.status_code === "ready_delivery") return { code: "done", label: "مكتمل" };
+        if (car?.elapsed_minutes > 0 && car?.status_code === "waiting") return { code: "late", label: "متأخر" };
+        if (car?.status_code === "waiting") return { code: "waiting", label: "في الانتظار" };
+        return { code: "scheduled", label: "مجدول" };
+    }
+    get appointmentCompleted() { return this.appointmentRows.filter(c => this.appointmentStatus(c).code === "done").length; }
+    get appointmentLate() { return this.appointmentRows.filter(c => this.appointmentStatus(c).code === "late").length; }
+    get appointmentWaiting() { return this.appointmentRows.filter(c => ["waiting", "late"].includes(this.appointmentStatus(c).code)).length; }
+    selectStation(id) { this.state.selectedStationId = id; }
+    get selectedStation() { return this.stationSlots.find(s => s.id === this.state.selectedStationId) || this.stationSlots[0] || null; }
+    get clientRows() {
+        const q = this.state.query.trim().toLowerCase();
+        const rows = this.state.data.customer_page?.rows || [];
+        if (!q) return rows;
+        return rows.filter(r => [r.name, r.phone, r.favorite_service].some(v => `${v || ""}`.toLowerCase().includes(q)));
+    }
+    get clientHrRows() {
+        const q = this.state.query.trim().toLowerCase();
+        const rows = this.state.data.client_hr_page?.customer_rows || this.state.data.customer_page?.rows || [];
+        if (!q) return rows;
+        return rows.filter(r => [r.name, r.phone, r.favorite_service].some(v => `${v || ""}`.toLowerCase().includes(q)));
+    }
+    get hrUserRows() {
+        const q = this.state.query.trim().toLowerCase();
+        const rows = this.state.data.client_hr_page?.user_rows || [];
+        if (!q) return rows;
+        return rows.filter(r => [r.name, r.role, r.department, r.station, r.phone].some(v => `${v || ""}`.toLowerCase().includes(q)));
+    }
+    get topCustomerRows() { return this.state.data.client_hr_page?.top_customers || []; }
+    staffStatusClass(row) { return `is-${row?.status || 'present'}`; }
+    shiftBarStyle(item) { return `--cc10-progress:${Math.max(0, Math.min(100, Number(item?.pct || 0)))}%`; }
+    openPartner(id) { return this.action.doAction({ type: "ir.actions.act_window", res_model: "res.partner", res_id: id, views: [[false, "form"]], target: "current" }); }
+    openCustomerList() { return this._openWindow({ name: _t("العملاء"), res_model: "res.partner", domain: [["customer_rank", ">", 0]] }); }
+    openUsersList() { return this._openWindow({ name: _t('المستخدمون'), res_model: 'res.users', domain: [['share', '=', false]] }); }
+    materialDaysLabel(item) { return item?.days_remaining === false || item?.days_remaining === undefined ? "لا يوجد معدل كافٍ" : `يكفي ${item.days_remaining} يوم`; }
+    get averageMaterialDays() { const rows = (this.state.data.materials || []).filter(x => x.days_remaining !== false && x.days_remaining !== undefined); return rows.length ? Math.round(rows.reduce((a,x) => a + Number(x.days_remaining || 0), 0) / rows.length) : 0; }
+    burnStatusLabel(item) { return { danger: "منخفض", warning: "متابعة", good: "جيد" }[item?.burn_status] || "جيد"; }
+    get reportTrendMax() { return Math.max(1, ...(this.state.data.reports_page?.trend || []).map(x => Number(x.count || 0))); }
+    reportTrendStyle(item) { return `--cc10-column:${Math.max(4, Math.round((Number(item?.count || 0) / this.reportTrendMax) * 100))}%`; }
+    get reportHourlyMax() { return Math.max(1, ...(this.state.data.reports_page?.hourly || []).map(x => Number(x.amount || 0))); }
+    heatLevel(item) { const p = Math.round((Number(item?.amount || 0) / this.reportHourlyMax) * 4); return `level-${Math.max(0, Math.min(4, p))}`; }
+    get serviceMixMax() { return Math.max(1, ...(this.state.data.reports_page?.top_services || []).map(x => Number(x.qty || 0))); }
+    serviceMixStyle(item) { return `--cc10-progress:${Math.round((Number(item?.qty || 0) / this.serviceMixMax) * 100)}%`; }
+    maintenanceStatusClass(row) { return `is-${row?.status || "good"}`; }
+    get maintenanceRows() { return this.state.data.maintenance_page?.rows || []; }
+    openMaintenance() {
+        if (!this.state.data.maintenance_page?.available) {
+            this.notification.add(_t("تطبيق الصيانة غير متوفر في هذه القاعدة"), { type: "warning" });
+            return;
+        }
+        return this._openWindow({ name: _t("المعدات والصيانة"), res_model: "maintenance.equipment", domain: [] });
+    }
+    get upsellRows() {
+        const rows = this.state.data.pos_page?.top_services || [];
+        return rows.slice(0, 4).map((item, index) => ({
+            name: item.name,
+            label: index === 0 ? "خدمة إضافية مقترحة" : "فرصة بيع إضافي",
+            pct: Math.max(8, Math.min(45, Math.round((Number(item.orders || item.qty || 0) / Math.max(1, this.state.data.pos_page.orders_today || 1)) * 100))),
+        }));
+    }
 
     get customerCars() { return this.state.data.customer_screen?.cars || []; }
     get customerFocusCar() { const cars = this.customerCars; return cars.length ? cars[this.state.customerFocusIndex % cars.length] : null; }
@@ -207,9 +319,9 @@ export class CarWashDashboardV9 extends Component {
     _openWindow(options) { return this.action.doAction({ type: "ir.actions.act_window", target: "current", views: [[false, "list"], [false, "form"]], ...options }); }
     openProduction(id) { return this.action.doAction({ type: "ir.actions.act_window", res_model: "mrp.production", res_id: id, views: [[false, "form"]], target: "current" }); }
     openKpi(key) { return this._openWindow({ name: _t("أوامر الغسيل"), res_model: "mrp.production", domain: this.state.data.kpi_domains?.[key] || [] }); }
-    openVehicles() { return this.openKpi("active_total"); }
-    openAppointments() { return this._openWindow({ name: _t("المواعيد القادمة"), res_model: "mrp.production", domain: [["company_id","=",this.state.data.company_id],["state","in",["draft","confirmed"]]] }); }
-    openCustomers() { return this._openWindow({ name: _t("العملاء"), res_model: "res.partner", domain: [["customer_rank",">",0]] }); }
+    openVehicles() { return this.setPage('vehicles'); }
+    openAppointments() { return this.setPage("appointments"); }
+    openCustomers() { return this.setPage("clients"); }
     openWorkcenter(station) { if (station?.placeholder) return this.openShopFloor(); return this._openWindow({ name: station.name, res_model: "mrp.workorder", domain: station.domain || [["workcenter_id", "=", station.id]] }); }
     openProduct(id) { return this.action.doAction({ type: "ir.actions.act_window", res_model: "product.product", res_id: id, views: [[false, "form"]], target: "current" }); }
     openAccountingMove(id) { return this.action.doAction({ type: "ir.actions.act_window", res_model: "account.move", res_id: id, views: [[false, "form"]], target: "current" }); }
