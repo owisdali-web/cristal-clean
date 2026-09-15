@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="car_wash_dashboard.DashboardV9">
+  <div class="cc9-root" dir="rtl">
+    <div t-if="state.loading" class="cc9-loader"><i class="fa fa-car"></i><strong>يتم تجهيز كريستال كلين...</strong><span></span></div>
+    <div t-else="" class="cc9-shell">
+      <aside class="cc9-sidebar">
+        <div class="cc9-brand"><i class="fa fa-tint"></i><div><b>كريستال كلين</b><span>حلول العناية بالسيارات</span></div></div>
+        <nav>
+          <button t-att-class="state.page === 'dashboard' ? 'active' : ''" t-on-click="() => this.setPage('dashboard')"><i class="fa fa-home"></i><span>الرئيسية</span></button>
+          <button t-on-click="openVehicles"><i class="fa fa-car"></i><span>السيارات</span></button>
+          <button t-on-click="openAppointments"><i class="fa fa-calendar-check-o"></i><span>المواعيد</span></button>
+          <button t-on-click="openShopFloor"><i class="fa fa-car"></i><span>المحطات</span></button>
+          <button t-on-click="openCustomers"><i class="fa fa-users"></i><span>العملاء</span></button>
+          <button t-att-class="state.page === 'finance' ? 'active' : ''" t-on-click="() => this.setPage('finance')"><i class="fa fa-cube"></i><span>المواد والحسابات</span></button>
+          <button t-att-class="state.page === 'pos' ? 'active' : ''" t-on-click="() => this.setPage('pos')"><i class="fa fa-credit-card"></i><span>نقطة البيع</span></button>
+          <button t-att-class="state.page === 'customers' ? 'active' : ''" t-on-click="() => this.setPage('customers')"><i class="fa fa-television"></i><span>شاشة الزبائن</span></button>
+          <button t-on-click="openAccounting"><i class="fa fa-bar-chart"></i><span>التقارير</span></button>
+          <button t-on-click="openSettings"><i class="fa fa-cog"></i><span>الإعدادات</span></button>
+        </nav>
+        <div class="cc9-side-promo"><img src="/car_wash_dashboard/static/src/img/v9/side_promo.png" alt=""/><b>كريستال كلين</b><span>أكثر من مغسلة<br/>تجربة مميزة</span></div>
+      </aside>
+
+      <main class="cc9-main">
+        <header class="cc9-topbar">
+          <div class="cc9-user"><span class="avatar">A</span><div><b>أحمد السالم</b><small>مدير المحطة</small></div><i class="fa fa-angle-down"></i></div>
+          <div class="cc9-alerts"><button><i class="fa fa-bell"></i><em t-if="state.data.overdue" t-esc="state.data.overdue"></em></button><button><i class="fa fa-commenting"></i></button></div>
+          <div class="cc9-clock"><small t-esc="dateLabel"></small><b><i class="fa fa-clock-o"></i> <t t-esc="timeLabel"/></b></div>
+          <label class="cc9-search"><i class="fa fa-search"></i><input t-att-value="state.query" t-on-input="onSearchInput" placeholder="ابحث عن سيارة، رقم لوحة، عميل، مادة، فاتورة أو مورد ..."/></label>
+          <div class="cc9-wordmark"><span class="bubbles">○ ◯</span><div><b>كريستال كلين</b><small>حلول العناية بالسيارات</small></div><i class="fa fa-tint"></i></div>
+        </header>
+
+        <!-- MAIN PAGE - V9.1 APPROVED EXACT SCREEN -->
+        <section t-if="state.page === 'dashboard'" class="cc9-page cc9-page-dashboard cc91-main-page">
+          <div class="cc91-hero">
+            <div class="cc91-hero-car"><img src="/car_wash_dashboard/static/src/img/v9/main_exact/hero_main.webp" alt=""/></div>
+            <div class="cc91-hero-left-copy"><span>سيارتك</span><b>تستحق الأفضل</b></div>
+            <div class="cc91-hero-title"><h1>لوحة تحكم المغسلة</h1><p>إدارة العمليات والمحطات لحظة بلحظة</p></div>
+            <div class="cc91-hero-slogan"><span>نظافة أكثر</span><b>لحياة أجمل</b></div>
+            <div class="cc91-bubbles"><i/><i/><i/><i/></div>
+          </div>
+
+          <div class="cc91-kpis">
+            <button class="cc91-kpi kpi-completion" t-on-click="() => this.openKpi('done_today')">
+              <div class="cc91-ring" t-att-style="completionRingStyle()"><b><t t-esc="completionRate"/>%</b></div>
+              <div><b>نسبة الإنجاز</b><small><t t-esc="state.data.done_today"/> من <t t-esc="state.data.total_today"/> اليوم</small></div>
+              <i class="fa fa-bar-chart"></i>
+            </button>
+            <button class="cc91-kpi" t-on-click="() => this.openKpi('total_today')"><i class="fa fa-bar-chart violet"></i><div><b>إجمالي اليوم</b><strong t-esc="state.data.total_today"></strong><small>سيارة تم غسلها</small></div></button>
+            <button class="cc91-kpi" t-on-click="() => this.openKpi('in_progress')"><i class="fa fa-check-circle green"></i><div><b>قيد الخدمة الآن</b><strong t-esc="state.data.in_progress"></strong><small>سيارة</small></div></button>
+            <button class="cc91-kpi" t-on-click="() => this.openKpi('waiting')"><i class="fa fa-clock-o blue"></i><div><b>في الانتظار</b><strong t-esc="state.data.waiting"></strong><small>سيارات</small></div></button>
+            <button class="cc91-kpi" t-on-click="() => this.openKpi('ready_delivery')"><i class="fa fa-car orange"></i><div><b>جاهزة للتسليم</b><strong t-esc="state.data.ready_delivery"></strong><small>سيارات</small></div></button>
+            <button class="cc91-kpi" t-on-click="() => this.setPage('pos')"><i class="fa fa-database cyan"></i><div><b>إيرادات اليوم</b><strong t-esc="formatMoney(state.data.pos_page.revenue_today)"></strong><small>من نقطة البيع</small></div></button>
+          </div>
+
+          <article class="cc91-stations-panel">
+            <div class="cc91-station-head">
+              <div class="cc91-station-title-right"><span class="cc91-badge-b">B</span><h2>إدارة المحطات (10)</h2></div>
+              <div class="cc91-station-title-left"><i class="fa fa-bullseye"></i><h2>المحطات العاملة</h2><small>متابعة مباشرة لحالة كل محطة والخدمات قيد التنفيذ</small></div>
+              <div class="cc91-station-head-actions"><span class="cc91-live"><i></i> مباشر</span><button t-on-click="openShopFloor">فتح شاشة التشغيل</button></div>
+            </div>
+            <div class="cc91-stations-grid">
+              <t t-foreach="stationSlots" t-as="station" t-key="station.id">
+                <button t-att-class="'cc91-station kind-' + stationKind(station) + ' status-' + stationStatus(station)" t-on-click="() => this.openWorkcenter(station)">
+                  <div class="cc91-station-top">
+                    <span t-att-class="'cc91-status ' + stationStatus(station)"><i></i><t t-esc="stationStatusLabel(station)"/></span>
+                    <b>
+                      <t t-if="stationKind(station) === 'auto'">محطة الغسيل الآلي</t>
+                      <t t-elif="stationKind(station) === 'polish'">محطة اللمعة</t>
+                      <t t-else="">المحطة <t t-esc="station.slot"/></t>
+                    </b>
+                  </div>
+                  <div t-att-class="'cc91-station-scene op-' + focusedOperation(station).kind + (!stationCar(station) ? ' is-idle' : '')">
+                    <img t-att-src="stationArtwork(station)" class="cc91-station-art" alt=""/>
+                    <div t-if="stationCar(station)" class="cc91-fx">
+                      <div class="wash-drops"><i/><i/><i/><i/><i/></div><div class="foam"><i/><i/><i/><i/></div><div class="sparkles"><i/><i/><i/><i/></div><div class="vacuum"><i class="fa fa-circle-o-notch"></i></div><div class="brushes"><i/><i/></div>
+                    </div>
+                    <div t-if="!stationCar(station)" class="cc91-idle-mask"><i class="fa fa-car"></i><span t-esc="stationIdleLabel(station)"></span></div>
+                  </div>
+                  <div t-if="stationCar(station)" class="cc91-size-pill"><i class="fa fa-car"></i><span t-esc="vehicleSizeLabel(stationCar(station))"></span></div>
+                  <div t-if="stationCar(station)" class="cc91-operation-chips"><t t-foreach="stationOperations(station).slice(0,4)" t-as="op" t-key="op.id"><span t-att-class="'kind-' + operationKind(op.name)"><i t-att-class="'fa ' + operationIcon(op.name)"></i><t t-esc="op.name"/></span></t></div>
+                  <div t-else="" t-att-class="'cc91-operation-chips idle kind-' + stationKind(station)"><span><i t-att-class="stationKind(station) === 'auto' ? 'fa fa-cogs' : stationKind(station) === 'polish' ? 'fa fa-diamond' : 'fa fa-check-circle'"></i><t t-esc="stationIdleLabel(station)"/></span></div>
+                </button>
+              </t>
+            </div>
+          </article>
+
+          <div class="cc91-bottom-grid">
+            <article class="cc91-bottom-card cc91-live-ops">
+              <div class="cc91-bottom-head"><h3>العمليات الحية <span class="cc91-live"><i></i> مباشر</span></h3><button t-on-click="openVehicles">عرض الكل</button></div>
+              <table><thead><tr><th>#</th><th>رقم اللوحة</th><th>نوع الخدمة</th><th>المحطة</th><th>وقت الدخول</th><th>المدة</th></tr></thead><tbody><t t-foreach="filteredCars.slice(0,5)" t-as="car" t-key="car.id"><tr t-on-click="() => this.openProduction(car.id)"><td t-esc="car_index + 1"></td><td class="plate" t-esc="car.public_reference or car.plate"></td><td t-esc="car.service_name"></td><td t-esc="car.workcenter_name or '—'"></td><td t-esc="car.started_at or '—'"></td><td t-esc="carDurationLabel(car)"></td></tr></t><tr t-if="!filteredCars.length"><td colspan="6" class="empty-row">لا توجد عمليات حية الآن</td></tr></tbody></table>
+            </article>
+            <article class="cc91-bottom-card cc91-current-cars">
+              <div class="cc91-bottom-head"><h3>السيارات الحالية في المغسلة (<t t-esc="state.data.active_total"/>)</h3></div>
+              <div class="cc91-current-summary"><button t-on-click="() => this.openKpi('in_progress')"><b t-esc="state.data.in_progress"></b><span>قيد الغسيل</span><i class="fa fa-tint"></i></button><button t-on-click="() => this.openKpi('waiting')"><b t-esc="state.data.waiting"></b><span>في الانتظار</span><i class="fa fa-clock-o"></i></button><button t-on-click="() => this.openKpi('ready_delivery')"><b t-esc="state.data.ready_delivery"></b><span>جاهزة للتسليم</span><i class="fa fa-car"></i></button></div>
+              <div class="cc91-car-strip"><t t-foreach="filteredCars.slice(0,4)" t-as="car" t-key="car.id"><button t-on-click="() => this.openProduction(car.id)"><img t-att-src="vehicleImage(car)"/><b t-esc="car.public_reference or car.name"></b><small t-esc="car.current_stage"></small></button></t><div t-if="!filteredCars.length" class="cc91-empty-cars"><i class="fa fa-car"></i><span>لا توجد سيارات داخل المغسلة حالياً</span></div></div>
+            </article>
+            <article class="cc91-bottom-card cc91-materials">
+              <div class="cc91-bottom-head"><h3>المخزون والمواد</h3><button t-on-click="() => this.setPage('finance')">عرض الكل</button></div>
+              <t t-foreach="displayMaterials.slice(0,3)" t-as="item" t-key="item.product_id"><button class="cc91-material-line" t-on-click="() => this.openProduct(item.product_id)"><span><i t-att-class="item_index === 0 ? 'green' : item_index === 1 ? 'violet' : 'orange'"></i><t t-esc="item.product_name"/></span><div><i t-att-style="materialStyle(item)"></i></div><b><t t-esc="materialPct(item)"/>%</b></button></t><div t-if="!displayMaterials.length" class="cc91-empty-materials">لا توجد مواد معرفة بعد</div>
+              <footer><button class="green" t-on-click="openMaterials">طلبات مواد</button><button class="blue" t-on-click="() => this.setPage('pos')">نقطة البيع</button><button class="violet" t-on-click="openCustomers">إضافة عميل</button><button class="orange" t-on-click="openAccounting">تقرير سريع</button></footer>
+            </article>
+          </div>
+        </section>
+
+        <!-- CUSTOMER SCREEN -->
+        <section t-if="state.page === 'customers'" class="cc9-page cc9-customer-page">
+          <div class="cc9-hero hero-customer"><div class="hero-car"><img src="/car_wash_dashboard/static/src/img/v9/hero_customer.webp"/></div><div class="hero-side-copy">نظافة أكثر<br/><b>لحياة أجمل</b></div><div class="hero-title"><h1>تابع حالة سيارتك مباشرة</h1><p>نحن نهتم بكل التفاصيل .. لتخرج سيارتك بأفضل صورة</p><div class="customer-promises"><span><i class="fa fa-shield"></i><b>راحة وطمأنينة</b><small>سيارتك في أيدٍ أمينة</small></span><span><i class="fa fa-clock-o"></i><b>سرعة في الإنجاز</b><small>مع أعلى جودة</small></span><span><i class="fa fa-diamond"></i><b>خدمة احترافية</b><small>بأحدث التقنيات</small></span></div></div><div class="hero-slogan"><b>كل رحلة</b><span>تبدأ من هنا ..</span></div></div>
+          <article class="cc9-panel customer-service-panel"><div class="customer-head"><h2><i class="fa fa-car"></i> السيارات قيد الخدمة</h2><button t-on-click="toggleCustomerFullscreen"><i class="fa fa-arrows-alt"></i> ملء الشاشة</button></div><div class="customer-stage-ribbon"><span>مراحل الغسيل</span><t t-foreach="['الاستقبال','الانتظار','الغسيل','التلميع','الفحص النهائي','جاهزة للتسليم']" t-as="label" t-key="label"><b><i t-esc="label_index + 1"></i><t t-esc="label"/></b></t></div>
+            <div class="customer-cards"><t t-foreach="customerCars.slice(0,6)" t-as="car" t-key="car.id"><button t-att-class="'customer-card ' + customerStatusClass(car)" t-att-style="customerProgressStyle(car)" t-on-click="() => this.openProduction(car.id)"><header><span>المحطة <t t-esc="car.workcenter_name or '—'"/></span><b t-esc="car.public_reference or car.plate"></b></header><h3 t-esc="car.vehicle_model or car.service_name"></h3><div class="customer-car-visual"><img t-att-src="vehicleImage(car)"/><div class="washfx"><i/><i/><i/></div></div><strong class="customer-status"><i t-att-class="'fa ' + operationIcon(car.current_stage)"></i><t t-esc="statusLabel(car)"/></strong><div class="customer-time"><span>الوقت المتوقع</span><b t-esc="remainingLabel(car)"></b></div><div class="customer-ops"><t t-foreach="(car.operations || []).slice(0,3)" t-as="op" t-key="op.id"><span><i t-att-class="'fa ' + operationIcon(op.name)"></i><t t-esc="op.name"/></span></t></div><div class="stage-dots"><t t-foreach="customerStageDots(car)" t-as="dot" t-key="dot.n"><i t-att-class="dot.active ? 'active' : dot.done ? 'done' : ''" t-esc="dot.n"></i></t></div></button></t><div t-if="!customerCars.length" class="customer-empty">لا توجد سيارات قيد الخدمة حالياً.</div></div>
+          </article>
+          <div class="customer-ready-area"><article class="cc9-panel ready-list"><div class="cc9-panel-head compact"><h2>السيارات الجاهزة للتسليم (<t t-esc="readyCars.length"/>)</h2></div><div><t t-foreach="readyCars.slice(0,3)" t-as="car" t-key="car.id"><button t-on-click="() => this.openProduction(car.id)"><span class="check"><i class="fa fa-check"></i></span><b t-esc="car.public_reference or car.plate"></b><img t-att-src="vehicleImage(car)"/><strong>جاهزة للتسليم</strong><small t-esc="car.service_name"></small></button></t><p t-if="!readyCars.length">لا توجد سيارات جاهزة للتسليم الآن.</p></div></article><article class="cc9-thanks"><img src="/car_wash_dashboard/static/src/img/v9/customer_thanks.webp"/><div><span>شكراً لاختياركم</span><b>كريستال كلين</b><p>نظافة ... ثقة ... دائماً</p></div></article></div>
+        </section>
+
+        <!-- FINANCE/MATERIALS PAGE -->
+        <section t-if="state.page === 'finance'" class="cc9-page cc9-finance-page">
+          <div class="cc9-hero hero-finance"><div class="hero-car"><img src="/car_wash_dashboard/static/src/img/v9/hero_finance.webp"/></div><div class="hero-side-copy">مواد أفضل<br/><b>لخدمة أكثر تميزاً</b></div><div class="hero-title"><h1>المواد والحسابات</h1><p>إدارة المخزون والمشتريات والمصروفات والإيرادات في مكان واحد</p></div><div class="hero-slogan"><span>مخزون منظم</span><b>وحسابات دقيقة<br/>لمستقبل أنظف</b></div></div>
+          <div class="finance-kpis"><button><i class="fa fa-line-chart green"></i><span>صافي اليوم</span><b t-esc="formatMoney(state.data.finance_page.net_today)"></b><small>مبيعات POS - مصروفات اليوم</small></button><button><i class="fa fa-line-chart red"></i><span>المصروفات</span><b t-esc="formatMoney(state.data.finance_page.expense_today)"></b><small>مصروفات مرحلة اليوم</small></button><button><i class="fa fa-credit-card blue"></i><span>المقبوضات</span><b t-esc="formatMoney(state.data.finance_page.collected_today)"></b><small>دفعات العملاء اليوم</small></button><button><i class="fa fa-bar-chart violet"></i><span>إيرادات الشهر</span><b t-esc="formatMoney(state.data.pos_page.month_revenue)"></b><small>مبيعات نقطة البيع</small></button><button><i class="fa fa-database cyan"></i><span>إيرادات اليوم</span><b t-esc="formatMoney(state.data.pos_page.revenue_today)"></b><small>مبيعات نقطة البيع</small></button></div>
+          <div class="finance-top"><article class="cc9-panel weekly-sales"><div class="cc9-panel-head compact"><h2>إيرادات الأسبوع الماضي</h2><span>آخر 7 أيام</span></div><div class="week-bars"><t t-foreach="state.data.finance_page.week_pos_sales || []" t-as="item" t-key="item.label"><div><b t-esc="formatMoney(item.amount)"></b><i t-att-style="financeBarStyle(item)"></i><span t-esc="item.label"></span></div></t></div></article><article class="cc9-panel expense-donut"><div class="cc9-panel-head compact"><h2>توزيع المصروفات</h2><span>هذا الشهر</span></div><div class="donut"><strong t-esc="formatMoney(expenseTotal())"></strong><small>إجمالي المصروفات</small></div><div class="expense-legend"><t t-foreach="state.data.finance_page.expense_breakdown || []" t-as="item" t-key="item.name"><span><i></i><b t-esc="item.name"></b><em><t t-esc="expenseShare(item)"/>%</em></span></t></div></article><article class="cc9-panel quality-art"><img src="/car_wash_dashboard/static/src/img/v9/finance_material_art.webp"/><div><h2>مواد عالية الجودة<br/>لنتائج استثنائية</h2><p><i class="fa fa-check-circle"></i> مخزون متوفر دائماً</p><p><i class="fa fa-check-circle"></i> تكلفة محسنة</p><p><i class="fa fa-check-circle"></i> جودة مضمونة</p></div></article></div>
+          <article class="cc9-panel materials-full"><div class="cc9-panel-head compact"><h2>المواد والمخزون</h2><button t-on-click="openMaterials">عرض الكل</button></div><div class="materials-row"><t t-foreach="displayMaterials" t-as="item" t-key="item.product_id"><button t-on-click="() => this.openProduct(item.product_id)" t-att-class="'material-card tone-' + materialTone(item_index)"><span class="bottle"><i class="fa fa-flask"></i></span><b t-esc="item.product_name"></b><strong><t t-esc="item.free"/> <small t-esc="item.uom"></small></strong><div><i t-att-style="materialStyle(item)"></i></div><em><t t-esc="materialPct(item)"/>%</em></button></t></div><div t-if="state.data.low_stock.length" class="stock-alerts"><h3><i class="fa fa-exclamation-triangle"></i> تنبيهات المخزون</h3><t t-foreach="state.data.low_stock.slice(0,5)" t-as="item" t-key="item.product_id"><span><b t-esc="item.product_name"></b> - الكمية منخفضة</span></t></div></article>
+          <div class="finance-bottom"><article class="cc9-panel top-services"><div class="cc9-panel-head compact"><h2>أفضل خدمات الغسيل مبيعاً</h2><span>هذا الشهر</span></div><t t-foreach="state.data.pos_page.top_services.slice(0,5)" t-as="item" t-key="item.name"><div><b t-esc="item_index + 1"></b><span t-esc="item.name"></span><i><em t-att-style="topServiceStyle(item)"></em></i><strong t-esc="item.qty"></strong><small t-esc="formatMoney(item.amount)"></small></div></t></article><article class="cc9-panel accounting-moves"><div class="cc9-panel-head compact"><h2>آخر الحركات المحاسبية</h2><button t-on-click="openAccounting">الكل</button></div><table><thead><tr><th>#</th><th>التاريخ</th><th>النوع</th><th>البيان</th><th>المبلغ</th></tr></thead><tbody><t t-foreach="state.data.finance_page.recent_moves.slice(0,5)" t-as="move" t-key="move.id"><tr t-on-click="() => this.openAccountingMove(move.id)"><td t-esc="move_index + 1"></td><td t-esc="move.date"></td><td t-esc="move.type"></td><td t-esc="move.name"></td><td t-esc="formatMoney(move.amount)"></td></tr></t></tbody></table></article><article class="cc9-panel finance-actions"><div class="cc9-panel-head compact"><h2>إجراءات سريعة</h2></div><button t-on-click="openMaterials"><i class="fa fa-plus"></i> المواد</button><button t-on-click="openAccounting"><i class="fa fa-file-text"></i> الحسابات</button><button t-on-click="() => this.setPage('pos')"><i class="fa fa-credit-card"></i> نقطة البيع</button></article></div>
+        </section>
+
+        <!-- POS PAGE -->
+        <section t-if="state.page === 'pos'" class="cc9-page cc9-pos-page">
+          <div class="cc9-hero hero-pos"><div class="hero-car"><img src="/car_wash_dashboard/static/src/img/v9/hero_dashboard.webp"/></div><div class="hero-side-copy">خدمة أسرع<br/><b>من لحظة الطلب</b></div><div class="hero-title"><h1>نقطة البيع</h1><p>طلبات الغسيل، التذاكر، متوسط الطلب وأفضل الخدمات</p></div><div class="hero-slogan"><span>POS متصل</span><b>بالتشغيل مباشرة</b></div></div>
+          <div class="pos-kpis"><button t-on-click="openPosOrders"><i class="fa fa-shopping-cart"></i><span>طلبات اليوم</span><b t-esc="state.data.pos_page.orders_today"></b></button><button><i class="fa fa-money"></i><span>مبيعات اليوم</span><b t-esc="formatMoney(state.data.pos_page.revenue_today)"></b></button><button><i class="fa fa-calculator"></i><span>متوسط الطلب</span><b t-esc="formatMoney(state.data.pos_page.avg_ticket)"></b></button><button><i class="fa fa-users"></i><span>عملاء اليوم</span><b t-esc="state.data.pos_page.customers_today"></b></button><button><i class="fa fa-calendar"></i><span>مبيعات الشهر</span><b t-esc="formatMoney(state.data.pos_page.month_revenue)"></b></button><button class="launch" t-on-click="openPosApp"><i class="fa fa-play"></i><span>فتح نقطة البيع</span><b>ابدأ</b></button></div>
+          <div class="pos-top"><article class="cc9-panel pos-orders"><div class="cc9-panel-head compact"><h2>طلبات نقطة البيع الأخيرة</h2><button t-on-click="openPosOrders">عرض الكل</button></div><table><thead><tr><th>الطلب</th><th>الوقت</th><th>العميل</th><th>الخدمات</th><th>اللوحة</th><th>القيمة</th><th>حالة الغسيل</th></tr></thead><tbody><t t-foreach="state.data.pos_page.orders.slice(0,10)" t-as="row" t-key="row.id"><tr t-on-click="() => this.openPosOrder(row)"><td t-esc="row.name"></td><td t-esc="row.time"></td><td t-esc="row.customer"></td><td><span class="services" t-esc="row.services.join(' · ')"></span></td><td class="plate" t-esc="row.plate"></td><td t-esc="formatMoney(row.amount)"></td><td><span class="pos-state" t-esc="row.wash_status"></span></td></tr></t></tbody></table></article><article class="cc9-panel pos-hourly"><div class="cc9-panel-head compact"><h2>المبيعات حسب الساعة</h2></div><div class="hour-bars"><t t-foreach="state.data.pos_page.hourly" t-as="item" t-key="item.label"><div><i t-att-style="posHourStyle(item)"></i><b t-esc="item.label"></b><small t-esc="formatMoney(item.amount)"></small></div></t></div></article></div>
+          <article class="cc9-panel pos-services"><div class="cc9-panel-head compact"><h2>أفضل الخدمات في نقطة البيع</h2></div><div><t t-foreach="state.data.pos_page.top_services" t-as="item" t-key="item.name"><button><span><b t-esc="item.name"></b><small><t t-esc="item.orders"/> طلب</small></span><i><em t-att-style="topServiceStyle(item)"></em></i><strong><t t-esc="item.qty"/> خدمة</strong><small t-esc="formatMoney(item.amount)"></small></button></t></div></article>
+        </section>
+
+        <footer class="cc9-footer"><span><b>كريستال كلين</b> | حلول العناية بالسيارات</span><span>V9.1.0</span><span class="ok"><i></i><t t-if="state.realtime">النظام مباشر</t><t t-else="">تحديث تلقائي</t></span></footer>
+      </main>
+      <div t-if="state.liveMessage" t-att-class="'cc9-toast ' + (state.livePulse ? 'pulse' : '')"><i class="fa fa-bolt"></i><span t-esc="state.liveMessage"></span></div>
+    </div>
+  </div>
+</t>
+</templates>

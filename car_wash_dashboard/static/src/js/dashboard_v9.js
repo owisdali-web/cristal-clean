@@ -1,0 +1,225 @@
+/** @odoo-module **/
+import { Component, onMounted, onWillStart, onWillUnmount, useState } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import { _t } from "@web/core/l10n/translation";
+
+const REFRESH_TYPE = "crystal_clean_dashboard_refresh";
+
+export class CarWashDashboardV9 extends Component {
+    static template = "car_wash_dashboard.DashboardV9";
+
+    setup() {
+        this.orm = useService("orm");
+        this.action = useService("action");
+        this.notification = useService("notification");
+        this.bus = useService("bus_service");
+        this.state = useState({
+            loading: true, page: "dashboard", query: "", lastUpdate: "", realtime: false,
+            livePulse: false, liveMessage: "", animationTick: 0, customerFocusIndex: 0,
+            data: this.emptyData(),
+        });
+        this.refreshTimer = null; this.animationTimer = null; this.customerTimer = null;
+        this.busRefreshTimer = null; this.liveTimer = null; this.busChannel = null; this.busSubscribed = false;
+        this.onBusNotification = (payload) => this.handleBusNotification(payload);
+        onWillStart(async () => { await this.fetchData(); await this.setupRealtime(); });
+        onMounted(() => {
+            this.refreshTimer = setInterval(() => this.fetchData({ silent: true }), 15000);
+            this.animationTimer = setInterval(() => { this.state.animationTick += 1; }, 2600);
+            this.customerTimer = setInterval(() => this.advanceCustomerFocus(), 6000);
+        });
+        onWillUnmount(() => {
+            for (const timer of [this.refreshTimer, this.animationTimer, this.customerTimer, this.busRefreshTimer, this.liveTimer]) if (timer) clearTimeout(timer);
+            if (this.busSubscribed) this.bus.unsubscribe(REFRESH_TYPE, this.onBusNotification);
+            if (this.busChannel) this.bus.deleteChannel(this.busChannel);
+        });
+    }
+
+    emptyData() {
+        return {
+            dashboard_version: "9.0-pixel-show", company_id: false, company_name: "كريستال كلين", currency_symbol: "",
+            active_total: 0, in_progress: 0, waiting: 0, ready_delivery: 0, done_today: 0, total_today: 0,
+            overdue: 0, avg_turnaround: 0, workcenter_load: [], active_cars: [], materials: [], low_stock: [], upcoming: [],
+            pos_page: { orders: [], top_services: [], hourly: [], orders_today: 0, revenue_today: 0, avg_ticket: 0, customers_today: 0, month_revenue: 0, month_orders: 0 },
+            finance_page: { recent_moves: [], expense_breakdown: [], week_pos_sales: [], customer_invoices_today: 0, vendor_bills_today: 0, receivable_open: 0, payable_open: 0, pos_revenue_today: 0, pos_month_revenue: 0, collected_today: 0, expense_today: 0, net_today: 0, month_expense: 0 },
+            customer_screen: { cars: [], ready_count: 0, washing_count: 0, waiting_count: 0, avg_turnaround: 0 },
+            stock_value: 0, bus_channel: "", realtime_enabled: false, kpi_domains: {}, accounting_domains: {}, pos_domains: {},
+            shop_floor_action: "mrp_workorder.action_mrp_display",
+        };
+    }
+
+    async fetchData({ silent = false } = {}) {
+        try {
+            const result = await this.orm.call("mrp.production", "get_dashboard_data", []);
+            this.state.data = { ...this.emptyData(), ...result };
+            this.state.lastUpdate = new Date().toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" });
+            if (!this.busChannel && result.bus_channel) await this.setupRealtime();
+        } catch (error) {
+            console.error("Crystal Clean V9 dashboard fetch failed", error);
+            if (!silent) this.notification.add(_t("تعذر تحميل بيانات لوحة المغسلة"), { type: "danger" });
+        } finally { this.state.loading = false; }
+    }
+
+    async setupRealtime() {
+        const channel = this.state.data.bus_channel;
+        if (!this.state.data.realtime_enabled || !channel || this.busChannel === channel) return;
+        try {
+            if (!this.busSubscribed) { this.bus.subscribe(REFRESH_TYPE, this.onBusNotification); this.busSubscribed = true; }
+            await this.bus.addChannel(channel); this.busChannel = channel; this.state.realtime = true;
+        } catch (error) { console.warn("Realtime unavailable; polling fallback active", error); this.state.realtime = false; }
+    }
+
+    handleBusNotification(payload) {
+        if (payload?.company_id && payload.company_id !== this.state.data.company_id) return;
+        const labels = {
+            wash_order_created: "دخلت سيارة جديدة إلى المغسلة", wash_order_updated: "تم تحديث أمر غسيل",
+            stage_created: "تم تجهيز مرحلة جديدة", stage_changed: "سيارة انتقلت إلى مرحلة جديدة",
+            stage_updated: "تحديث مباشر من إحدى المحطات", pos_order_created: "طلب جديد من نقطة البيع",
+            pos_order_updated: "تم تحديث طلب نقطة البيع", accounting_updated: "تم تحديث الحسابات",
+        };
+        this.state.liveMessage = labels[payload?.reason] || "تحديث مباشر من المغسلة";
+        this.state.livePulse = true;
+        if (this.liveTimer) clearTimeout(this.liveTimer);
+        this.liveTimer = setTimeout(() => { this.state.livePulse = false; this.state.liveMessage = ""; }, 2500);
+        if (this.busRefreshTimer) clearTimeout(this.busRefreshTimer);
+        this.busRefreshTimer = setTimeout(() => this.fetchData({ silent: true }), 220);
+    }
+
+    async manualRefresh() { await this.fetchData(); this.notification.add(_t("تم تحديث البيانات"), { type: "success" }); }
+    setPage(page) { this.state.page = page; this.state.query = ""; if (page === "customers") this.state.customerFocusIndex = 0; }
+    onSearchInput(ev) { this.state.query = ev.target.value || ""; }
+    get dateLabel() { return new Intl.DateTimeFormat("ar", { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(new Date()); }
+    get timeLabel() { return new Date().toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" }); }
+    formatMoney(v) { return `${Number(v || 0).toLocaleString("ar", { maximumFractionDigits: 2 })} ${this.state.data.currency_symbol || ""}`; }
+    formatCount(v) { return `${Number(v || 0)}`.padStart(2, "0"); }
+
+    get completionRate() { const total = Number(this.state.data.total_today || 0); return total ? Math.round((Number(this.state.data.done_today || 0) / total) * 100) : 0; }
+    completionRingStyle() { return `--cc9-progress:${Math.max(0, Math.min(100, this.completionRate))}%`; }
+    get filteredCars() {
+        const q = this.state.query.trim().toLowerCase(); const cars = this.state.data.active_cars || [];
+        if (!q) return cars;
+        return cars.filter(car => [car.public_reference, car.plate, car.customer, car.service_name, car.current_stage, car.workcenter_name].some(v => `${v || ""}`.toLowerCase().includes(q)));
+    }
+    get readyCars() { return (this.state.data.active_cars || []).filter(c => c.status_code === "ready_delivery"); }
+
+    get stationSlots() {
+        const raw = [...(this.state.data.workcenter_load || [])]; let auto = null; let polish = null; const general = [];
+        for (const station of raw) {
+            const kind = this.stationKind(station);
+            if (kind === "auto" && !auto) auto = station;
+            else if (kind === "polish" && !polish) polish = station;
+            else general.push(station);
+        }
+        const takeGeneral = () => general.shift() || null;
+        // Crystal Clean operational rule: 10 visual slots, with slot 6 reserved for
+        // the automatic wash and slot 10 reserved for polishing. The remaining
+        // eight slots are flexible/general wash stations.
+        const slots = [takeGeneral(), takeGeneral(), takeGeneral(), takeGeneral(), takeGeneral(), auto, takeGeneral(), takeGeneral(), takeGeneral(), polish];
+        return slots.map((station, i) => {
+            const fixedKind = i === 5 ? "auto" : (i === 9 ? "polish" : "general");
+            return station
+                ? { ...station, slot: i + 1, kind_override: fixedKind }
+                : { id: `placeholder-${i + 1}`, name: `المحطة ${i + 1}`, slot: i + 1, kind_override: fixedKind, placeholder: true, load: 0, in_progress: 0, queue: 0, cars: [] };
+        });
+    }
+    stationKind(station) {
+        if (station?.kind_override) return station.kind_override;
+        const t = `${station?.name || ""}`.toLowerCase();
+        if (t.includes("آلي") || t.includes("الي") || t.includes("auto")) return "auto";
+        if (t.includes("لمعة") || t.includes("تلميع") || t.includes("polish")) return "polish";
+        return "general";
+    }
+    stationStatus(station) { if (station.placeholder) return "free"; if (station.in_progress) return "busy"; if (station.queue) return "queue"; return "free"; }
+    stationStatusLabel(station) { return { busy: "مشغولة", queue: "قيد الخدمة", free: "متاحة" }[this.stationStatus(station)]; }
+    stationCardClass(station) { return `cc9-station is-${this.stationKind(station)} is-${this.stationStatus(station)}`; }
+    stationCar(station) { return (station?.cars || [])[0] || null; }
+    vehicleSizeLabel(car) { return car?.vehicle_size === "large" ? "سيارة كبيرة" : "سيارة صغيرة"; }
+    vehicleImage(car) { return car?.vehicle_size === "large" ? "/car_wash_dashboard/static/src/img/car_pickup.svg" : "/car_wash_dashboard/static/src/img/car_sedan.svg"; }
+    stationArtwork(station) {
+        const base = "/car_wash_dashboard/static/src/img/v9/main_exact/";
+        const car = this.stationCar(station);
+        const kind = this.stationKind(station);
+        if (kind === "auto") return base + "auto_small.webp";
+        if (kind === "polish") return base + "polish_large.webp";
+        if (!car) {
+            const idle = {
+                1: "external_small.webp", 2: "interior_large.webp", 3: "multi_small.webp",
+                4: "interior_black_large.webp", 5: "powder_small.webp", 7: "external_large.webp",
+                8: "interior_small.webp", 9: "deep_large.webp",
+            };
+            return base + (idle[station?.slot] || "external_small_2.webp");
+        }
+        const op = this.focusedOperation(station);
+        const size = car?.vehicle_size === "large" ? "large" : "small";
+        if (op.kind === "polish") return base + "polish_large.webp";
+        if (op.kind === "auto") return base + "auto_small.webp";
+        if (op.kind === "interior") return base + (size === "large" ? "interior_black_large.webp" : "interior_small.webp");
+        if (op.kind === "deep") return base + (size === "large" ? "deep_large.webp" : "multi_small.webp");
+        if (op.kind === "powder") return base + "powder_small.webp";
+        if (op.kind === "qc") return base + "external_small_2.webp";
+        return base + (size === "large" ? "external_large.webp" : "external_small.webp");
+    }
+    stationIdleLabel(station) {
+        const kind = this.stationKind(station);
+        if (kind === "auto") return "غسيل آلي";
+        if (kind === "polish") return "تلميع ولمعة";
+        return "جاهزة لاستقبال السيارات";
+    }
+    stationOperations(station) { const car = this.stationCar(station); return (car?.operations || []).filter(op => op.state !== "done").slice(0, 4); }
+    operationKind(name) { const t = `${name || ""}`.toLowerCase(); if (t.includes("آلي") || t.includes("الي") || t.includes("auto")) return "auto"; if (t.includes("لمعة") || t.includes("تلميع") || t.includes("باستا")) return "polish"; if (t.includes("داخلي") || t.includes("صالون") || t.includes("صالة") || t.includes("فرشة") || t.includes("سقف")) return "interior"; if (t.includes("عميق")) return "deep"; if (t.includes("فودرة")) return "powder"; if (t.includes("محرك")) return "engine"; if (t.includes("سفلي")) return "underbody"; if (t.includes("فحص")) return "qc"; return "external"; }
+    focusedOperation(station) { const ops = this.stationOperations(station); if (!ops.length) return { name: this.stationCar(station)?.current_stage || station?.name || "جاهزة", kind: this.operationKind(this.stationCar(station)?.current_stage || station?.name) }; const op = ops[this.state.animationTick % ops.length]; return { ...op, kind: op.kind || this.operationKind(op.name) }; }
+    operationIcon(name) { return { auto: "fa-cogs", polish: "fa-diamond", interior: "fa-shower", deep: "fa-tint", powder: "fa-cloud", engine: "fa-fire", underbody: "fa-arrow-up", qc: "fa-search", external: "fa-tint" }[this.operationKind(name)] || "fa-wrench"; }
+    statusClass(car) { return car?.status_code || "waiting"; }
+    statusLabel(car) { return car?.status_label || "في الانتظار"; }
+    carDurationLabel(car) { const m = Number(car?.elapsed_minutes || 0); return m < 60 ? `${m} دقيقة` : `${Math.floor(m / 60)}س ${m % 60}د`; }
+    remainingLabel(car) { const m = Number(car?.remaining_minutes || 0); return m ? `متبقي ${m} دقيقة` : "الوقت يحدّث حسب المراحل"; }
+
+    get customerCars() { return this.state.data.customer_screen?.cars || []; }
+    get customerFocusCar() { const cars = this.customerCars; return cars.length ? cars[this.state.customerFocusIndex % cars.length] : null; }
+    advanceCustomerFocus() { if (this.state.page !== "customers") return; if (this.customerCars.length) this.state.customerFocusIndex = (this.state.customerFocusIndex + 1) % this.customerCars.length; }
+    customerStageIndex(car) {
+        if (car?.status_code === "ready_delivery" || car?.status_code === "done") return 6;
+        if (car?.status_code === "waiting" || car?.status_code === "ready") return Math.max(1, Math.min(2, car?.progress ? 2 : 1));
+        const kind = car?.current_operation_kind || this.operationKind(car?.current_stage);
+        if (kind === "polish") return 4; if (kind === "qc") return 5; return 3;
+    }
+    customerStatusClass(car) { return `is-${this.statusClass(car)} stage-${this.customerStageIndex(car)}`; }
+    customerProgressStyle(car) { return `--cc9-car-progress:${Math.max(0, Math.min(100, Number(car?.progress || 0)))}%`; }
+    customerStageDots(car) { return [1,2,3,4,5,6].map(n => ({ n, active: n === this.customerStageIndex(car), done: n < this.customerStageIndex(car) })); }
+    async toggleCustomerFullscreen() { try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); else await document.exitFullscreen(); } catch (e) { console.warn(e); } }
+
+    get displayMaterials() { return (this.state.data.materials || []).slice(0, 7); }
+    materialPct(item) { const free = Math.max(0, Number(item?.free || 0)); const max = Math.max(free, Number(item?.on_hand || 0), Number(item?.min_qty || 0) * 2, 1); return Math.round((free / max) * 100); }
+    materialStyle(item) { return `--cc9-material:${this.materialPct(item)}%`; }
+    materialTone(index) { return ["blue","pink","gold","violet","cyan","green","navy"][index % 7]; }
+    get weekSalesMax() { return Math.max(1, ...(this.state.data.finance_page?.week_pos_sales || []).map(x => Number(x.amount || 0))); }
+    financeBarStyle(item) { return `--cc9-bar:${Math.round((Number(item.amount || 0) / this.weekSalesMax) * 100)}%`; }
+    get expenseMax() { return Math.max(1, ...(this.state.data.finance_page?.expense_breakdown || []).map(x => Number(x.amount || 0))); }
+    expenseStyle(item) { return `--cc9-bar:${Math.round((Number(item.amount || 0) / this.expenseMax) * 100)}%`; }
+    expenseTotal() { return (this.state.data.finance_page?.expense_breakdown || []).reduce((a, x) => a + Number(x.amount || 0), 0); }
+    expenseShare(item) { const total = this.expenseTotal() || 1; return Math.round((Number(item?.amount || 0) / total) * 100); }
+
+    get posHourlyMax() { return Math.max(1, ...(this.state.data.pos_page?.hourly || []).map(x => Number(x.amount || 0))); }
+    posHourStyle(item) { return `--cc9-column:${Math.round((Number(item.amount || 0) / this.posHourlyMax) * 100)}%`; }
+    get topServiceMax() { return Math.max(1, ...(this.state.data.pos_page?.top_services || []).map(x => Number(x.amount || 0))); }
+    topServiceStyle(item) { return `--cc9-bar:${Math.round((Number(item.amount || 0) / this.topServiceMax) * 100)}%`; }
+
+    _openWindow(options) { return this.action.doAction({ type: "ir.actions.act_window", target: "current", views: [[false, "list"], [false, "form"]], ...options }); }
+    openProduction(id) { return this.action.doAction({ type: "ir.actions.act_window", res_model: "mrp.production", res_id: id, views: [[false, "form"]], target: "current" }); }
+    openKpi(key) { return this._openWindow({ name: _t("أوامر الغسيل"), res_model: "mrp.production", domain: this.state.data.kpi_domains?.[key] || [] }); }
+    openVehicles() { return this.openKpi("active_total"); }
+    openAppointments() { return this._openWindow({ name: _t("المواعيد القادمة"), res_model: "mrp.production", domain: [["company_id","=",this.state.data.company_id],["state","in",["draft","confirmed"]]] }); }
+    openCustomers() { return this._openWindow({ name: _t("العملاء"), res_model: "res.partner", domain: [["customer_rank",">",0]] }); }
+    openWorkcenter(station) { if (station?.placeholder) return this.openShopFloor(); return this._openWindow({ name: station.name, res_model: "mrp.workorder", domain: station.domain || [["workcenter_id", "=", station.id]] }); }
+    openProduct(id) { return this.action.doAction({ type: "ir.actions.act_window", res_model: "product.product", res_id: id, views: [[false, "form"]], target: "current" }); }
+    openAccountingMove(id) { return this.action.doAction({ type: "ir.actions.act_window", res_model: "account.move", res_id: id, views: [[false, "form"]], target: "current" }); }
+    openPosOrder(row) { if (row?.wash_order_id) return this.openProduction(row.wash_order_id); return this.action.doAction({ type: "ir.actions.act_window", res_model: "pos.order", res_id: row.id, views: [[false, "form"]], target: "current" }); }
+    openPosOrders() { return this._openWindow({ name: _t("طلبات نقطة البيع"), res_model: "pos.order", domain: [] }); }
+    openMaterials() { return this._openWindow({ name: _t("مواد المغسلة"), res_model: "product.product", domain: [["id", "in", (this.state.data.materials || []).map(x => x.product_id)]] }); }
+    openAccounting() { return this._openWindow({ name: _t("الفواتير والحسابات"), res_model: "account.move", domain: [["company_id", "=", this.state.data.company_id]] }); }
+    async openShopFloor() { try { await this.action.doAction(this.state.data.shop_floor_action || "mrp_workorder.action_mrp_display"); } catch (e) { this.notification.add(_t("تعذر فتح شاشة الغسيل"), { type: "warning" }); } }
+    async openPosApp() { try { await this.action.doAction("point_of_sale.action_client_pos_menu"); } catch (e) { return this.openPosOrders(); } }
+    async openSettings() { try { await this.action.doAction("base_setup.action_general_configuration"); } catch (e) { this.notification.add(_t("يمكن فتح الإعدادات من تطبيق الإعدادات"), { type: "info" }); } }
+}
+
+registry.category("actions").add("car_wash_dashboard.client_action", CarWashDashboardV9);

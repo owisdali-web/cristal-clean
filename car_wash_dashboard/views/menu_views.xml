@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Client Action -->
+    <record id="action_car_wash_dashboard" model="ir.actions.client">
+        <field name="name">لوحة إدارة المغسلة</field>
+        <field name="tag">car_wash_dashboard.client_action</field>
+        <field name="target">main</field>
+    </record>
+
+    <!-- Top-level App Menu -->
+    <menuitem id="menu_car_wash_root"
+              name="غسيل السيارات"
+              sequence="10"
+              web_icon="car_wash_dashboard,static/description/icon.png"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_car_wash_dashboard"
+              name="لوحة المغسلة"
+              parent="menu_car_wash_root"
+              action="action_car_wash_dashboard"
+              sequence="1"
+              groups="base.group_user"/>
+</odoo>

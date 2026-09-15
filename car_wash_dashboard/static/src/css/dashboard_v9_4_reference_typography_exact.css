@@ -1,0 +1,228 @@
+/*
+ * Crystal Clean V9.4 — Reference Typography Exact Pass
+ * ---------------------------------------------------------------------------
+ * Typography and text/icon semantic colors ONLY.
+ * No geometry/layout, image, animation, data, JS, XML structure, MRP, POS,
+ * stock, accounting, automation, or realtime behavior is changed here.
+ *
+ * Goal: visually match the approved three reference screens:
+ *   - Main wash dashboard
+ *   - Customer lounge screen
+ *   - Materials & Accounts
+ */
+
+.cc9-root {
+    --cc94-navy: #06368f;
+    --cc94-navy-deep: #002f7d;
+    --cc94-blue: #0758c9;
+    --cc94-blue-bright: #087fe2;
+    --cc94-body: #164a7f;
+    --cc94-muted: #5f7d9d;
+    --cc94-soft: #7c96ae;
+    --cc94-green: #079d59;
+    --cc94-orange: #ef7a00;
+    --cc94-violet: #6b3fd8;
+    --cc94-red: #e4374b;
+
+    font-family: "Cairo", Tahoma, Arial, sans-serif !important;
+    font-weight: 700 !important;
+    color: var(--cc94-body) !important;
+    font-synthesis: weight style;
+    font-kerning: normal;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.cc9-root *,
+.cc9-root button,
+.cc9-root input,
+.cc9-root select,
+.cc9-root textarea,
+.cc9-root table,
+.cc9-root th,
+.cc9-root td {
+    font-family: "Cairo", Tahoma, Arial, sans-serif !important;
+}
+
+.cc9-root h1,
+.cc9-root h2,
+.cc9-root h3,
+.cc9-root h4,
+.cc9-root b,
+.cc9-root strong {
+    font-weight: 900 !important;
+}
+
+.cc9-root h1,
+.cc9-root h2,
+.cc9-root h3,
+.cc9-root h4 {
+    color: var(--cc94-navy-deep) !important;
+}
+
+/* ========================= TOP BAR / BRAND / SIDEBAR ====================== */
+.cc9-brand b {font-size:17px!important;font-weight:900!important;color:#fff!important;line-height:1.2!important}
+.cc9-brand span {font-size:9px!important;font-weight:700!important;color:#d9efff!important;line-height:1.35!important}
+.cc9-wordmark b {font-size:21px!important;font-weight:900!important;color:#06449f!important;line-height:1.15!important}
+.cc9-wordmark small {font-size:9.5px!important;font-weight:700!important;color:#4d7096!important;line-height:1.3!important}
+.cc9-user b {font-size:13px!important;font-weight:900!important;color:#05347f!important;line-height:1.2!important}
+.cc9-user small {font-size:9px!important;font-weight:700!important;color:#577a9d!important;line-height:1.3!important}
+.cc9-clock small {font-size:9px!important;font-weight:800!important;color:#315d90!important}
+.cc9-clock b {font-size:15px!important;font-weight:900!important;color:#042f79!important}
+.cc9-search input {font-size:11.5px!important;font-weight:700!important;color:#164a7f!important}
+.cc9-search input::placeholder {color:#708eaa!important;font-weight:700!important;opacity:1!important}
+.cc9-sidebar nav button {font-size:13px!important;font-weight:800!important;color:#eaf6ff!important;line-height:1.1!important}
+.cc9-sidebar nav button.active,.cc9-sidebar nav button:hover {font-weight:900!important;color:#fff!important}
+.cc9-side-promo b {font-size:15px!important;font-weight:900!important;color:#fff!important;line-height:1.3!important}
+.cc9-side-promo span {font-size:10px!important;font-weight:700!important;color:#e6f7ff!important;line-height:1.45!important}
+
+/* =============================== HEROES ================================== */
+.cc91-hero-title h1,
+.hero-title h1 {font-size:38px!important;font-weight:900!important;color:#06358f!important;line-height:1.08!important;letter-spacing:-.35px!important}
+.cc91-hero-title p,
+.hero-title p {font-size:16px!important;font-weight:700!important;color:#496b91!important;line-height:1.4!important}
+.cc91-hero-left-copy,
+.hero-side-copy {font-size:23px!important;font-weight:800!important;color:#074896!important;line-height:1.28!important}
+.cc91-hero-left-copy b,
+.hero-side-copy b {font-size:27px!important;font-weight:900!important;color:#04398e!important;line-height:1.2!important}
+.cc91-hero-slogan,
+.hero-slogan {font-size:21px!important;font-weight:800!important;color:#0750a1!important;line-height:1.3!important}
+.cc91-hero-slogan b,
+.hero-slogan b {font-size:25px!important;font-weight:900!important;color:#063b91!important;line-height:1.2!important}
+.hero-customer .hero-title h1 {font-size:39px!important}
+.customer-promises b {font-size:13px!important;font-weight:900!important;color:#073d8c!important}
+.customer-promises small {font-size:9px!important;font-weight:700!important;color:#597a9c!important}
+
+/* ================================ KPIs =================================== */
+.cc91-kpi b,.cc9-kpis b,.finance-kpis span,.pos-kpis span {font-size:14px!important;font-weight:900!important;color:#073b86!important;line-height:1.2!important}
+.cc91-kpi strong,.cc9-kpis strong,.finance-kpis b,.pos-kpis b {font-size:26px!important;font-weight:900!important;color:#052f76!important;line-height:1.05!important;letter-spacing:-.2px!important;font-variant-numeric:tabular-nums!important}
+.cc91-kpi small,.cc9-kpis small,.finance-kpis small {font-size:10px!important;font-weight:700!important;color:#5e7c9b!important;line-height:1.25!important}
+.cc91-ring b,.cc9-ring b {font-size:16px!important;font-weight:900!important;color:#052d70!important}
+.cc91-kpi .violet,.cc9-kpis i.violet,.finance-kpis i.violet {color:var(--cc94-violet)!important}
+.cc91-kpi .green,.cc9-kpis i.green,.finance-kpis i.green {color:var(--cc94-green)!important}
+.cc91-kpi .blue,.cc9-kpis i.blue,.finance-kpis i.blue {color:var(--cc94-blue-bright)!important}
+.cc91-kpi .orange,.cc9-kpis i.orange {color:var(--cc94-orange)!important}
+.finance-kpis i.red {color:var(--cc94-red)!important}
+
+/* =========================== SECTION HEADERS ============================== */
+.cc9-panel-head h2,.cc9-panel-head h3,.cc91-station-head h2,.cc91-bottom-head h3 {font-size:18px!important;font-weight:900!important;color:#063b86!important;line-height:1.2!important}
+.cc9-panel-head small,.cc91-station-head small {font-size:10px!important;font-weight:700!important;color:#63819f!important;line-height:1.3!important}
+.cc9-panel-head button,.cc91-bottom-head button,.cc91-station-head-actions button {font-size:9px!important;font-weight:800!important;color:#0864bc!important}
+.cc91-live,.cc9-live {font-size:10px!important;font-weight:900!important;color:#078e51!important}
+
+/* ================================ MAIN =================================== */
+.cc91-station-top b {font-size:13.5px!important;font-weight:900!important;color:#063e8d!important;line-height:1.15!important}
+.cc91-status {font-size:9.5px!important;font-weight:900!important;color:#087c48!important}
+.cc91-status.busy {color:#d93a49!important}
+.cc91-status.queue {color:#d77a00!important}
+.cc91-size-pill {font-size:11px!important;font-weight:900!important;color:#fff!important;line-height:1.15!important}
+.cc91-operation-chips span {font-size:9.5px!important;font-weight:800!important;color:#0a62b8!important;line-height:1.2!important}
+.cc91-station.kind-auto .cc91-station-top b,.cc91-station.kind-auto .cc91-operation-chips span {color:#6737d4!important}
+.cc91-station.kind-polish .cc91-station-top b,.cc91-station.kind-polish .cc91-operation-chips span {color:#9b5d00!important}
+.cc91-idle-mask {font-size:9px!important;font-weight:700!important;color:#6f8fa9!important}
+
+.cc91-live-ops table {font-size:9.5px!important;font-weight:700!important;color:#174c83!important}
+.cc91-live-ops th {font-size:9px!important;font-weight:900!important;color:#315e8d!important}
+.cc91-live-ops td {font-size:9.5px!important;font-weight:700!important;color:#14528f!important}
+.cc91-live-ops .plate {font-weight:900!important;color:#055bb2!important}
+.cc91-live-ops .empty-row,.cc91-empty-cars,.cc91-empty-materials {font-size:9px!important;font-weight:700!important;color:#7f99b2!important}
+.cc91-current-summary b {font-size:20px!important;font-weight:900!important;color:#052e72!important}
+.cc91-current-summary span {font-size:10px!important;font-weight:800!important;color:#084b93!important}
+.cc91-car-strip b {font-size:9.5px!important;font-weight:900!important;color:#0752a0!important}
+.cc91-car-strip small {font-size:8px!important;font-weight:700!important;color:#6b89a6!important}
+.cc91-material-line>span,.cc91-material-line>b {font-size:9px!important;font-weight:800!important;color:#084d96!important}
+.cc91-materials footer button {font-size:9px!important;font-weight:900!important;color:#fff!important}
+
+/* ========================== CUSTOMER LOUNGE =============================== */
+.cc9-customer-page .customer-head h2 {font-size:22px!important;font-weight:900!important;color:#063b8c!important}
+.cc9-customer-page .customer-head button {font-size:10px!important;font-weight:800!important;color:#0865ba!important}
+.cc9-customer-page .customer-stage-ribbon>span {font-size:13px!important;font-weight:900!important;color:#063b8c!important}
+.cc9-customer-page .customer-stage-ribbon b {font-size:12px!important;font-weight:900!important;color:#084a9e!important}
+.cc9-customer-page .customer-stage-ribbon b i {font-size:14px!important;font-weight:900!important}
+.customer-card header {font-size:10.5px!important;font-weight:800!important;color:#073f84!important}
+.customer-card header b {font-weight:900!important;color:#063d89!important}
+.customer-card h3 {font-size:12.5px!important;font-weight:900!important;color:#083878!important;line-height:1.25!important}
+.customer-status {font-size:14px!important;font-weight:900!important;color:#0873cf!important;line-height:1.15!important}
+.is-ready_delivery .customer-status {color:#078f51!important}
+.is-waiting .customer-status {color:#df7c00!important}
+.stage-4 .customer-status {color:#6a3bd4!important}
+.customer-time span {font-size:8.5px!important;font-weight:700!important;color:#647f9b!important}
+.customer-time b {font-size:12.5px!important;font-weight:900!important;color:#07336f!important}
+.customer-ops span {font-size:8.5px!important;font-weight:800!important;color:#095fb7!important}
+.stage-dots i {font-size:8px!important;font-weight:900!important;color:#4d78a2!important}
+.ready-list h2 {font-size:21px!important;font-weight:900!important;color:#063b8d!important}
+.ready-list button b {font-size:12px!important;font-weight:900!important;color:#087544!important}
+.ready-list button strong {font-size:15px!important;font-weight:900!important;color:#087544!important}
+.ready-list button small {font-size:9px!important;font-weight:800!important;color:#0b5daf!important}
+.cc9-thanks span {font-size:17px!important;font-weight:900!important;color:#073f92!important}
+.cc9-thanks b {font-size:26px!important;font-weight:900!important;color:#073f92!important;line-height:1.2!important}
+.cc9-thanks p {font-size:13px!important;font-weight:800!important;color:#0b5bb0!important}
+
+/* ======================= FINANCE / MATERIALS ============================== */
+.cc9-finance-page .hero-title h1 {font-size:40px!important}
+.cc9-finance-page .hero-title p {font-size:16px!important}
+.finance-kpis span {font-size:14px!important;font-weight:900!important;color:#073b86!important}
+.finance-kpis b {font-size:27px!important;font-weight:900!important;color:#052f76!important}
+.finance-kpis small {font-size:9.5px!important;font-weight:700!important;color:#5e7c9c!important}
+.week-bars b,.week-bars span {font-size:10px!important;font-weight:800!important;color:#154e8a!important}
+.week-bars b {font-weight:900!important;color:#07388d!important}
+.expense-legend span {font-size:9px!important;font-weight:800!important;color:#214f80!important}
+.expense-legend b,.expense-legend em {font-weight:900!important;color:#073b88!important}
+.donut strong {font-size:17px!important;font-weight:900!important;color:#07357b!important}
+.donut small {font-size:9px!important;font-weight:700!important;color:#657f9c!important}
+.quality-art h2 {font-size:23px!important;font-weight:900!important;color:#063b88!important;line-height:1.3!important}
+.quality-art p {font-size:10.5px!important;font-weight:800!important;color:#224f7e!important;line-height:1.45!important}
+.material-card b {font-size:10.5px!important;font-weight:900!important;color:#063f8f!important}
+.material-card strong {font-size:17px!important;font-weight:900!important;color:#08326f!important}
+.material-card strong small,.material-card em {font-size:9px!important;font-weight:800!important;color:#3f678f!important}
+.stock-alerts h3 {font-size:12px!important;font-weight:900!important;color:#da3546!important}
+.stock-alerts span {font-size:9px!important;font-weight:900!important;color:#da3546!important}
+.top-services>div:not(.cc9-panel-head) {font-size:9.5px!important;font-weight:800!important;color:#154b80!important}
+.top-services>div>b,.top-services>div>strong {font-weight:900!important;color:#063b8d!important}
+.top-services>div>small {font-size:8.5px!important;font-weight:800!important;color:#315e8b!important}
+.accounting-moves table {font-size:9.5px!important;font-weight:700!important;color:#154d83!important}
+.accounting-moves th {font-size:9px!important;font-weight:900!important;color:#315f91!important}
+.accounting-moves td {font-size:9.5px!important;font-weight:700!important;color:#15518b!important}
+.finance-actions button {font-size:10px!important;font-weight:900!important;color:#fff!important}
+
+/* ================================ POS ==================================== */
+.cc9-pos-page .hero-title h1 {font-size:38px!important}
+.pos-kpis span {font-size:14px!important;font-weight:900!important;color:#073b86!important}
+.pos-kpis b {font-size:26px!important;font-weight:900!important;color:#052f76!important}
+.pos-orders table {font-size:9.5px!important;font-weight:700!important;color:#154d83!important}
+.pos-orders th {font-size:9px!important;font-weight:900!important;color:#315f91!important}
+.pos-orders td {font-size:9.5px!important;font-weight:700!important;color:#15518b!important}
+.pos-orders .services,.pos-services button span b,.pos-services button strong {font-weight:900!important;color:#073d85!important}
+.pos-services button span small,.pos-services button>small {font-size:9px!important;font-weight:700!important;color:#66839f!important}
+.pos-state {font-size:10px!important;font-weight:900!important;color:#0b6dca!important}
+.hour-bars b {font-size:10px!important;font-weight:900!important;color:#174e86!important}
+.hour-bars small {font-size:8.5px!important;font-weight:700!important;color:#647f9a!important}
+
+/* ============================ FOOTER / STATUS ============================= */
+.cc9-footer {font-size:9px!important;font-weight:700!important;color:#557595!important}
+.cc9-footer b {font-weight:900!important;color:#063d86!important}
+.cc9-footer .ok {font-weight:900!important;color:#078e52!important}
+.cc9-toast {font-size:11px!important;font-weight:900!important;color:#fff!important}
+
+/* Keep reference hierarchy readable when the Odoo window is narrower. */
+@media (max-width:1400px) {
+    .cc91-hero-title h1,.hero-title h1 {font-size:34px!important}
+    .cc91-hero-title p,.hero-title p {font-size:14px!important}
+    .cc91-hero-left-copy,.hero-side-copy {font-size:20px!important}
+    .cc91-hero-left-copy b,.hero-side-copy b {font-size:23px!important}
+    .cc91-hero-slogan,.hero-slogan {font-size:19px!important}
+    .cc91-hero-slogan b,.hero-slogan b {font-size:22px!important}
+    .cc91-kpi b,.finance-kpis span,.pos-kpis span {font-size:12.5px!important}
+    .cc91-kpi strong,.finance-kpis b,.pos-kpis b {font-size:23px!important}
+}
+@media (max-width:1150px) {
+    .cc91-hero-title h1,.hero-title h1 {font-size:30px!important}
+    .cc9-sidebar nav button {font-size:12px!important}
+}
+@media (max-width:760px) {
+    .cc91-hero-title h1,.hero-title h1 {font-size:25px!important}
+    .cc91-hero-title p,.hero-title p {font-size:12px!important}
+    .cc9-sidebar nav button {font-size:10.5px!important}
+}
