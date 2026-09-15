@@ -28,59 +28,77 @@ class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
     def create_mrp_from_pos(self, products):
-        """ Create manufacturing orders for the POS order lines.
-
-        The manufacturing order is created in ``draft`` state so that Odoo's
-        own computed fields build the component moves (``move_raw_ids``) *and*
-        the work orders / operations (``workorder_ids``) from the Bill of
-        Material. ``action_confirm()`` then confirms those moves and work
-        orders and links them together, exactly like a manually created MO.
-        """
-        if not products:
-            return True
-
-        # Aggregate the quantities of identical products across order lines.
+        """Function for creating manufacturing orders from POS orders."""
         product_ids = []
-        for product in products:
-            if not self.env['product.product'].browse(
-                    int(product['id'])).to_make_mrp:
-                continue
-            existing = next(
-                (p for p in product_ids if p['id'] == product['id']), False)
-            if existing:
-                existing['qty'] += product['qty']
-            else:
-                product_ids.append(dict(product))
+        if products:
+            for product in products:
+                if self.env['product.product'].browse(int(product['id'])).to_make_mrp:
+                    flag = 1
+                    if product_ids:
+                        for product_id in product_ids:
+                            if product_id['id'] == product['id']:
+                                product_id['qty'] += product['qty']
+                                flag = 0
+                    if flag:
+                        product_ids.append(product)
 
-        for prod in product_ids:
-            if prod['qty'] <= 0:
-                continue
+            for prod in product_ids:
+                if prod['qty'] > 0:
+                    product_template_id = self.env['product.product'].browse(
+                        prod['id']).product_tmpl_id.id
+                    bom_count = self.env['mrp.bom'].search(
+                        [('product_tmpl_id', '=', product_template_id)])
+                    if bom_count:
+                        bom_temp = self.env['mrp.bom'].search([
+                            ('product_tmpl_id', '=', product_template_id),
+                            ('product_id', '=', False)
+                        ])
+                        bom_prod = self.env['mrp.bom'].search(
+                            [('product_id', '=', prod['id'])])
+                        if bom_prod:
+                            bom = bom_prod[0]
+                        elif bom_temp:
+                            bom = bom_temp[0]
+                        else:
+                            bom = []
 
-            product_template_id = self.env['product.product'].browse(
-                int(prod['id'])).product_tmpl_id.id
+                        if bom:
+                            # Safely get the routing ID (if the field exists)
+                            routing_id = getattr(bom, 'routing_id', False)
+                            routing_id = routing_id.id if routing_id else False
 
-            # A BoM tied to this exact variant wins over a template level BoM.
-            bom_prod = self.env['mrp.bom'].search([
-                ('product_id', '=', prod['id'])], limit=1)
-            bom_temp = self.env['mrp.bom'].search([
-                ('product_tmpl_id', '=', product_template_id),
-                ('product_id', '=', False)], limit=1)
-            bom = bom_prod or bom_temp
-            if not bom:
-                continue
+                            vals = {
+                                'origin': 'POS-' + prod['pos_reference'],
+                                'state': 'confirmed',
+                                'product_tmpl_id': product_template_id,
+                                'product_id': prod['id'],
+                                'product_uom_id': prod['uom_id'],
+                                'product_qty': prod['qty'],
+                                'bom_id': bom.id,
+                                'routing_id': routing_id,
+                            }
+                            mrp_order = self.sudo().create(vals)
 
-            # Create the MO in draft: Odoo now computes move_raw_ids AND
-            # workorder_ids (the operations) from the BoM automatically.
-            mrp_order = self.sudo().create({
-                'origin': 'POS-' + prod['pos_reference'],
-                'product_id': prod['id'],
-                'product_uom_id': prod['uom_id'],
-                'product_qty': prod['qty'],
-                'bom_id': bom.id,
-            })
+                            # Generate work orders if a routing is set
+                            if mrp_order.routing_id:
+                                mrp_order._generate_workorders()
 
-            # Confirm the MO: this confirms the component moves and the work
-            # orders and links each move to its operation.
-            mrp_order.action_confirm()
+                            # --- USE THE STANDARD POS METHOD FOR CREATING THE DELIVERY ORDER ---
+                            # Find the POS order that triggered this
+                            pos_order = self.env['pos.order'].search([
+                                ('pos_reference', '=', prod['pos_reference'])
+                            ], limit=1)
+
+                            if pos_order:
+                                # Get the delivery picking type from the POS config
+                                picking_type = pos_order.config_id.picking_type_id
+
+                                # Create the picking using the standard method
+                                pos_order._create_picking_from_pos_order_lines(
+                                    location_dest_id=picking_type.default_location_dest_id.id,
+                                    lines=pos_order.lines,
+                                    picking_type=picking_type,
+                                    partner=pos_order.partner_id,
+                                )
 
         return True
