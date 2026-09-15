@@ -32,7 +32,8 @@ class MrpProduction(models.Model):
         product_ids = []
         if products:
             for product in products:
-                if self.env['product.product'].browse(int(product['id'])).to_make_mrp:
+                if self.env['product.product'].browse(
+                        int(product['id'])).to_make_mrp:
                     flag = 1
                     if product_ids:
                         for product_id in product_ids:
@@ -46,15 +47,17 @@ class MrpProduction(models.Model):
                 if prod['qty'] > 0:
                     product_template_id = self.env['product.product'].browse(
                         prod['id']).product_tmpl_id.id
-                    bom_count = self.env['mrp.bom'].search(
-                        [('product_tmpl_id', '=', product_template_id)])
+                    bom_count = self.env['mrp.bom'].search([
+                        ('product_tmpl_id', '=', product_template_id)
+                    ])
                     if bom_count:
                         bom_temp = self.env['mrp.bom'].search([
                             ('product_tmpl_id', '=', product_template_id),
                             ('product_id', '=', False)
                         ])
-                        bom_prod = self.env['mrp.bom'].search(
-                            [('product_id', '=', prod['id'])])
+                        bom_prod = self.env['mrp.bom'].search([
+                            ('product_id', '=', prod['id'])
+                        ])
                         if bom_prod:
                             bom = bom_prod[0]
                         elif bom_temp:
@@ -63,42 +66,32 @@ class MrpProduction(models.Model):
                             bom = []
 
                         if bom:
-                            # Safely get the routing ID (if the field exists)
-                            routing_id = getattr(bom, 'routing_id', False)
-                            routing_id = routing_id.id if routing_id else False
-
                             vals = {
                                 'origin': 'POS-' + prod['pos_reference'],
-                                'state': 'confirmed',
                                 'product_tmpl_id': product_template_id,
                                 'product_id': prod['id'],
                                 'product_uom_id': prod['uom_id'],
                                 'product_qty': prod['qty'],
                                 'bom_id': bom.id,
-                                'routing_id': routing_id,
                             }
                             mrp_order = self.sudo().create(vals)
 
-                            # Generate work orders if a routing is set
-                            if mrp_order.routing_id:
-                                mrp_order._generate_workorders()
+                            # Confirm the MO – this generates work orders
+                            # (from the BOM's routing) and the stock moves.
+                            mrp_order.action_confirm()
 
-                            # --- USE THE STANDARD POS METHOD FOR CREATING THE DELIVERY ORDER ---
-                            # Find the POS order that triggered this
+                            # --- OPTIONAL: link the POS delivery order ---
+                            # If you still need the POS picking, use the standard
+                            # method from the pos.order model:
                             pos_order = self.env['pos.order'].search([
                                 ('pos_reference', '=', prod['pos_reference'])
                             ], limit=1)
-
                             if pos_order:
-                                # Get the delivery picking type from the POS config
                                 picking_type = pos_order.config_id.picking_type_id
-
-                                # Create the picking using the standard method
                                 pos_order._create_picking_from_pos_order_lines(
                                     location_dest_id=picking_type.default_location_dest_id.id,
                                     lines=pos_order.lines,
                                     picking_type=picking_type,
                                     partner=pos_order.partner_id,
                                 )
-
         return True
