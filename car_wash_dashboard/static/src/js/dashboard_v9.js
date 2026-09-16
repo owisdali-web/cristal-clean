@@ -16,7 +16,7 @@ export class CarWashDashboardV9 extends Component {
         this.bus = useService("bus_service");
         this.state = useState({
             loading: true, page: "dashboard", query: "", lastUpdate: "", realtime: false,
-            livePulse: false, liveMessage: "", animationTick: 0, customerFocusIndex: 0, selectedCarId: false, selectedStationId: false, vehicleFilter: "all", reportPeriod: "week",
+            livePulse: false, liveMessage: "", animationTick: 0, customerFocusIndex: 0, selectedCarId: false, selectedStationId: false, vehicleFilter: "all", reportPeriod: "week", theme: "dark", themeInitialized: false,
             data: this.emptyData(),
         });
         this.refreshTimer = null; this.animationTimer = null; this.customerTimer = null;
@@ -39,7 +39,7 @@ export class CarWashDashboardV9 extends Component {
 
     emptyData() {
         return {
-            dashboard_version: "12.0-digital-twin", company_id: false, company_name: "كريستال كلين", currency_symbol: "", current_user_name: "", current_user_initial: "U", current_user_role: "",
+            dashboard_version: "13.0-preview-station-control", company_id: false, company_name: "كريستال كلين", currency_symbol: "", current_user_name: "", current_user_initial: "U", current_user_role: "", current_user_theme: "dark",
             active_total: 0, in_progress: 0, waiting: 0, ready_delivery: 0, done_today: 0, total_today: 0,
             overdue: 0, avg_turnaround: 0, workcenter_load: [], active_cars: [], materials: [], low_stock: [], upcoming: [],
             pos_page: { orders: [], top_services: [], hourly: [], orders_today: 0, revenue_today: 0, avg_ticket: 0, customers_today: 0, month_revenue: 0, month_orders: 0 },
@@ -58,6 +58,10 @@ export class CarWashDashboardV9 extends Component {
         try {
             const result = await this.orm.call("mrp.production", "get_dashboard_data", []);
             this.state.data = { ...this.emptyData(), ...result };
+            if (!this.state.themeInitialized) {
+                this.state.theme = result.current_user_theme === "light" ? "light" : "dark";
+                this.state.themeInitialized = true;
+            }
             this.state.lastUpdate = new Date().toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" });
             if (!this.busChannel && result.bus_channel) await this.setupRealtime();
         } catch (error) {
@@ -92,6 +96,16 @@ export class CarWashDashboardV9 extends Component {
     }
 
     async manualRefresh() { await this.fetchData(); this.notification.add(_t("تم تحديث البيانات"), { type: "success" }); }
+    async toggleTheme() {
+        const next = this.state.theme === "dark" ? "light" : "dark";
+        this.state.theme = next;
+        try {
+            await this.orm.call("mrp.production", "set_dashboard_theme", [next]);
+            this.state.data.current_user_theme = next;
+        } catch (error) {
+            console.warn("Could not persist dashboard theme", error);
+        }
+    }
     setPage(page) {
         this.state.page = page;
         this.state.query = "";
@@ -239,6 +253,41 @@ export class CarWashDashboardV9 extends Component {
     statusLabel(car) { return car?.status_label || "في الانتظار"; }
     carDurationLabel(car) { const m = Number(car?.elapsed_minutes || 0); return m < 60 ? `${m} دقيقة` : `${Math.floor(m / 60)}س ${m % 60}د`; }
     remainingLabel(car) { const m = Number(car?.remaining_minutes || 0); return m ? `متبقي ${m} دقيقة` : "الوقت يحدّث حسب المراحل"; }
+    stationCrewLabel(station) {
+        const car = this.stationCar(station);
+        return car?.operator_label || (this.stationKind(station) === "auto" ? "فريق الغسيل الآلي" : this.stationKind(station) === "polish" ? "فريق اللمعة" : "فريق المحطة");
+    }
+    stationElapsedLabel(station) { const car = this.stationCar(station); return car ? this.carDurationLabel(car) : "--:--"; }
+    stationQueueLabel(station) { const q = Number(station?.queue || 0); return q ? `${q} انتظار` : "0 انتظار"; }
+    stationDoneLabel(station) { return `${Number(station?.done_today || 0)} منجزة`; }
+    stationEfficiencyLabel(station) { const v = Number(station?.efficiency || 0); return v ? `${Math.round(v)}% كفاءة` : "كفاءة قيد القياس"; }
+    initialOf(name) { const value = `${name || "U"}`.trim(); return value ? value[0] : "U"; }
+    staffProgressStyle(row) { const pct = row?.status === "present" ? 100 : (row?.status === "done" ? 70 : 25); return `--cc10-progress:${pct}%`; }
+    selectStation(station) { this.state.selectedStationId = station?.id || station?.station_code || false; }
+    closeStation() { this.state.selectedStationId = false; }
+    get selectedStation() {
+        if (!this.state.selectedStationId) return null;
+        return this.stationSlots.find(s => s.id === this.state.selectedStationId || s.station_code === this.state.selectedStationId) || null;
+    }
+    get selectedStationCar() { return this.stationCar(this.selectedStation); }
+    stationTone(station) {
+        const kind = this.stationKind(station);
+        const status = this.stationStatus(station);
+        if (kind === "polish") return "polish";
+        if (kind === "auto") return "auto";
+        if (status === "busy") return "active";
+        if (status === "queue") return "warning";
+        return "free";
+    }
+    get dashboardAlerts() {
+        const alerts = [];
+        if (Number(this.state.data.overdue || 0)) alerts.push({ tone: "danger", icon: "fa-clock-o", text: `${this.state.data.overdue} سيارة تجاوزت الوقت المتوقع` });
+        for (const item of (this.state.data.low_stock || []).slice(0, 2)) alerts.push({ tone: "warning", icon: "fa-cube", text: `${item.product_name}: مخزون منخفض` });
+        const queues = this.stationSlots.filter(s => Number(s.queue || 0) > 0).slice(0, 2);
+        for (const s of queues) alerts.push({ tone: "info", icon: "fa-hourglass-half", text: `${this.stationCode(s)} لديها ${s.queue} في الانتظار` });
+        if (!alerts.length) alerts.push({ tone: "success", icon: "fa-check", text: "جميع المحطات تعمل بصورة طبيعية" });
+        return alerts.slice(0, 4);
+    }
 
     get vehiclePageCars() {
         const cars = this.filteredCars;

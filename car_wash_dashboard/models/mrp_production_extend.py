@@ -872,6 +872,16 @@ class MrpProduction(models.Model):
         if start_anchor:
             elapsed_minutes = max(0, round((fields.Datetime.now() - start_anchor).total_seconds() / 60.0))
 
+        operator_names = []
+        if current_wo:
+            for fname in ('employee_assigned_ids', 'employee_ids'):
+                if fname in current_wo._fields:
+                    operator_names = [name for name in current_wo[fname].mapped('name') if name]
+                    if operator_names:
+                        break
+            if not operator_names and 'user_id' in current_wo._fields and current_wo.user_id:
+                operator_names = [current_wo.user_id.name]
+
         return {
             'id': mo.id,
             'name': mo.name or '',
@@ -907,7 +917,18 @@ class MrpProduction(models.Model):
             'remaining_minutes': remaining_minutes,
             'operations': operations,
             'current_operation_kind': current_operation_kind,
+            'operator_names': operator_names,
+            'operator_label': '، '.join(operator_names),
         }
+
+    @api.model
+    def set_dashboard_theme(self, theme):
+        """Persist the Crystal Clean dashboard theme for the current Odoo user."""
+        if theme not in ('dark', 'light'):
+            return False
+        if 'cc_dashboard_theme' in self.env.user._fields:
+            self.env.user.sudo().write({'cc_dashboard_theme': theme})
+        return True
 
     # ------------------------------------------------------------------
     # Dashboard V2 payload
@@ -1370,7 +1391,7 @@ class MrpProduction(models.Model):
         }
 
         return {
-            'dashboard_version': '12.0-digital-twin',
+            'dashboard_version': '13.0-preview-station-control',
             'company_id': company.id,
             'company_name': company.display_name,
             'currency_symbol': company.currency_id.symbol or '',
@@ -1427,6 +1448,7 @@ class MrpProduction(models.Model):
             'current_user_name': current_user.name or '',
             'current_user_initial': (current_user.name or 'U')[:1],
             'current_user_role': '',
+            'current_user_theme': getattr(current_user, 'cc_dashboard_theme', False) or 'dark',
             'maintenance_page': maintenance_page,
             'reports_page': reports_page,
             'stock_value': stock_value,
