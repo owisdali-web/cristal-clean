@@ -24,11 +24,13 @@ export class CarWashDashboardV9 extends Component {
         this.onBusNotification = (payload) => this.handleBusNotification(payload);
         onWillStart(async () => { await this.fetchData(); await this.setupRealtime(); });
         onMounted(() => {
+            document.body.classList.add("cc12-dashboard-mode");
             this.refreshTimer = setInterval(() => this.fetchData({ silent: true }), 15000);
             this.animationTimer = setInterval(() => { this.state.animationTick += 1; }, 2600);
             this.customerTimer = setInterval(() => this.advanceCustomerFocus(), 6000);
         });
         onWillUnmount(() => {
+            document.body.classList.remove("cc12-dashboard-mode");
             for (const timer of [this.refreshTimer, this.animationTimer, this.customerTimer, this.busRefreshTimer, this.liveTimer]) if (timer) clearTimeout(timer);
             if (this.busSubscribed) this.bus.unsubscribe(REFRESH_TYPE, this.onBusNotification);
             if (this.busChannel) this.bus.deleteChannel(this.busChannel);
@@ -37,7 +39,7 @@ export class CarWashDashboardV9 extends Component {
 
     emptyData() {
         return {
-            dashboard_version: "11.0-premium-real", company_id: false, company_name: "كريستال كلين", currency_symbol: "", current_user_name: "", current_user_initial: "U", current_user_role: "",
+            dashboard_version: "12.0-digital-twin", company_id: false, company_name: "كريستال كلين", currency_symbol: "", current_user_name: "", current_user_initial: "U", current_user_role: "",
             active_total: 0, in_progress: 0, waiting: 0, ready_delivery: 0, done_today: 0, total_today: 0,
             overdue: 0, avg_turnaround: 0, workcenter_load: [], active_cars: [], materials: [], low_stock: [], upcoming: [],
             pos_page: { orders: [], top_services: [], hourly: [], orders_today: 0, revenue_today: 0, avg_ticket: 0, customers_today: 0, month_revenue: 0, month_orders: 0 },
@@ -115,24 +117,54 @@ export class CarWashDashboardV9 extends Component {
     get readyCars() { return (this.state.data.active_cars || []).filter(c => c.status_code === "ready_delivery"); }
 
     get stationSlots() {
-        const raw = [...(this.state.data.workcenter_load || [])]; let auto = null; let polish = null; const general = [];
+        const raw = [...(this.state.data.workcenter_load || [])];
+        const slots = new Array(10).fill(null);
+        const leftovers = [];
+        let auto = null;
+        let polish = null;
+
+        const slotFromName = (name) => {
+            const m = `${name || ""}`.toUpperCase().match(/(?:^|\s)A\s*(10|[1-9])(?:\b|[^0-9])/);
+            return m ? Number(m[1]) : 0;
+        };
+
         for (const station of raw) {
+            const explicit = slotFromName(station.name);
             const kind = this.stationKind(station);
+            if (explicit >= 1 && explicit <= 10 && !slots[explicit - 1]) {
+                slots[explicit - 1] = station;
+                continue;
+            }
             if (kind === "auto" && !auto) auto = station;
             else if (kind === "polish" && !polish) polish = station;
-            else general.push(station);
+            else leftovers.push(station);
         }
-        const takeGeneral = () => general.shift() || null;
-        // Crystal Clean operational rule: 10 visual slots, with slot 6 reserved for
-        // the automatic wash and slot 10 reserved for polishing. The remaining
-        // eight slots are flexible/general wash stations.
-        const slots = [takeGeneral(), takeGeneral(), takeGeneral(), takeGeneral(), takeGeneral(), auto, takeGeneral(), takeGeneral(), takeGeneral(), polish];
+
+        // Crystal Clean real layout: A1-A8 flexible, A9 automatic wash, A10 polish/shine.
+        if (!slots[8] && auto) slots[8] = auto;
+        if (!slots[9] && polish) slots[9] = polish;
+        for (let i = 0; i < 8; i++) {
+            if (!slots[i]) slots[i] = leftovers.shift() || null;
+        }
+        // Preserve any unmatched real workcenters instead of losing them.
+        for (let i = 0; i < 10 && leftovers.length; i++) {
+            if (!slots[i]) slots[i] = leftovers.shift();
+        }
+
         return slots.map((station, i) => {
-            const fixedKind = i === 5 ? "auto" : (i === 9 ? "polish" : "general");
+            const slot = i + 1;
+            const fixedKind = slot === 9 ? "auto" : (slot === 10 ? "polish" : "general");
             return station
-                ? { ...station, slot: i + 1, kind_override: fixedKind }
-                : { id: `placeholder-${i + 1}`, name: `المحطة ${i + 1}`, slot: i + 1, kind_override: fixedKind, placeholder: true, load: 0, in_progress: 0, queue: 0, cars: [] };
+                ? { ...station, slot, station_code: `A${slot}`, kind_override: fixedKind }
+                : { id: `placeholder-${slot}`, name: `A${slot}`, station_code: `A${slot}`, slot, kind_override: fixedKind, placeholder: true, load: 0, in_progress: 0, queue: 0, cars: [] };
         });
+    }
+    stationCode(station) { return station?.station_code || `A${station?.slot || 1}`; }
+    stationTypeLabel(station) {
+        const kind = this.stationKind(station);
+        if (kind === "auto") return "غسيل آلي";
+        if (kind === "polish") return "لمعة وتلميع";
+        return "محطة مرنة";
     }
     stationKind(station) {
         if (station?.kind_override) return station.kind_override;
@@ -178,19 +210,19 @@ export class CarWashDashboardV9 extends Component {
         return "جاهزة لاستقبال السيارات";
     }
     stationPhoto(station) {
-        const base = "/car_wash_dashboard/static/src/img/premium_real/";
+        const base = "/car_wash_dashboard/static/src/img/premium_real_v12/";
         const kind = this.stationKind(station);
         if (kind === "auto") return base + "station_auto.webp";
         if (kind === "polish") return base + "station_worker.webp";
         const photos = [
             "station_toyota.webp",
             "station_nissan.webp",
-            "station_worker.webp",
             "station_mercedes.webp",
+            "station_worker.webp",
+            "overview_day.webp",
             "hero_storefront.webp",
-            "parking_overhead.webp",
+            "overview_night.webp",
             "night_lineup.webp",
-            "station_toyota.webp",
         ];
         const slot = Math.max(1, Number(station?.slot || 1));
         return base + photos[(slot - 1) % photos.length];
@@ -298,7 +330,16 @@ export class CarWashDashboardV9 extends Component {
     customerStatusClass(car) { return `is-${this.statusClass(car)} stage-${this.customerStageIndex(car)}`; }
     customerProgressStyle(car) { return `--cc9-car-progress:${Math.max(0, Math.min(100, Number(car?.progress || 0)))}%`; }
     customerStageDots(car) { return [1,2,3,4,5,6].map(n => ({ n, active: n === this.customerStageIndex(car), done: n < this.customerStageIndex(car) })); }
-    async toggleCustomerFullscreen() { try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen(); else await document.exitFullscreen(); } catch (e) { console.warn(e); } }
+    async toggleCustomerFullscreen() {
+        try {
+            if (!document.fullscreenElement) {
+                const target = document.querySelector(".cc12-customer-page") || document.documentElement;
+                await target.requestFullscreen();
+            } else {
+                await document.exitFullscreen();
+            }
+        } catch (e) { console.warn(e); }
+    }
 
     get displayMaterials() { return (this.state.data.materials || []).slice(0, 7); }
     materialPct(item) { const free = Math.max(0, Number(item?.free || 0)); const max = Math.max(free, Number(item?.on_hand || 0), Number(item?.min_qty || 0) * 2, 1); return Math.round((free / max) * 100); }

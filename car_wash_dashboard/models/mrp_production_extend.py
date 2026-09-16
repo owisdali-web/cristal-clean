@@ -1308,14 +1308,41 @@ class MrpProduction(models.Model):
         known_plate_count = sum(1 for car in active_cars if car.get('plate') and car.get('plate') != 'بدون لوحة')
         data_quality = round((known_plate_count / len(active_cars)) * 100, 1) if active_cars else 100.0
 
-        pos_extra = self._cw_pos_extra_payload(service_products, today_start, today_end)
-        finance_extra = self._cw_finance_extra_payload(today, today_start, today_end, pos_extra)
+        try:
+            pos_extra = self._cw_pos_extra_payload(service_products, today_start, today_end)
+        except Exception:
+            pos_extra = {
+                'orders': [], 'top_services': [], 'hourly': [], 'orders_today': 0,
+                'revenue_today': 0.0, 'avg_ticket': 0.0, 'customers_today': 0,
+                'month_revenue': 0.0, 'month_orders': 0,
+            }
+        try:
+            finance_extra = self._cw_finance_extra_payload(today, today_start, today_end, pos_extra)
+        except Exception:
+            finance_extra = {
+                'recent_moves': [], 'expense_breakdown': [], 'week_pos_sales': [],
+                'customer_invoices_today': 0, 'vendor_bills_today': 0,
+                'receivable_open': 0.0, 'payable_open': 0.0,
+                'pos_revenue_today': pos_extra.get('revenue_today', 0.0),
+                'pos_month_revenue': pos_extra.get('month_revenue', 0.0),
+                'collected_today': 0.0, 'expense_today': 0.0,
+                'net_today': pos_extra.get('revenue_today', 0.0), 'month_expense': 0.0,
+            }
         stock_value = round(sum(
             item.get('free', 0.0) * (self.env['product.product'].browse(item['product_id']).standard_price or 0.0)
             for item in materials
         ), 2)
         current_user = self.env.user
-        client_hr_page = self._cw_client_hr_payload(service_products, today_start, today_end)
+        try:
+            client_hr_page = self._cw_client_hr_payload(service_products, today_start, today_end)
+        except Exception:
+            client_hr_page = {
+                'customer_rows': [], 'top_customers': [], 'total_customers': 0,
+                'repeat_customers': 0, 'new_customers_month': 0, 'inactive_30': 0,
+                'user_rows': [], 'total_users': 0, 'present_today': 0,
+                'attendance_rate': 0.0, 'shift_rows': [], 'shift_count': 0,
+                'station_workers': 0,
+            }
         customer_screen = {
             'cars': sorted(active_cars, key=lambda c: (0 if c.get('status_code') == 'ready_delivery' else 1, -c.get('progress', 0), c.get('elapsed_minutes', 0))),
             'ready_count': sum(1 for c in active_cars if c.get('status_code') == 'ready_delivery'),
@@ -1323,8 +1350,14 @@ class MrpProduction(models.Model):
             'waiting_count': sum(1 for c in active_cars if c.get('status_code') in ('waiting', 'ready')),
             'avg_turnaround': avg_turnaround,
         }
-        customer_page = self._cw_customer_page_payload(service_products, today_start, today_end)
-        maintenance_page = self._cw_maintenance_page_payload(today)
+        try:
+            customer_page = self._cw_customer_page_payload(service_products, today_start, today_end)
+        except Exception:
+            customer_page = {'rows': [], 'total': 0, 'repeat': 0, 'new_today': 0, 'inactive_30': 0}
+        try:
+            maintenance_page = self._cw_maintenance_page_payload(today)
+        except Exception:
+            maintenance_page = {'available': False, 'rows': [], 'equipment_count': 0, 'due_soon': 0, 'open_faults': 0, 'health_avg': 0}
         station_utilization = round(sum(w.get('utilization', 0.0) for w in workcenter_load) / len(workcenter_load), 1) if workcenter_load else 0.0
         reports_page = {
             'avg_service_minutes': avg_turnaround,
@@ -1337,7 +1370,7 @@ class MrpProduction(models.Model):
         }
 
         return {
-            'dashboard_version': '11.0-premium-real',
+            'dashboard_version': '12.0-digital-twin',
             'company_id': company.id,
             'company_name': company.display_name,
             'currency_symbol': company.currency_id.symbol or '',
