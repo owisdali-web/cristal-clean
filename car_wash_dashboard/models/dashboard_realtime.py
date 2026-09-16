@@ -129,3 +129,36 @@ class AccountMoveRealtime(models.Model):
         if company_ids and (set(vals) & self._CW_WATCH):
             _send_refresh(self.env, company_ids, 'accounting_updated', self._name, self.ids)
         return result
+
+
+class MrpWorkcenterRealtime(models.Model):
+    _inherit = 'mrp.workcenter'
+
+    _CW_WATCH = {
+        'name', 'code', 'active', 'sequence', 'default_capacity',
+        'cc_is_car_wash_station', 'cc_station_code', 'cc_station_order',
+        'cc_station_kind', 'cc_station_manual_state',
+    }
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        stations = records.filtered('cc_is_car_wash_station')
+        if stations:
+            company_ids = [r.company_id.id or self.env.company.id for r in stations]
+            _send_refresh(self.env, company_ids, 'station_created', self._name, stations.ids)
+        return records
+
+    def write(self, vals):
+        before_company_ids = [r.company_id.id or self.env.company.id for r in self]
+        result = super().write(vals)
+        if set(vals) & self._CW_WATCH:
+            after_company_ids = [r.company_id.id or self.env.company.id for r in self]
+            _send_refresh(
+                self.env,
+                before_company_ids + after_company_ids,
+                'station_updated',
+                self._name,
+                self.ids,
+            )
+        return result

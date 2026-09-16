@@ -39,7 +39,7 @@ export class CarWashDashboardV9 extends Component {
 
     emptyData() {
         return {
-            dashboard_version: "13.0-preview-station-control", company_id: false, company_name: "كريستال كلين", currency_symbol: "", current_user_name: "", current_user_initial: "U", current_user_role: "", current_user_theme: "dark",
+            dashboard_version: "14.0-station-topology", company_id: false, company_name: "كريستال كلين", currency_symbol: "", current_user_name: "", current_user_initial: "U", current_user_role: "", current_user_theme: "dark",
             active_total: 0, in_progress: 0, waiting: 0, ready_delivery: 0, done_today: 0, total_today: 0,
             overdue: 0, avg_turnaround: 0, workcenter_load: [], active_cars: [], materials: [], low_stock: [], upcoming: [],
             pos_page: { orders: [], top_services: [], hourly: [], orders_today: 0, revenue_today: 0, avg_ticket: 0, customers_today: 0, month_revenue: 0, month_orders: 0 },
@@ -131,64 +131,20 @@ export class CarWashDashboardV9 extends Component {
     get readyCars() { return (this.state.data.active_cars || []).filter(c => c.status_code === "ready_delivery"); }
 
     get stationSlots() {
-        const raw = [...(this.state.data.workcenter_load || [])];
-        const slots = new Array(10).fill(null);
-        const leftovers = [];
-        let auto = null;
-        let polish = null;
-
-        const slotFromName = (name) => {
-            const m = `${name || ""}`.toUpperCase().match(/(?:^|\s)A\s*(10|[1-9])(?:\b|[^0-9])/);
-            return m ? Number(m[1]) : 0;
-        };
-
-        for (const station of raw) {
-            const explicit = slotFromName(station.name);
-            const kind = this.stationKind(station);
-            if (explicit >= 1 && explicit <= 10 && !slots[explicit - 1]) {
-                slots[explicit - 1] = station;
-                continue;
-            }
-            if (kind === "auto" && !auto) auto = station;
-            else if (kind === "polish" && !polish) polish = station;
-            else leftovers.push(station);
-        }
-
-        // Crystal Clean real layout: A1-A8 flexible, A9 automatic wash, A10 polish/shine.
-        if (!slots[8] && auto) slots[8] = auto;
-        if (!slots[9] && polish) slots[9] = polish;
-        for (let i = 0; i < 8; i++) {
-            if (!slots[i]) slots[i] = leftovers.shift() || null;
-        }
-        // Preserve any unmatched real workcenters instead of losing them.
-        for (let i = 0; i < 10 && leftovers.length; i++) {
-            if (!slots[i]) slots[i] = leftovers.shift();
-        }
-
-        return slots.map((station, i) => {
-            const slot = i + 1;
-            const fixedKind = slot === 9 ? "auto" : (slot === 10 ? "polish" : "general");
-            return station
-                ? { ...station, slot, station_code: `A${slot}`, kind_override: fixedKind }
-                : { id: `placeholder-${slot}`, name: `A${slot}`, station_code: `A${slot}`, slot, kind_override: fixedKind, placeholder: true, load: 0, in_progress: 0, queue: 0, cars: [] };
-        });
+        return [...(this.state.data.workcenter_load || [])]
+            .filter((station) => station && !station.placeholder)
+            .sort((a, b) => (Number(a.display_order || 0) - Number(b.display_order || 0)) || (Number(a.id || 0) - Number(b.id || 0)));
     }
-    stationCode(station) { return station?.station_code || `A${station?.slot || 1}`; }
-    stationTypeLabel(station) {
-        const kind = this.stationKind(station);
-        if (kind === "auto") return "غسيل آلي";
-        if (kind === "polish") return "لمعة وتلميع";
-        return "محطة مرنة";
+    stationCode(station) { return station?.station_code || station?.native_code || station?.name || "—"; }
+    stationTypeLabel(station) { return station?.kind_label || (this.stationKind(station) === "auto" ? "غسيل آلي" : this.stationKind(station) === "polish" ? "لمعة وتلميع" : "محطة مرنة"); }
+    stationKind(station) { return station?.kind || "general"; }
+    stationStatus(station) {
+        const state = station?.runtime_state || "available";
+        if (state === "busy" || state === "overloaded") return "busy";
+        if (state === "queued") return "queue";
+        return "free";
     }
-    stationKind(station) {
-        if (station?.kind_override) return station.kind_override;
-        const t = `${station?.name || ""}`.toLowerCase();
-        if (t.includes("آلي") || t.includes("الي") || t.includes("auto")) return "auto";
-        if (t.includes("لمعة") || t.includes("تلميع") || t.includes("polish")) return "polish";
-        return "general";
-    }
-    stationStatus(station) { if (station.placeholder) return "free"; if (station.in_progress) return "busy"; if (station.queue) return "queue"; return "free"; }
-    stationStatusLabel(station) { return { busy: "مشغولة", queue: "قيد الخدمة", free: "متاحة" }[this.stationStatus(station)]; }
+    stationStatusLabel(station) { return station?.runtime_label || { busy: "مشغولة", queue: "بانتظار البدء", free: "متاحة" }[this.stationStatus(station)]; }
     stationCardClass(station) { return `cc9-station is-${this.stationKind(station)} is-${this.stationStatus(station)}`; }
     stationCar(station) { return (station?.cars || [])[0] || null; }
     vehicleSizeLabel(car) { return car?.vehicle_size === "large" ? "سيارة كبيرة" : "سيارة صغيرة"; }
@@ -263,7 +219,7 @@ export class CarWashDashboardV9 extends Component {
     stationEfficiencyLabel(station) { const v = Number(station?.efficiency || 0); return v ? `${Math.round(v)}% كفاءة` : "كفاءة قيد القياس"; }
     initialOf(name) { const value = `${name || "U"}`.trim(); return value ? value[0] : "U"; }
     staffProgressStyle(row) { const pct = row?.status === "present" ? 100 : (row?.status === "done" ? 70 : 25); return `--cc10-progress:${pct}%`; }
-    selectStation(station) { this.state.selectedStationId = station?.id || station?.station_code || false; }
+    selectStation(station) { this.state.selectedStationId = station?.id ?? station?.station_code ?? false; }
     closeStation() { this.state.selectedStationId = false; }
     get selectedStation() {
         if (!this.state.selectedStationId) return null;
@@ -314,8 +270,6 @@ export class CarWashDashboardV9 extends Component {
     get appointmentCompleted() { return this.appointmentRows.filter(c => this.appointmentStatus(c).code === "done").length; }
     get appointmentLate() { return this.appointmentRows.filter(c => this.appointmentStatus(c).code === "late").length; }
     get appointmentWaiting() { return this.appointmentRows.filter(c => ["waiting", "late"].includes(this.appointmentStatus(c).code)).length; }
-    selectStation(id) { this.state.selectedStationId = id; }
-    get selectedStation() { return this.stationSlots.find(s => s.id === this.state.selectedStationId) || this.stationSlots[0] || null; }
     get clientRows() {
         const q = this.state.query.trim().toLowerCase();
         const rows = this.state.data.customer_page?.rows || [];

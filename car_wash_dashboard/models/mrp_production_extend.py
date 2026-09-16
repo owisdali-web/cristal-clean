@@ -931,6 +931,194 @@ class MrpProduction(models.Model):
         return True
 
     # ------------------------------------------------------------------
+    # Station topology foundation (V14)
+    # ------------------------------------------------------------------
+    @api.model
+    def _cw_station_workcenters(self):
+        """Return the explicit car-wash station topology for the current company.
+
+        A code-based fallback is intentionally read-only and exists only as a deployment
+        safety net if an upgrade hook has not backfilled the new topology fields yet.
+        """
+        Workcenter = self.env['mrp.workcenter']
+        company = self.env.company
+        base_domain = [('active', '=', True)]
+        if 'company_id' in Workcenter._fields:
+            base_domain += ['|', ('company_id', '=', False), ('company_id', '=', company.id)]
+
+        explicit = Workcenter.search(
+            base_domain + [('cc_is_car_wash_station', '=', True)],
+            order='cc_station_order,sequence,id',
+        )
+        if explicit:
+            return explicit
+
+        # Transitional safety only. Once the V14 bootstrap ran, explicit records win.
+        return Workcenter.search(
+            base_domain + [('code', '=like', 'CC-WC-A%')],
+            order='sequence,id',
+        )
+
+    @api.model
+    def _cw_station_kind_payload(self, workcenter):
+        if workcenter.cc_is_car_wash_station and workcenter.cc_station_kind:
+            kind = workcenter.cc_station_kind
+        else:
+            inferred = workcenter._cw_topology_values_from_identifiers(workcenter.code, workcenter.name)
+            kind = inferred.get('cc_station_kind', 'general')
+        labels = {
+            'general': 'محطة مرنة',
+            'auto': 'غسيل آلي',
+            'polish': 'لمعة وتلميع',
+        }
+        return kind, labels.get(kind, 'محطة مرنة')
+
+    @api.model
+    def _cw_station_runtime_state(self, workcenter, occupancy, queue_count, capacity):
+        manual_state = workcenter.cc_station_manual_state or 'open'
+        if manual_state == 'maintenance':
+            return 'maintenance', 'صيانة'
+        if manual_state == 'closed':
+            return 'closed', 'مغلقة'
+        if occupancy > capacity:
+            return 'overloaded', 'تجاوز السعة'
+        if occupancy:
+            return 'busy', 'مشغولة'
+        if queue_count:
+            return 'queued', 'بانتظار البدء'
+        return 'available', 'متاحة'
+
+    @api.model
+    def _cw_build_station_payload(self, workorders, finished_workorders, wo_domain):
+        Workorder = self.env['mrp.workorder']
+        workcenters = self._cw_station_workcenters()
+
+        wc_map = defaultdict(list)
+        for wo in workorders:
+            if wo.workcenter_id:
+                wc_map[wo.workcenter_id.id].append(wo)
+
+        rows = []
+        for wc in workcenters:
+            wc_wos = Workorder.browse([w.id for w in wc_map.get(wc.id, [])])
+            in_progress_wos = wc_wos.filtered(lambda w: w.state == 'progress')
+            queue_wos = wc_wos.filtered(lambda w: w.state in ('pending', 'waiting', 'ready'))
+
+            capacity = int(wc.default_capacity or 1)
+            if capacity <= 0:
+                capacity = 1
+            occupancy = len(in_progress_wos)
+            queue_count = len(queue_wos)
+            over_capacity = occupancy > capacity
+
+            current_cars = []
+            ordered_wos = in_progress_wos + queue_wos
+            seen_mos = set()
+            for wo in ordered_wos:
+                if wo.production_id.id in seen_mos:
+                    continue
+                seen_mos.add(wo.production_id.id)
+                car = self._cw_mo_vehicle_payload(wo.production_id)
+                car['wo_state'] = wo.state
+                car['stage'] = wo.name or ''
+                current_cars.append(car)
+                if len(current_cars) >= max(3, capacity):
+                    break
+
+            kind, kind_label = self._cw_station_kind_payload(wc)
+            icon = {
+                'auto': 'fa-car',
+                'polish': 'fa-diamond',
+                'general': 'fa-wrench',
+            }.get(kind, 'fa-wrench')
+
+            wc_done = (
+                finished_workorders.filtered(lambda w: w.workcenter_id.id == wc.id)
+                if finished_workorders else Workorder.browse()
+            )
+            wc_real = sum(wc_done.mapped('duration')) if wc_done and 'duration' in Workorder._fields else 0.0
+            wc_expected = sum(wc_done.mapped('duration_expected')) if wc_done and 'duration_expected' in Workorder._fields else 0.0
+            wc_efficiency = round((wc_expected / wc_real) * 100) if wc_real > 0 else 0
+
+            runtime_state, runtime_label = self._cw_station_runtime_state(
+                wc, occupancy, queue_count, capacity,
+            )
+            inferred = wc._cw_topology_values_from_identifiers(wc.code, wc.name)
+            station_code = wc.cc_station_code or inferred.get('cc_station_code') or wc.code or wc.name
+            display_order = wc.cc_station_order or inferred.get('cc_station_order') or wc.sequence or wc.id
+            occupancy_rate = round((occupancy / capacity) * 100, 1)
+
+            rows.append({
+                'id': wc.id,
+                'name': wc.name or station_code or 'محطة غسيل',
+                'native_code': wc.code or '',
+                'station_code': station_code,
+                'display_order': display_order,
+                'kind': kind,
+                'kind_label': kind_label,
+                'manual_state': wc.cc_station_manual_state or 'open',
+                'runtime_state': runtime_state,
+                'runtime_label': runtime_label,
+                'topology_explicit': bool(wc.cc_is_car_wash_station),
+                'load': len(wc_wos),
+                'occupancy': occupancy,
+                'in_progress': occupancy,  # legacy key retained for the current dashboard asset
+                'queue': queue_count,       # legacy key retained for the current dashboard asset
+                'queue_count': queue_count,
+                'capacity': capacity,
+                'available_capacity': max(capacity - occupancy, 0),
+                'over_capacity': over_capacity,
+                'occupancy_rate': occupancy_rate,
+                'utilization': min(100.0, occupancy_rate),
+                'queue_pressure': round((len(wc_wos) / capacity) * 100, 1),
+                'efficiency': wc_efficiency,
+                'done_today': len(wc_done),
+                'icon': icon,
+                'cars': current_cars,
+                'native_working_state': wc.working_state if 'working_state' in wc._fields else '',
+                'domain': wo_domain + [('workcenter_id', '=', wc.id)],
+            })
+
+        return sorted(rows, key=lambda row: (row['display_order'], row['id']))
+
+    @api.model
+    def get_station_topology(self):
+        """Lightweight station-only contract for the next dashboard architecture."""
+        today_start, today_end, _today = self._cw_day_bounds(0)
+        company = self.env.company
+        Workorder = self.env['mrp.workorder']
+
+        wo_domain = [
+            ('production_id.company_id', '=', company.id),
+            ('production_id.state', 'not in', ['done', 'cancel']),
+            ('state', 'in', ACTIVE_WO_STATES),
+        ] + self._cw_workorder_wash_domain()
+        workorders = Workorder.search(wo_domain)
+
+        finished = Workorder.browse()
+        if {'duration', 'duration_expected', 'date_finished'} <= set(Workorder._fields):
+            finished = Workorder.search([
+                ('production_id.company_id', '=', company.id),
+                ('state', '=', 'done'),
+                ('date_finished', '>=', today_start),
+                ('date_finished', '<', today_end),
+            ] + self._cw_workorder_wash_domain())
+
+        stations = self._cw_build_station_payload(workorders, finished, wo_domain)
+        return {
+            'company_id': company.id,
+            'company_name': company.display_name,
+            'station_total': len(stations),
+            'station_available': sum(1 for row in stations if row['runtime_state'] == 'available'),
+            'station_busy': sum(1 for row in stations if row['runtime_state'] in ('busy', 'overloaded')),
+            'station_maintenance': sum(1 for row in stations if row['runtime_state'] == 'maintenance'),
+            'station_closed': sum(1 for row in stations if row['runtime_state'] == 'closed'),
+            'station_overloaded': sum(1 for row in stations if row['runtime_state'] == 'overloaded'),
+            'queue_total': sum(row['queue_count'] for row in stations),
+            'stations': stations,
+        }
+
+    # ------------------------------------------------------------------
     # Dashboard V2 payload
     # ------------------------------------------------------------------
     @api.model
@@ -1024,77 +1212,7 @@ class MrpProduction(models.Model):
             phase_map[key]['count'] += 1
         phases = sorted(phase_map.values(), key=lambda p: p['count'], reverse=True)
 
-        wc_map = defaultdict(list)
-        for wo in workorders:
-            if wo.workcenter_id:
-                wc_map[wo.workcenter_id.id].append(wo)
-
-        workcenter_load = []
-        Workcenter = self.env['mrp.workcenter']
-        wc_domain = [('active', '=', True)]
-        if 'company_id' in Workcenter._fields:
-            wc_domain += ['|', ('company_id', '=', False), ('company_id', '=', company.id)]
-
-        icon_map = {
-            'الآلي': 'fa-car',
-            'خارجي': 'fa-tint',
-            'داخلي': 'fa-shower',
-            'عميق': 'fa-tint',
-            'صالة': 'fa-home',
-            'فودرة': 'fa-cloud',
-            'لمعة': 'fa-diamond',
-            'فحص': 'fa-check-circle',
-        }
-
-        for wc in Workcenter.search(wc_domain, order='sequence,id'):
-            wc_wos = Workorder.browse([w.id for w in wc_map.get(wc.id, [])])
-            in_progress_wos = wc_wos.filtered(lambda w: w.state == 'progress')
-            queue_wos = wc_wos.filtered(lambda w: w.state in ('pending', 'waiting', 'ready'))
-            capacity = wc.default_capacity or 1
-            if capacity <= 0:
-                capacity = 1
-
-            current_cars = []
-            ordered_wos = in_progress_wos + queue_wos
-            seen_mos = set()
-            for wo in ordered_wos:
-                if wo.production_id.id in seen_mos:
-                    continue
-                seen_mos.add(wo.production_id.id)
-                car = self._cw_mo_vehicle_payload(wo.production_id)
-                car['wo_state'] = wo.state
-                car['stage'] = wo.name or ''
-                current_cars.append(car)
-                if len(current_cars) >= 3:
-                    break
-
-            icon = 'fa-wrench'
-            for fragment, mapped_icon in icon_map.items():
-                if fragment in (wc.name or ''):
-                    icon = mapped_icon
-                    break
-
-            wc_done = finished_wo.filtered(lambda w: w.workcenter_id.id == wc.id) if finished_wo else Workorder.browse()
-            wc_real = sum(wc_done.mapped('duration')) if wc_done and 'duration' in Workorder._fields else 0.0
-            wc_expected = sum(wc_done.mapped('duration_expected')) if wc_done and 'duration_expected' in Workorder._fields else 0.0
-            wc_efficiency = round((wc_expected / wc_real) * 100) if wc_real > 0 else 0
-
-            workcenter_load.append({
-                'id': wc.id,
-                'name': wc.name or 'محطة غسيل',
-                'load': len(wc_wos),
-                'in_progress': len(in_progress_wos),
-                'queue': len(queue_wos),
-                'capacity': capacity,
-                # Occupancy, not queue pressure. This intentionally avoids the old misleading 400% figure.
-                'utilization': round((len(in_progress_wos) / capacity) * 100, 1),
-                'queue_pressure': round((len(wc_wos) / capacity) * 100, 1),
-                'efficiency': wc_efficiency,
-                'done_today': len(wc_done),
-                'icon': icon,
-                'cars': current_cars,
-                'domain': wo_base + [('workcenter_id', '=', wc.id)],
-            })
+        workcenter_load = self._cw_build_station_payload(workorders, finished_wo, wo_base)
 
         workcenter_dist = [
             {'id': wc['id'], 'name': wc['name'], 'count': wc['load']}
@@ -1321,10 +1439,13 @@ class MrpProduction(models.Model):
             scrap_count = len(scraps)
             scrap_qty = round(sum(scraps.mapped('scrap_qty')), 2)
 
-        station_busy = sum(1 for item in workcenter_load if item.get('in_progress'))
-        station_free = sum(1 for item in workcenter_load if not item.get('load'))
-        station_queue = sum(item.get('queue', 0) for item in workcenter_load)
+        station_busy = sum(1 for item in workcenter_load if item.get('runtime_state') in ('busy', 'overloaded'))
+        station_free = sum(1 for item in workcenter_load if item.get('runtime_state') == 'available')
+        station_queue = sum(item.get('queue_count', item.get('queue', 0)) for item in workcenter_load)
         station_total = len(workcenter_load)
+        station_overloaded = sum(1 for item in workcenter_load if item.get('runtime_state') == 'overloaded')
+        station_maintenance = sum(1 for item in workcenter_load if item.get('runtime_state') == 'maintenance')
+        station_closed = sum(1 for item in workcenter_load if item.get('runtime_state') == 'closed')
         material_reserved_count = sum(1 for item in materials if item.get('reserved', 0) > 0)
         known_plate_count = sum(1 for car in active_cars if car.get('plate') and car.get('plate') != 'بدون لوحة')
         data_quality = round((known_plate_count / len(active_cars)) * 100, 1) if active_cars else 100.0
@@ -1391,7 +1512,7 @@ class MrpProduction(models.Model):
         }
 
         return {
-            'dashboard_version': '13.0-preview-station-control',
+            'dashboard_version': '14.0-station-topology',
             'company_id': company.id,
             'company_name': company.display_name,
             'currency_symbol': company.currency_id.symbol or '',
@@ -1399,6 +1520,9 @@ class MrpProduction(models.Model):
             'station_free': station_free,
             'station_queue': station_queue,
             'station_total': station_total,
+            'station_overloaded': station_overloaded,
+            'station_maintenance': station_maintenance,
+            'station_closed': station_closed,
             'material_reserved_count': material_reserved_count,
             'data_quality': data_quality,
             **kpis,
