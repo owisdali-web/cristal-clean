@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="crystal_clean_station_dashboard.Dashboard">
+        <div class="cc-light-dashboard" dir="rtl">
+            <aside class="cc-sidebar">
+                <div class="cc-sidebar-brand">
+                    <div class="cc-drop-logo">
+                        <i class="fa fa-tint"/>
+                    </div>
+                    <div>
+                        <strong>Crystal Clean</strong>
+                        <span>Benghazi</span>
+                    </div>
+                </div>
+
+                <nav class="cc-sidebar-nav">
+                    <button type="button" class="cc-nav-item">
+                        <i class="fa fa-home"/>
+                        <span>الرئيسية</span>
+                    </button>
+                    <button type="button" class="cc-nav-item active">
+                        <i class="fa fa-car"/>
+                        <span>المحطات المباشرة</span>
+                    </button>
+                    <button type="button" class="cc-nav-item">
+                        <i class="fa fa-tags"/>
+                        <span>الخدمات</span>
+                    </button>
+                    <button type="button" class="cc-nav-item">
+                        <i class="fa fa-users"/>
+                        <span>العملاء</span>
+                    </button>
+                    <button type="button" class="cc-nav-item">
+                        <i class="fa fa-bar-chart"/>
+                        <span>التقارير</span>
+                    </button>
+                    <button type="button" class="cc-nav-item">
+                        <i class="fa fa-cog"/>
+                        <span>الإعدادات</span>
+                    </button>
+                </nav>
+
+                <button type="button" class="cc-logout" t-on-click="logout">
+                    <i class="fa fa-sign-out"/>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </aside>
+
+            <main class="cc-main">
+                <header class="cc-topbar">
+                    <div class="cc-brand">
+                        <div class="cc-brand-mark">
+                            <i class="fa fa-tint"/>
+                        </div>
+                        <div>
+                            <h1>Crystal Clean - Benghazi</h1>
+                            <p>نظافة أكبر ... لمدينة أجمل</p>
+                        </div>
+                    </div>
+
+                    <div class="cc-user-area">
+                        <button type="button" class="cc-bell" aria-label="التنبيهات">
+                            <i class="fa fa-bell-o"/>
+                            <span class="cc-bell-dot"/>
+                        </button>
+                        <div class="cc-user-text">
+                            <strong t-esc="state.userName || 'مدير التشغيل'"/>
+                            <span>مدير التشغيل</span>
+                        </div>
+                        <div class="cc-avatar" t-esc="state.userInitial"/>
+                    </div>
+                </header>
+
+                <section class="cc-dashboard-head">
+                    <div class="cc-title-block">
+                        <div class="cc-live-icon">
+                            <i class="fa fa-rss"/>
+                        </div>
+                        <div>
+                            <h2>المحطات المباشرة</h2>
+                            <p>متابعة حالة جميع محطات الغسيل في الوقت الفعلي</p>
+                        </div>
+                    </div>
+
+                    <div class="cc-kpis">
+                        <article class="cc-kpi cc-kpi-ready">
+                            <div class="cc-kpi-icon"><i class="fa fa-check-circle"/></div>
+                            <div>
+                                <span>جاهزة للعمل</span>
+                                <strong t-esc="readyCount"/>
+                                <small>محطات</small>
+                            </div>
+                        </article>
+
+                        <article class="cc-kpi cc-kpi-busy">
+                            <div class="cc-kpi-icon"><i class="fa fa-car"/></div>
+                            <div>
+                                <span>مشغولة حالياً</span>
+                                <strong t-esc="busyCount"/>
+                                <small>محطات</small>
+                            </div>
+                        </article>
+
+                        <article class="cc-kpi cc-kpi-maintenance">
+                            <div class="cc-kpi-icon"><i class="fa fa-wrench"/></div>
+                            <div>
+                                <span>قيد الصيانة</span>
+                                <strong t-esc="maintenanceCount"/>
+                                <small>محطة</small>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="cc-clock-card">
+                        <strong t-esc="formattedDate"/>
+                        <span t-esc="formattedTime"/>
+                    </div>
+                </section>
+
+                <section class="cc-filterbar">
+                    <div class="cc-search">
+                        <i class="fa fa-search"/>
+                        <input type="search"
+                               placeholder="البحث عن محطة، سيارة، خدمة ..."
+                               t-att-value="state.filters.search"
+                               t-on-input="onSearchInput"/>
+                    </div>
+
+                    <label class="cc-select-wrap">
+                        <i class="fa fa-cog"/>
+                        <select t-on-change="onServiceChange" t-att-value="state.filters.service">
+                            <option value="all">جميع الخدمات</option>
+                            <option value="general">محطات الخدمة</option>
+                            <option value="auto">الغسيل الآلي</option>
+                            <option value="polish">التلميع والحماية</option>
+                        </select>
+                        <i class="fa fa-chevron-down cc-select-arrow"/>
+                    </label>
+
+                    <label class="cc-select-wrap">
+                        <i class="fa fa-list"/>
+                        <select t-on-change="onStatusChange" t-att-value="state.filters.status">
+                            <option value="all">جميع الحالات</option>
+                            <option value="available">جاهزة</option>
+                            <option value="busy">مشغولة</option>
+                            <option value="queued">في الانتظار</option>
+                            <option value="overloaded">مزدحمة</option>
+                            <option value="maintenance">قيد الصيانة</option>
+                            <option value="closed">مغلقة</option>
+                        </select>
+                        <i class="fa fa-chevron-down cc-select-arrow"/>
+                    </label>
+
+                    <label class="cc-select-wrap">
+                        <i class="fa fa-user"/>
+                        <select t-on-change="onWorkerChange" t-att-value="state.filters.worker">
+                            <option value="all">جميع العمال</option>
+                            <t t-foreach="workerOptions" t-as="worker" t-key="worker.value">
+                                <option t-att-value="worker.value" t-esc="worker.label"/>
+                            </t>
+                        </select>
+                        <i class="fa fa-chevron-down cc-select-arrow"/>
+                    </label>
+
+                    <button type="button" class="cc-reset-btn" t-on-click="resetFilters">
+                        <i class="fa fa-refresh"/>
+                        <span>إعادة تعيين</span>
+                    </button>
+
+                    <button type="button"
+                            class="cc-refresh-btn"
+                            t-att-class="state.refreshing ? 'is-refreshing' : ''"
+                            t-on-click="refreshNow">
+                        <i class="fa fa-refresh"/>
+                    </button>
+                </section>
+
+                <section class="cc-content-area">
+                    <t t-if="state.loading">
+                        <div class="cc-state-message">
+                            <i class="fa fa-refresh fa-spin"/>
+                            <strong>جارٍ تحميل المحطات ...</strong>
+                        </div>
+                    </t>
+
+                    <t t-elif="state.error">
+                        <div class="cc-state-message cc-error">
+                            <i class="fa fa-exclamation-triangle"/>
+                            <strong t-esc="state.error"/>
+                            <button type="button" t-on-click="refreshNow">إعادة المحاولة</button>
+                        </div>
+                    </t>
+
+                    <t t-else="">
+                        <div class="cc-station-grid" t-att-class="gridClass">
+                            <t t-foreach="filteredStations" t-as="station" t-key="station.id">
+                                <article class="cc-station-card"
+                                         t-att-class="'cc-state-' + station.statusClass">
+                                    <div class="cc-card-top">
+                                        <div class="cc-station-icon">
+                                            <i class="fa fa-car"/>
+                                            <span class="cc-spark">✦</span>
+                                        </div>
+                                        <div class="cc-card-title">
+                                            <h3 t-esc="'المحطة ' + station.code"/>
+                                            <p t-esc="station.service"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="cc-status-row">
+                                        <span class="cc-status-pill">
+                                            <span class="cc-status-dot"/>
+                                            <span t-esc="station.statusLabel"/>
+                                        </span>
+                                    </div>
+
+                                    <div class="cc-vehicle-zone"
+                                         t-att-class="station.car ? 'has-car' : 'no-car'">
+                                        <t t-if="station.car">
+                                            <div class="cc-car-art">
+                                                <svg viewBox="0 0 240 92" aria-hidden="true">
+                                                    <defs>
+                                                        <linearGradient t-att-id="'carPaint' + station.id"
+                                                                        x1="0" y1="0" x2="1" y2="1">
+                                                            <stop offset="0%" stop-color="#ffffff"/>
+                                                            <stop offset="55%" stop-color="#e5ebf2"/>
+                                                            <stop offset="100%" stop-color="#bdc8d7"/>
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <ellipse cx="120" cy="77" rx="88" ry="8" fill="#cbd5e1" opacity=".36"/>
+                                                    <path d="M43 58 L57 37 Q67 24 92 22 L151 22 Q171 24 184 40 L196 58 L204 61 Q212 63 212 71 L212 76 Q212 81 205 81 L35 81 Q28 81 28 75 L28 68 Q28 61 36 60 Z"
+                                                          t-att-fill="'url(#carPaint' + station.id + ')'"
+                                                          stroke="#8fa2b8"
+                                                          stroke-width="2"/>
+                                                    <path d="M72 38 Q80 27 96 26 L144 26 Q160 27 173 41 Z"
+                                                          fill="#9fc4df"
+                                                          opacity=".78"/>
+                                                    <path d="M120 27 L120 42"
+                                                          stroke="#6b8da8"
+                                                          stroke-width="2"/>
+                                                    <rect x="45" y="58" width="31" height="8" rx="4" fill="#9fd9ff"/>
+                                                    <rect x="164" y="58" width="31" height="8" rx="4" fill="#9fd9ff"/>
+                                                    <circle cx="68" cy="78" r="13" fill="#233144"/>
+                                                    <circle cx="68" cy="78" r="6" fill="#aebccc"/>
+                                                    <circle cx="173" cy="78" r="13" fill="#233144"/>
+                                                    <circle cx="173" cy="78" r="6" fill="#aebccc"/>
+                                                </svg>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="cc-empty-car">
+                                                <i class="fa fa-car"/>
+                                            </div>
+                                        </t>
+
+                                        <div class="cc-station-meta">
+                                            <span>الانتهاء المتوقع</span>
+                                            <strong t-if="station.car" t-esc="station.eta"/>
+                                            <strong t-else="">-</strong>
+                                        </div>
+
+                                        <t t-if="station.hasProgress">
+                                            <div class="cc-progress">
+                                                <span t-att-style="'width:' + station.progress + '%'"/>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="cc-progress cc-progress-empty">
+                                                <span/>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <footer class="cc-card-footer">
+                                        <t t-if="station.worker">
+                                            <div class="cc-worker">
+                                                <span t-esc="station.worker"/>
+                                                <span class="cc-worker-avatar">
+                                                    <i class="fa fa-user"/>
+                                                </span>
+                                            </div>
+                                        </t>
+                                        <t t-elif="station.isMaintenance">
+                                            <div class="cc-worker cc-maintenance-worker">
+                                                <span>تحت الصيانة الدورية</span>
+                                                <span class="cc-worker-avatar"><i class="fa fa-wrench"/></span>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="cc-worker cc-empty-worker">
+                                                <span>لا يوجد عامل حالياً</span>
+                                                <span class="cc-worker-avatar"><i class="fa fa-user"/></span>
+                                            </div>
+                                        </t>
+                                    </footer>
+                                </article>
+                            </t>
+                        </div>
+
+                        <div t-if="!filteredStations.length" class="cc-state-message">
+                            <i class="fa fa-search"/>
+                            <strong>لا توجد محطات تطابق الفلاتر الحالية</strong>
+                            <button type="button" t-on-click="resetFilters">مسح الفلاتر</button>
+                        </div>
+                    </t>
+                </section>
+
+                <footer class="cc-page-footer">
+                    <span>Crystal Clean - Benghazi</span>
+                    <span class="cc-footer-divider"/>
+                    <span>تشغيل أكثر كفاءة ... لخدمة أفضل</span>
+                    <span class="cc-version">LIVE</span>
+                </footer>
+            </main>
+        </div>
+    </t>
+</templates>
