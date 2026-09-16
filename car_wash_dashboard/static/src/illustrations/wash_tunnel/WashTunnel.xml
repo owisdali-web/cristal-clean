@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="car_wash_dashboard.WashTunnel">
+    <svg t-att-class="cls" viewBox="0 0 300 145" aria-hidden="true">
+        <path class="cc_tunnel_arch" d="M24 116V48Q24 17 55 17H245Q276 17 276 48V116"/>
+        <path class="cc_tunnel_inner" d="M44 115V52Q44 37 59 37H241Q256 37 256 52V115"/>
+        <path class="cc_spray cc_motion" d="M62 42 Q92 68 86 105 M103 39 Q124 67 118 105 M196 39 Q177 67 182 105 M238 43 Q210 69 214 105"/>
+        <Brush x="82" y="73" scale="0.72"/>
+        <Brush x="218" y="73" scale="0.72"/>
+        <Foam count="10"/>
+        <Conveyor y="119"/>
+        <g class="cc_tunnel_car cc_motion" t-att-style="'transform:' + carTransform">
+            <CarSvg model="props.car.vehicle_model || props.car.model || ''" color="props.car.vehicle_color || props.car.color || ''" state="props.state" size="sm"/>
+        </g>
+    </svg>
+</t>
+</templates>

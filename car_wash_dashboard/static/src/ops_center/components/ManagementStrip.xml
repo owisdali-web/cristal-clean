@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.ManagementStrip">
+<section class="cc_management"><header><span class="cc_eyebrow" t-esc="eyebrow"/><h2 t-esc="title"/></header><div class="cc_management__grid"><article t-foreach="items" t-as="item" t-key="item.key"><small t-esc="item.label"/><strong t-esc="item.value"/><span t-if="item.note" t-esc="item.note"/></article></div></section>
+</t></templates>

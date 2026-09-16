@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.CounterBar">
+<div class="cc_counter_bar"><article t-foreach="items" t-as="item" t-key="item.key"><i t-esc="item.icon"/><div><strong t-esc="item.value"/><span t-esc="item.label"/></div></article></div>
+</t></templates>

@@ -1,51 +1,17 @@
 # Translation of Odoo Server.
-# This file contains the translation of the following modules:
-# 	* car_wash_dashboard
-#
+# Backend-only translations retained after the dashboard UI reset.
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0+e\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-07 14:46+0000\n"
-"PO-Revision-Date: 2026-09-07 14:46+0000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"Language: ar_001\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
 
 #. module: car_wash_dashboard
 #: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_production__wash_type__basic
 msgid "Basic"
-msgstr "الاساسي"
-
-#. module: car_wash_dashboard
-#: model:ir.ui.menu,name:car_wash_dashboard.menu_car_wash_root
-msgid "Car Wash"
-msgstr "غسيل السيارات"
-
-#. module: car_wash_dashboard
-#: model:ir.actions.client,name:car_wash_dashboard.action_car_wash_dashboard
-msgid "Car Wash Dashboard"
-msgstr "لوحة تحكم غسيل السيارات"
-
-#. module: car_wash_dashboard
-#. odoo-javascript
-#: code:addons/car_wash_dashboard/static/src/js/dashboard.js:0
-msgid "Cars in Phase"
-msgstr "المرحلة"
-
-#. module: car_wash_dashboard
-#: model:ir.ui.menu,name:car_wash_dashboard.menu_car_wash_dashboard
-msgid "Dashboard"
-msgstr "لوحة التحكم"
-
-#. module: car_wash_dashboard
-#. odoo-javascript
-#: code:addons/car_wash_dashboard/static/src/js/dashboard.js:0
-msgid "Dashboard updated"
-msgstr "تحديث لوحة التحكم"
+msgstr "الأساسي"
 
 #. module: car_wash_dashboard
 #: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_production__wash_type__deluxe
@@ -53,31 +19,14 @@ msgid "Deluxe"
 msgstr "فاخر"
 
 #. module: car_wash_dashboard
-#. odoo-javascript
-#: code:addons/car_wash_dashboard/static/src/js/dashboard.js:0
-msgid "Failed to load dashboard data"
-msgstr "خطأفي تحميل البيانات"
+#: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_production__wash_type__premium
+msgid "Premium"
+msgstr "مميز"
 
 #. module: car_wash_dashboard
 #: model:ir.model.fields,field_description:car_wash_dashboard.field_mrp_production__license_plate
 msgid "License Plate"
 msgstr "رقم اللوحة"
-
-#. module: car_wash_dashboard
-#: model:ir.model,name:car_wash_dashboard.model_mrp_production
-msgid "Manufacturing Order"
-msgstr "أوامر الغسيل"
-
-#. module: car_wash_dashboard
-#. odoo-javascript
-#: code:addons/car_wash_dashboard/static/src/js/dashboard.js:0
-msgid "No data"
-msgstr "لا يوجد بيانات"
-
-#. module: car_wash_dashboard
-#: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_production__wash_type__premium
-msgid "Premium"
-msgstr "مميز"
 
 #. module: car_wash_dashboard
 #: model:ir.model.fields,field_description:car_wash_dashboard.field_mrp_production__wash_type

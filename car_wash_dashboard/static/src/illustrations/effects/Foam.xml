@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="car_wash_dashboard.Foam">
+    <g class="cc_foam" aria-hidden="true">
+        <t t-foreach="items" t-as="b" t-key="b.i">
+            <circle class="cc_foam_bubble cc_motion" t-att-cx="b.x" t-att-cy="b.y" t-att-r="b.r" t-att-style="'--i:' + b.i"/>
+        </t>
+    </g>
+</t>
+</templates>

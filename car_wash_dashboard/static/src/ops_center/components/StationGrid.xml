@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.StationGrid">
+<section class="cc_panel cc_station_panel">
+    <header class="cc_panel__head"><div><span class="cc_eyebrow" t-esc="eyebrow"/><h2 t-esc="title"/></div><span class="cc_panel__meta" t-esc="clearLabel"/></header>
+    <div t-if="props.stations.length" class="cc_station_grid">
+        <t t-foreach="props.stations" t-as="station" t-key="station.id"><StationTile station="station" onSelect="props.onSelect"/></t>
+    </div>
+    <div t-else="" class="cc_empty"><div class="cc_empty__icon">◇</div><span t-esc="empty"/></div>
+    <footer class="cc_legend"><t t-foreach="legend" t-as="item" t-key="item[0]"><span><i t-att-class="'cc_legend__dot cc_legend__dot--' + item[0]"/><t t-esc="item[1]"/></span></t></footer>
+</section>
+</t></templates>

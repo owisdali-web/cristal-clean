@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="car_wash_dashboard.Conveyor">
+    <g class="cc_conveyor" aria-hidden="true">
+        <line class="cc_conveyor_base" x1="12" t-att-y1="props.y" x2="288" t-att-y2="props.y"/>
+        <line class="cc_conveyor_dashes cc_motion" x1="18" t-att-y1="props.y" x2="282" t-att-y2="props.y"/>
+    </g>
+</t>
+</templates>

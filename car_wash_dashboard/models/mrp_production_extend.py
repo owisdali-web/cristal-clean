@@ -923,15 +923,6 @@ class MrpProduction(models.Model):
             'operator_label': '، '.join(operator_names),
         }
 
-    @api.model
-    def set_dashboard_theme(self, theme):
-        """Persist the Crystal Clean dashboard theme for the current Odoo user."""
-        if theme not in ('dark', 'light'):
-            return False
-        if 'cc_dashboard_theme' in self.env.user._fields:
-            self.env.user.sudo().write({'cc_dashboard_theme': theme})
-        return True
-
     # ------------------------------------------------------------------
     # Station topology foundation (V14)
     # ------------------------------------------------------------------
@@ -2402,7 +2393,6 @@ class MrpProduction(models.Model):
             'current_user_name': current_user.name or '',
             'current_user_initial': (current_user.name or 'U')[:1],
             'current_user_role': '',
-            'current_user_theme': getattr(current_user, 'cc_dashboard_theme', False) or 'dark',
             'maintenance_page': maintenance_page,
             'reports_page': reports_page,
             'stock_value': stock_value,

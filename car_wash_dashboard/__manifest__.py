@@ -1,1 +1,36 @@
-{'name': 'Crystal Clean Car Wash Dashboard', 'version': '18.0.17.0', 'license': 'LGPL-3', 'category': 'Operations/Car Wash', 'summary': 'Crystal Clean V17 - secure customer display backend contract and permissions', 'author': 'Crystal Clean', 'depends': ['web', 'point_of_sale', 'sale', 'sale_mrp', 'mrp', 'mrp_workorder', 'stock', 'account', 'bus'], 'data': ['security/customer_display_security.xml', 'security/ir.model.access.csv', 'views/menu_views.xml', 'views/sale_order_views.xml'], 'assets': {'web.assets_backend': ['car_wash_dashboard/static/src/css/dashboard_v13_preview.css', 'car_wash_dashboard/static/src/js/dashboard_v9.js', 'car_wash_dashboard/static/src/xml/dashboard_v13_preview.xml']}, 'post_init_hook': 'post_init_hook', 'installable': True, 'application': True}
+{
+    'name': 'Crystal Clean Car Wash',
+    'version': '18.0.19.2',
+    'license': 'LGPL-3',
+    'category': 'Operations/Car Wash',
+    'summary': 'Live operations center and customer waiting-room display for Crystal Clean',
+    'author': 'Crystal Clean',
+    'depends': ['web', 'point_of_sale', 'sale', 'sale_mrp', 'mrp', 'mrp_workorder', 'stock', 'account', 'bus'],
+    'data': [
+        'security/customer_display_security.xml',
+        'security/ir.model.access.csv',
+        'views/sale_order_views.xml',
+        'views/cc_frontend_actions.xml',
+    ],
+    'assets': {
+        'web.assets_backend': [
+            'car_wash_dashboard/static/src/scss/_tokens.scss',
+            'car_wash_dashboard/static/src/scss/_mixins.scss',
+            'car_wash_dashboard/static/src/scss/_animations.scss',
+            'car_wash_dashboard/static/src/scss/_plate.scss',
+            'car_wash_dashboard/static/src/core/**/*.js',
+            'car_wash_dashboard/static/src/core/**/*.xml',
+            'car_wash_dashboard/static/src/illustrations/**/*.js',
+            'car_wash_dashboard/static/src/illustrations/**/*.xml',
+            'car_wash_dashboard/static/src/ops_center/**/*.js',
+            'car_wash_dashboard/static/src/ops_center/**/*.xml',
+            'car_wash_dashboard/static/src/ops_center/**/*.scss',
+            'car_wash_dashboard/static/src/customer_display/**/*.js',
+            'car_wash_dashboard/static/src/customer_display/**/*.xml',
+            'car_wash_dashboard/static/src/customer_display/**/*.scss',
+        ],
+    },
+    'post_init_hook': 'post_init_hook',
+    'installable': True,
+    'application': True,
+}

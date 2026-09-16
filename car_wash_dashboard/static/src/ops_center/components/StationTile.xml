@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.StationTile">
+<button type="button" t-att-class="'cc_station cc_station--' + state" t-on-click="select">
+    <header class="cc_station__head">
+        <div><strong class="cc_station__code" t-esc="props.station.station_code || props.station.name"/><span class="cc_station__kind" t-esc="kindLabel"/></div>
+        <span t-att-class="'cc_state_badge cc_state_badge--' + state"><i class="cc_state_badge__dot"/><span t-esc="stateLabel"/></span>
+    </header>
+    <div class="cc_station__visual">
+        <t t-if="state === 'busy' || state === 'overloaded'">
+            <CarSvg model="car.vehicle_model || ''" color="car.vehicle_color || ''" state="'in_service'" size="'sm'"/>
+        </t>
+        <t t-elif="state === 'queued'">
+            <div class="cc_queue_stack" aria-hidden="true"><t t-foreach="queueStack" t-as="q" t-key="q"><span t-att-style="'--stack-y:' + (q * 2) + 'px;--stack-opacity:' + (1 - q * 0.16)">▰</span></t><b t-if="(props.station.queue_count || 0) > 3" t-esc="'+' + ((props.station.queue_count || 0) - 3)"/></div>
+        </t>
+        <t t-elif="state === 'available'"><div class="cc_station_symbol cc_station_symbol--available cc_motion">✓</div></t>
+        <t t-elif="state === 'maintenance'"><div class="cc_station_symbol">🔧</div></t>
+        <t t-else=""><div class="cc_station_symbol">🔒</div></t>
+    </div>
+    <div class="cc_station__car" t-if="plate"><Plate value="plate"/><span class="cc_station__time" t-esc="remaining"/></div>
+    <div class="cc_station__car cc_station__car--empty" t-else=""><span t-esc="stateLabel"/></div>
+    <div class="cc_station__load">
+        <div class="cc_station__loadline"><span t-esc="queueText"/><b t-esc="occupancyText"/></div>
+        <div class="cc_meter"><span t-att-style="'width:' + occupancyPercent + '%'"/></div>
+    </div>
+</button>
+</t></templates>

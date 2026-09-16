@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.LiveBadge">
+<span t-att-class="'cc_live ' + (props.online ? 'is-online' : 'is-offline')"><i class="cc_live__dot"/><span t-esc="label"/></span>
+</t></templates>

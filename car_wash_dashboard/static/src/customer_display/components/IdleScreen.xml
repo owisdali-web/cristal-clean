@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.IdleScreen"><section class="cc_idle"><div class="cc_idle_logo"><img t-if="props.company.logo_available" t-att-src="props.company.logo_url" alt=""/><span t-else="">CC</span></div><h1 t-esc="props.company.name || 'Crystal Clean'"/><h2 t-esc="t.welcome"/><p t-esc="t.line"/><div class="cc_idle_tunnel"><WashTunnel progress="58" car="demoCar" state="'in_service'"/></div></section></t></templates>

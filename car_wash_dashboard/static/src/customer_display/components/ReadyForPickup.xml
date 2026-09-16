@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.ReadyForPickup">
+<section class="cc_ready"><header><div><small t-esc="subtitle"/><h2 t-esc="title"/></div><span class="cc_ready_check">✓</span></header>
+<div t-if="props.cars.length" class="cc_ready_list"><article t-foreach="props.cars" t-as="car" t-key="car.display_key" t-att-class="'cc_ready_item ' + (isNew(car) ? 'is-new' : '')"><div class="cc_ready_car"><CarSvg model="car.vehicle_model" color="car.vehicle_color" state="'ready_for_pickup'" size="'sm'"/></div><Plate value="car.public_reference" variant="'ready'"/><small t-esc="car.vehicle_model || car.service_name || ''"/></article></div>
+<div t-else="" class="cc_ready_empty" t-esc="empty"/>
+</section>
+</t></templates>

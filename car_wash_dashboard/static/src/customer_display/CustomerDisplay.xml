@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="car_wash_dashboard.CustomerDisplay">
+    <main t-att-class="rootClass" t-att-data-theme="state.theme" dir="rtl">
+        <div class="cc_burnin" t-att-style="burnStyle">
+            <ConnectionBanner online="state.online" lastUpdated="state.lastUpdated"/>
+            <div t-if="state.loading" class="cc_display_loading"><span class="cc_spinner"/></div>
+            <div t-elif="state.error &amp;&amp; !state.data" class="cc_display_error" t-esc="state.error"/>
+            <StartGate t-elif="state.phase === 'gate'" company="company" onStart.bind="startDisplay" theme="state.theme" onTheme.bind="toggleTheme"/>
+            <IntroSplash t-elif="state.phase === 'intro'" company="company"/>
+            <div t-else="" class="cc_display_live">
+                <header class="cc_display_header">
+                    <div class="cc_display_brand"><div class="cc_display_logo"><img t-if="company.logo_available" t-att-src="company.logo_url" alt=""/><span t-else="">CC</span></div><div><h1 t-esc="company.name"/><p t-esc="t.welcome"/></div></div>
+                    <div class="cc_display_status"><span t-if="state.demo" class="cc_demo_badge" t-esc="t.demo"/><button type="button" class="cc_display_tool" t-on-click="toggleChime" t-att-title="state.chimeEnabled ? t.soundOn : t.soundOff" t-att-aria-label="state.chimeEnabled ? t.soundOn : t.soundOff"><span t-esc="state.chimeEnabled ? '🔔' : '🔕'"/></button><button type="button" class="cc_display_tool" t-on-click="toggleTheme" t-att-title="t.theme" t-att-aria-label="t.theme"><span t-esc="state.theme === 'dark' ? '☀' : '☾'"/></button><div class="cc_display_clock"><strong t-esc="clockText"/><span t-esc="dateText"/></div></div>
+                </header>
+                <CounterBar counts="counts"/>
+                <IdleScreen t-if="isIdle" company="company"/>
+                <div t-else="" class="cc_display_grid">
+                    <section class="cc_display_focus">
+                        <HeroCarCard t-if="currentCar" t-key="currentCar.display_key" car="currentCar" policy="policy"/>
+                        <div t-else="" class="cc_no_active"><strong t-esc="t.noActive"/></div>
+                        <NextInLine car="currentCar"/>
+                        <div t-if="rotationCars.length > 1" class="cc_rotation_dots" t-att-style="rotationStyle" aria-hidden="true"><span t-foreach="rotationCars" t-as="car" t-key="car.display_key" t-att-class="dotClass(car_index)"/></div>
+                    </section>
+                    <ReadyForPickup t-if="policy.show_ready_for_pickup" cars="readyCars" newKeys="state.newReadyKeys"/>
+                </div>
+                <footer class="cc_display_footer"><span>●</span><span t-esc="t.privacy"/></footer>
+            </div>
+        </div>
+    </main>
+</t>
+</templates>

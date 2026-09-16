@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.StationDrawer">
+<div t-if="props.open" class="cc_drawer_layer">
+    <button type="button" class="cc_drawer_backdrop" t-on-click="props.onClose" aria-label="إغلاق"/>
+    <aside class="cc_station_drawer" role="dialog" aria-modal="true">
+        <header><div><small t-esc="station.name || ''"/><h2 t-esc="title"/></div><button type="button" class="cc_icon_btn" t-on-click="props.onClose" t-att-aria-label="closeLabel">×</button></header>
+        <div t-if="state.loading" class="cc_drawer_loading"><span class="cc_spinner"/></div>
+        <div t-elif="state.error" class="cc_error" t-esc="state.error"/>
+        <div t-elif="state.details" class="cc_drawer_body">
+            <div class="cc_drawer_stats"><span><small t-esc="currentLabel"/><b t-esc="station.occupancy || 0"/></span><span><small t-esc="queueLabel"/><b t-esc="station.queue_count || 0"/></span><span><small t-esc="doneLabel"/><b t-esc="state.details.done_today || 0"/></span></div>
+            <div class="cc_drawer_state"><span t-att-class="'cc_state_badge cc_state_badge--' + (station.runtime_state || 'available')" t-esc="stateLabel()"/></div>
+            <section><h3 t-esc="currentLabel"/><article t-foreach="running" t-as="job" t-key="job.workorder_id" class="cc_drawer_job"><Plate value="plate(job)"/><div><strong t-esc="job.operation_name"/><small t-esc="service(job)"/></div><b t-esc="minutes(job.expected_minutes)"/></article><div t-if="!running.length" class="cc_muted">—</div></section>
+            <section><h3 t-esc="queueLabel"/><article t-foreach="queue" t-as="job" t-key="job.workorder_id" class="cc_drawer_job"><Plate value="plate(job)"/><div><strong t-esc="job.operation_name"/><small t-esc="service(job)"/></div><b t-esc="minutes(job.queue_age_minutes)"/></article><div t-if="!queue.length" class="cc_muted">—</div></section>
+        </div>
+    </aside>
+</div>
+</t></templates>

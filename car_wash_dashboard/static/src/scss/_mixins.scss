@@ -1,0 +1,22 @@
+@mixin cc-focus-ring {
+    outline: 3px solid color-mix(in srgb, var(--cc-accent) 42%, transparent);
+    outline-offset: 2px;
+}
+
+@mixin cc-state($name) {
+    color: var(--cc-state-#{$name}-fg);
+    background: var(--cc-state-#{$name}-bg);
+    border-color: var(--cc-state-#{$name}-border);
+}
+
+@mixin cc-tv-scale {
+    --cc-tv-plate: #{'clamp(4rem, 5.2vw, 7.5rem)'};
+    --cc-tv-number: #{'clamp(3rem, 4.4vw, 6rem)'};
+    --cc-tv-title: #{'clamp(1.6rem, 2.1vw, 3rem)'};
+}
+
+@mixin cc-reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
+        @content;
+    }
+}

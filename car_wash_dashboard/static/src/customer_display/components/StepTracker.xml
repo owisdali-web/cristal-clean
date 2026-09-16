@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve"><t t-name="car_wash_dashboard.StepTracker">
+<div class="cc_steps"><article t-foreach="steps" t-as="step" t-key="step.key" t-att-class="'cc_step cc_step--'+step.mode"><i><t t-esc="step.mode === 'done' ? '✓' : step.mode === 'current' ? '●' : '○'"/></i><span t-esc="step.label"/></article></div>
+</t></templates>

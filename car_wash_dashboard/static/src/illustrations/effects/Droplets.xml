@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="car_wash_dashboard.Droplets">
+    <g t-att-class="'cc_droplets ' + props.className" aria-hidden="true">
+        <t t-foreach="items" t-as="i" t-key="i">
+            <path class="cc_droplet cc_motion" t-att-style="'--i:' + i" t-att-d="'M ' + (18 + i*12) + ' 16 q 3 5 0 9 q -3 -4 0 -9z'"/>
+        </t>
+    </g>
+</t>
+</templates>

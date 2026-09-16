@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="car_wash_dashboard.Sparkle">
+    <g class="cc_sparkles" aria-hidden="true">
+        <t t-foreach="items" t-as="s" t-key="s.i">
+            <path class="cc_sparkle cc_motion" t-att-style="'--i:' + s.i" t-att-d="'M ' + s.x + ' ' + (s.y-7) + ' L ' + (s.x+2) + ' ' + (s.y-2) + ' L ' + (s.x+7) + ' ' + s.y + ' L ' + (s.x+2) + ' ' + (s.y+2) + ' L ' + s.x + ' ' + (s.y+7) + ' L ' + (s.x-2) + ' ' + (s.y+2) + ' L ' + (s.x-7) + ' ' + s.y + ' L ' + (s.x-2) + ' ' + (s.y-2) + ' Z'"/>
+        </t>
+    </g>
+</t>
+</templates>
