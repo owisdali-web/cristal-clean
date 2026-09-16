@@ -1,0 +1,21 @@
+{
+    'name': 'Crystal Clean Car Wash Dashboard',
+    'version': '18.0.6.1',
+    'category': 'Operations/Car Wash',
+    'summary': 'Crystal Clean concept-replica dashboard with live Odoo operations data',
+    'author': 'Crystal Clean',
+    'license': 'LGPL-3',
+    'depends': ['web', 'bus', 'sale', 'sale_mrp', 'mrp', 'mrp_workorder', 'stock', 'account'],
+    'data': ['security/ir.model.access.csv', 'views/workcenter_views.xml', 'views/menu_views.xml', 'views/sale_order_views.xml'],
+    'assets': {'web.assets_backend': [
+        'car_wash_dashboard/static/src/css/dashboard_concept_replica.css',
+        'car_wash_dashboard/static/src/js/components/kpi_card.js',
+        'car_wash_dashboard/static/src/js/components/queue_panel.js',
+        'car_wash_dashboard/static/src/js/components/station_card.js',
+        'car_wash_dashboard/static/src/js/components/station_detail.js',
+        'car_wash_dashboard/static/src/js/dashboard.js',
+        'car_wash_dashboard/static/src/xml/dashboard.xml',
+    ]},
+    'installable': True,
+    'application': True,
+}
