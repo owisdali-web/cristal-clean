@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, time, timedelta
+import hashlib
 from collections import defaultdict
 
 import pytz
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
+from odoo.exceptions import AccessError
 
 
 AR_DAYS = ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد']
@@ -1668,6 +1670,283 @@ class MrpProduction(models.Model):
     def get_operational_intelligence_data(self):
         """Public V16 read-only intelligence API.  V15 APIs remain unchanged."""
         return self._cw_operational_intelligence_contract()
+
+    # ------------------------------------------------------------------
+    # Customer display backend contract (V17)
+    # ------------------------------------------------------------------
+    @api.model
+    def _cw_customer_display_access_allowed(self):
+        """Return True only for the dedicated display group or system administrators.
+
+        The display contract deliberately does not piggyback on ordinary MRP/POS ACLs.
+        A dedicated TV/user can therefore receive a sanitized projection without being
+        granted direct read access to production, POS, accounting or customer records.
+        """
+        user = self.env.user
+        return bool(
+            user.has_group('car_wash_dashboard.group_car_wash_customer_display')
+            or user.has_group('base.group_system')
+        )
+
+    @api.model
+    def _cw_require_customer_display_access(self):
+        if not self._cw_customer_display_access_allowed():
+            raise AccessError(_('You are not allowed to access the car wash customer display.'))
+        return True
+
+    @api.model
+    def _cw_customer_display_key(self, mo):
+        """Return a stable opaque key without exposing the internal MO database ID."""
+        created = fields.Datetime.to_string(mo.create_date) if mo.create_date else ''
+        seed = f"{mo.company_id.id}:{mo.id}:{created}"
+        return hashlib.sha256(seed.encode('utf-8')).hexdigest()[:16]
+
+    @api.model
+    def _cw_customer_display_progress(self, mo, now=None):
+        """Compute a presentation-safe progress estimate without writing MRP data.
+
+        Completed Work Orders contribute 100%.  A currently running Work Order
+        contributes its elapsed/expected ratio.  Waiting future stages contribute 0%.
+        The value is an operational estimate, not a contractual SLA.
+        """
+        now = now or fields.Datetime.now()
+        workorders = mo.workorder_ids.filtered(lambda wo: wo.state != 'cancel')
+        workorders = workorders.sorted(key=lambda wo: (getattr(wo.operation_id, 'sequence', 0), wo.id))
+        if not workorders:
+            return 100.0 if mo.state in ('to_close', 'done') else 0.0
+        if mo.state in ('to_close', 'done'):
+            return 100.0
+
+        units = 0.0
+        for wo in workorders:
+            if wo.state == 'done':
+                units += 1.0
+            elif wo.state == 'progress':
+                metrics = self._cw_workorder_runtime_metrics(wo, now=now)
+                units += min(max(float(metrics.get('progress_ratio') or 0.0), 0.0), 100.0) / 100.0
+        return round(min(max((units / len(workorders)) * 100.0, 0.0), 100.0), 1)
+
+    @api.model
+    def _cw_customer_display_eta_map(self, active_workorders, now=None):
+        """Return a workorder->ETA map using the same read-only V16 queue semantics.
+
+        Projection becomes unreliable for a station that is manually closed, under
+        maintenance, or already above capacity.  No Work Order assignment/state changes.
+        """
+        now = now or fields.Datetime.now()
+        result = {}
+        stations = self._cw_station_workcenters()
+
+        for wc in stations:
+            station_wos = active_workorders.filtered(
+                lambda wo: wo.workcenter_id and wo.workcenter_id.id == wc.id
+            )
+            running = station_wos.filtered(lambda wo: wo.state == 'progress')
+            queued = station_wos.filtered(lambda wo: wo.state in ('pending', 'waiting', 'ready'))
+            queued = self.env['mrp.workorder'].browse(
+                [wo.id for wo in sorted(queued, key=self._cw_queue_sort_key)]
+            )
+
+            capacity = max(int(wc.default_capacity or 1), 1)
+            occupancy = len(running)
+            manual_state = wc.cc_station_manual_state or 'open'
+            reliable = occupancy <= capacity and manual_state == 'open'
+            reason = ''
+            if manual_state == 'maintenance':
+                reason = 'station_maintenance'
+            elif manual_state == 'closed':
+                reason = 'station_closed'
+            elif occupancy > capacity:
+                reason = 'station_over_capacity'
+
+            lanes = [0.0] * capacity
+            for index, wo in enumerate(running):
+                metrics = self._cw_workorder_runtime_metrics(wo, now=now)
+                remaining = float(metrics.get('remaining_minutes') or 0.0)
+                if reliable:
+                    lane = index % capacity
+                    lanes[lane] = max(lanes[lane], remaining)
+                eta_known = bool(metrics.get('eta_known'))
+                result[wo.id] = {
+                    'eta_minutes': round(remaining, 2) if reliable and eta_known else False,
+                    'eta_reliable': bool(reliable and eta_known),
+                    'eta_scope': 'current_stage',
+                    'eta_reason': reason or ('' if eta_known else 'missing_expected_duration'),
+                    'queue_position': 0,
+                }
+
+            for position, wo in enumerate(queued, start=1):
+                expected = float(wo.duration_expected or 0.0) if 'duration_expected' in wo._fields else 0.0
+                if reliable and expected > 0:
+                    lane = min(range(capacity), key=lambda idx: lanes[idx])
+                    start_in = lanes[lane]
+                    finish_in = start_in + expected
+                    lanes[lane] = finish_in
+                    eta = round(finish_in, 2)
+                    eta_reliable = True
+                    eta_reason = ''
+                else:
+                    eta = False
+                    eta_reliable = False
+                    eta_reason = reason or 'missing_expected_duration'
+                result[wo.id] = {
+                    'eta_minutes': eta,
+                    'eta_reliable': eta_reliable,
+                    'eta_scope': 'current_stage',
+                    'eta_reason': eta_reason,
+                    'queue_position': position,
+                }
+
+        return result
+
+    @api.model
+    def _cw_customer_display_car_payload(self, mo, eta_map=None, now=None):
+        """Serialize only fields approved for a public-facing waiting-room screen."""
+        now = now or fields.Datetime.now()
+        eta_map = eta_map or {}
+        internal = self._cw_mo_vehicle_payload(mo)
+        workorders = mo.workorder_ids.filtered(lambda wo: wo.state != 'cancel')
+        workorders = workorders.sorted(key=lambda wo: (getattr(wo.operation_id, 'sequence', 0), wo.id))
+        current_wo = (
+            workorders.filtered(lambda wo: wo.state == 'progress')[:1]
+            or workorders.filtered(lambda wo: wo.state == 'ready')[:1]
+            or workorders.filtered(lambda wo: wo.state == 'waiting')[:1]
+            or workorders.filtered(lambda wo: wo.state == 'pending')[:1]
+        )
+        eta = eta_map.get(current_wo.id, {}) if current_wo else {}
+
+        if mo.state == 'to_close':
+            display_state = 'ready_for_pickup'
+            display_label = 'جاهزة للاستلام'
+            eta = {
+                'eta_minutes': 0.0,
+                'eta_reliable': True,
+                'eta_scope': 'service',
+                'eta_reason': '',
+                'queue_position': 0,
+            }
+        elif current_wo and current_wo.state == 'progress':
+            display_state = 'in_service'
+            display_label = 'قيد الخدمة'
+        else:
+            display_state = 'waiting'
+            display_label = 'في الانتظار'
+
+        plate = internal.get('plate') or ''
+        if plate == 'بدون لوحة':
+            plate = ''
+        origin = (mo.origin or '').strip()
+        if origin.startswith('POS-'):
+            order_reference = origin[4:].rsplit('/', 1)[-1] or origin[4:]
+        else:
+            order_reference = origin
+        display_key = self._cw_customer_display_key(mo)
+        reference = plate or order_reference or ('#' + display_key[:8].upper())
+
+        return {
+            'display_key': display_key,
+            'public_reference': reference,
+            'vehicle_model': internal.get('vehicle_model') or '',
+            'vehicle_color': internal.get('vehicle_color') or '',
+            'service_name': internal.get('service_name') or '',
+            'display_state': display_state,
+            'display_label': display_label,
+            'progress_percent': self._cw_customer_display_progress(mo, now=now),
+            'progress_basis': 'completed_steps_plus_running_expected_duration',
+            'current_stage': (current_wo.name or '') if current_wo else ('جاهزة للاستلام' if mo.state == 'to_close' else ''),
+            'station_code': (
+                current_wo.workcenter_id.cc_station_code
+                if current_wo and current_wo.workcenter_id and current_wo.workcenter_id.cc_station_code
+                else (current_wo.workcenter_id.code if current_wo and current_wo.workcenter_id else '')
+            ),
+            'eta_minutes': eta.get('eta_minutes', False),
+            'eta_reliable': bool(eta.get('eta_reliable', False)),
+            'eta_scope': eta.get('eta_scope', 'current_stage'),
+            'eta_reason': eta.get('eta_reason', ''),
+            'queue_position': int(eta.get('queue_position') or 0),
+        }
+
+    @api.model
+    def _cw_customer_display_contract(self):
+        """Sanitized read-only data contract for the future standalone TV client."""
+        company = self.env.company
+        now = fields.Datetime.now()
+        Workorder = self.env['mrp.workorder']
+
+        visible_mos = self.search(
+            self._cw_wash_domain() + [('state', 'in', ['confirmed', 'progress', 'to_close'])],
+            order='date_start asc, id asc',
+        )
+        active_wos = Workorder.search(self._cw_operations_workorder_domain())
+        eta_map = self._cw_customer_display_eta_map(active_wos, now=now)
+
+        cars = [self._cw_customer_display_car_payload(mo, eta_map=eta_map, now=now) for mo in visible_mos]
+        ready = [row for row in cars if row['display_state'] == 'ready_for_pickup']
+        in_service = [row for row in cars if row['display_state'] == 'in_service']
+        waiting = [row for row in cars if row['display_state'] == 'waiting']
+
+        # Rotation intentionally excludes ready-for-pickup vehicles because the future
+        # screen has a dedicated ready strip/list.  This avoids showing the same vehicle twice.
+        rotation = sorted(
+            in_service + waiting,
+            key=lambda row: (
+                0 if row['display_state'] == 'in_service' else 1,
+                row.get('queue_position', 0),
+                row['display_key'],
+            ),
+        )
+        ready = sorted(ready, key=lambda row: row['display_key'])
+
+        return {
+            'contract_version': '17.0-customer-display',
+            'generated_at': fields.Datetime.to_string(now),
+            'timezone': self.env.context.get('tz') or self.env.user.tz or 'UTC',
+            'company': {
+                'id': company.id,
+                'name': company.display_name,
+                'logo_available': bool(company.logo),
+                'logo_url': '/car_wash/customer_display/logo' if company.logo else '',
+            },
+            'display_policy': {
+                'intro_enabled': True,
+                'intro_seconds': 2.0,
+                'rotation_seconds': 10.0,
+                'fullscreen_requires_user_gesture': True,
+                'show_vehicle_model': True,
+                'show_current_stage': True,
+                'show_eta': True,
+                'show_ready_for_pickup': True,
+            },
+            'counts': {
+                'visible': len(cars),
+                'in_service': len(in_service),
+                'waiting': len(waiting),
+                'ready_for_pickup': len(ready),
+            },
+            'idle': not bool(cars),
+            'rotation': rotation,
+            'ready_for_pickup': ready,
+            'semantics': {
+                'privacy': 'No customer name, phone, price, payment, accounting or operator identity is exposed.',
+                'progress': 'Operational estimate from completed Work Orders plus elapsed/expected ratio of the running stage.',
+                'eta': 'ETA is for the current Work Order stage only unless the vehicle is already ready for pickup.',
+                'projection': 'Queue projection is read-only and follows existing MRP station assignment and capacity.',
+            },
+        }
+
+    @api.model
+    def get_customer_display_data(self):
+        """Permission-gated V17 API used by the future standalone customer display."""
+        self._cw_require_customer_display_access()
+        company = self.env.company
+        request_tz = self.env.user.tz or self.env.context.get('tz') or 'UTC'
+        context = dict(
+            self.env.context,
+            allowed_company_ids=[company.id],
+            tz=request_tz,
+            cw_customer_display_request_user_id=self.env.user.id,
+        )
+        return self.sudo().with_company(company).with_context(context)._cw_customer_display_contract()
 
     # ------------------------------------------------------------------
     # Dashboard V2 payload
