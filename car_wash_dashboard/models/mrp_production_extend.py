@@ -989,7 +989,7 @@ class MrpProduction(models.Model):
         return 'available', 'متاحة'
 
     @api.model
-    def _cw_build_station_payload(self, workorders, finished_workorders, wo_domain):
+    def _cw_build_station_payload(self, workorders, finished_workorders, wo_domain, vehicle_cache=None):
         Workorder = self.env['mrp.workorder']
         workcenters = self._cw_station_workcenters()
 
@@ -1018,7 +1018,8 @@ class MrpProduction(models.Model):
                 if wo.production_id.id in seen_mos:
                     continue
                 seen_mos.add(wo.production_id.id)
-                car = self._cw_mo_vehicle_payload(wo.production_id)
+                cached_car = (vehicle_cache or {}).get(wo.production_id.id)
+                car = dict(cached_car or self._cw_mo_vehicle_payload(wo.production_id))
                 car['wo_state'] = wo.state
                 car['stage'] = wo.name or ''
                 current_cars.append(car)
@@ -1116,6 +1117,280 @@ class MrpProduction(models.Model):
             'station_overloaded': sum(1 for row in stations if row['runtime_state'] == 'overloaded'),
             'queue_total': sum(row['queue_count'] for row in stations),
             'stations': stations,
+        }
+
+    # ------------------------------------------------------------------
+    # Operations backend contract (V15)
+    # ------------------------------------------------------------------
+    @api.model
+    def _cw_operations_workorder_domain(self, states=None, station_id=None):
+        """Company-scoped wash Work Order domain used by the live operations APIs.
+
+        This helper is deliberately read-only. It mirrors Odoo's real Work Order state
+        and never reassigns, starts, stops, plans, or completes a Work Order.
+        """
+        states = states or ACTIVE_WO_STATES
+        domain = [
+            ('production_id.company_id', '=', self.env.company.id),
+            ('production_id.state', 'not in', ['done', 'cancel']),
+            ('state', 'in', states),
+        ] + self._cw_workorder_wash_domain()
+        if station_id:
+            domain.append(('workcenter_id', '=', station_id))
+        return domain
+
+    @api.model
+    def _cw_queue_anchor(self, workorder):
+        """Return a deterministic scheduling anchor without claiming it is actual wait start."""
+        return workorder.date_start or workorder.create_date or fields.Datetime.now()
+
+    @api.model
+    def _cw_queue_sort_key(self, workorder):
+        anchor = self._cw_queue_anchor(workorder)
+        return (anchor, workorder.id)
+
+    @api.model
+    def _cw_queue_entry_payload(self, workorder, station=None, station_position=0, vehicle_cache=None):
+        """Serialize one queued Work Order using only authoritative MRP facts."""
+        mo = workorder.production_id
+        cached_car = (vehicle_cache or {}).get(mo.id)
+        car = dict(cached_car or self._cw_mo_vehicle_payload(mo))
+        anchor = self._cw_queue_anchor(workorder)
+        age_minutes = 0
+        if workorder.create_date:
+            age_minutes = max(
+                0,
+                round((fields.Datetime.now() - workorder.create_date).total_seconds() / 60.0),
+            )
+        station = station or {}
+        return {
+            'workorder_id': workorder.id,
+            'production_id': mo.id,
+            'production_name': mo.name or '',
+            'mrp_state': workorder.state,
+            'operation_name': workorder.name or '',
+            'operation_kind': self._cw_operation_kind(workorder.name or ''),
+            'station_id': workorder.workcenter_id.id if workorder.workcenter_id else False,
+            'station_name': workorder.workcenter_id.display_name if workorder.workcenter_id else '',
+            'station_code': station.get('station_code') or '',
+            'station_position': station_position,
+            'scheduled_anchor': fields.Datetime.to_string(anchor) if anchor else '',
+            'created_at': fields.Datetime.to_string(workorder.create_date) if workorder.create_date else '',
+            'queue_age_minutes': age_minutes,
+            'expected_minutes': round(workorder.duration_expected or 0.0, 2)
+                if 'duration_expected' in workorder._fields else 0.0,
+            'vehicle': car,
+        }
+
+    @api.model
+    def _cw_build_queue_payload(self, workorders, stations, vehicle_cache=None):
+        station_map = {row['id']: row for row in stations}
+        queue_states = ('pending', 'waiting', 'ready')
+        queued = workorders.filtered(lambda wo: wo.state in queue_states)
+        grouped = defaultdict(list)
+        unassigned = []
+        foreign_station = []
+
+        for wo in queued:
+            station_id = wo.workcenter_id.id if wo.workcenter_id else False
+            if not station_id:
+                unassigned.append(wo)
+            elif station_id not in station_map:
+                foreign_station.append(wo)
+            else:
+                grouped[station_id].append(wo)
+
+        rows = []
+        by_station = []
+        for station in stations:
+            station_wos = sorted(grouped.get(station['id'], []), key=self._cw_queue_sort_key)
+            station_rows = [
+                self._cw_queue_entry_payload(wo, station, index, vehicle_cache=vehicle_cache)
+                for index, wo in enumerate(station_wos, start=1)
+            ]
+            rows.extend(station_rows)
+            by_station.append({
+                'station_id': station['id'],
+                'station_code': station['station_code'],
+                'station_name': station['name'],
+                'count': len(station_rows),
+                'rows': station_rows,
+            })
+
+        return {
+            'total': len(rows),
+            'rows': rows,
+            'by_station': by_station,
+            'unassigned_workorder_ids': [wo.id for wo in unassigned],
+            'foreign_station_workorder_ids': [wo.id for wo in foreign_station],
+        }
+
+    @api.model
+    def _cw_operations_contract(self):
+        """Build the lightweight live-operations contract.
+
+        Unlike get_dashboard_data(), this payload intentionally excludes finance,
+        stock, customer analytics, HR and maintenance. It is safe for frequent refresh.
+        """
+        company = self.env.company
+        Workorder = self.env['mrp.workorder']
+        today_start, today_end, _today = self._cw_day_bounds(0)
+
+        workorder_domain = self._cw_operations_workorder_domain()
+        workorders = Workorder.search(workorder_domain)
+
+        finished = Workorder.browse()
+        if {'duration', 'duration_expected', 'date_finished'} <= set(Workorder._fields):
+            finished = Workorder.search([
+                ('production_id.company_id', '=', company.id),
+                ('state', '=', 'done'),
+                ('date_finished', '>=', today_start),
+                ('date_finished', '<', today_end),
+            ] + self._cw_workorder_wash_domain())
+
+        active_mos = self.search(
+            self._cw_wash_domain() + [('state', 'not in', ['done', 'cancel'])],
+            order='date_start asc, id asc',
+        )
+        vehicle_cache = {mo.id: self._cw_mo_vehicle_payload(mo) for mo in active_mos}
+        cars = [vehicle_cache[mo.id] for mo in active_mos]
+
+        stations = self._cw_build_station_payload(
+            workorders, finished, workorder_domain, vehicle_cache=vehicle_cache,
+        )
+        queue = self._cw_build_queue_payload(workorders, stations, vehicle_cache=vehicle_cache)
+
+        progress_wos = workorders.filtered(lambda wo: wo.state == 'progress')
+        running_mo_ids = set(progress_wos.mapped('production_id').ids)
+        ready_delivery = [car for car in cars if car.get('status_code') == 'ready_delivery']
+        waiting_cars = [car for car in cars if car.get('status_code') in ('waiting', 'ready')]
+
+        topology_ids = {row['id'] for row in stations}
+        orphan_active = workorders.filtered(
+            lambda wo: wo.workcenter_id and wo.workcenter_id.id not in topology_ids
+        )
+        unassigned_active = workorders.filtered(lambda wo: not wo.workcenter_id)
+
+        return {
+            'contract_version': '15.0-operations',
+            'generated_at': fields.Datetime.to_string(fields.Datetime.now()),
+            'timezone': self.env.user.tz or 'UTC',
+            'company_id': company.id,
+            'company_name': company.display_name,
+            'currency_symbol': company.currency_id.symbol or '',
+            'kpis': {
+                'active_vehicles': len(cars),
+                'in_service': len(running_mo_ids),
+                'waiting_for_station': queue['total'],
+                'ready_for_delivery': len(ready_delivery),
+                'station_total': len(stations),
+                'station_available': sum(1 for row in stations if row['runtime_state'] == 'available'),
+                'station_busy': sum(1 for row in stations if row['runtime_state'] in ('busy', 'overloaded')),
+                'station_maintenance': sum(1 for row in stations if row['runtime_state'] == 'maintenance'),
+                'station_closed': sum(1 for row in stations if row['runtime_state'] == 'closed'),
+                'station_overloaded': sum(1 for row in stations if row['runtime_state'] == 'overloaded'),
+            },
+            'stations': stations,
+            'queue': queue,
+            'cars': cars,
+            'ready_delivery': ready_delivery,
+            'waiting_cars': waiting_cars,
+            'diagnostics': {
+                'orphan_active_workorder_ids': orphan_active.ids,
+                'unassigned_active_workorder_ids': unassigned_active.ids,
+                'overloaded_station_ids': [
+                    row['id'] for row in stations if row['runtime_state'] == 'overloaded'
+                ],
+            },
+            'domains': {
+                'active_workorders': workorder_domain,
+                'active_productions': self._cw_wash_domain() + [('state', 'not in', ['done', 'cancel'])],
+            },
+        }
+
+    @api.model
+    def get_operations_data(self):
+        """Public read-only contract for the future Operations Control Center."""
+        return self._cw_operations_contract()
+
+    @api.model
+    def get_queue_data(self):
+        """Public read-only queue contract, split from the heavy dashboard payload."""
+        data = self._cw_operations_contract()
+        return {
+            'contract_version': data['contract_version'],
+            'generated_at': data['generated_at'],
+            'timezone': data['timezone'],
+            'company_id': data['company_id'],
+            'company_name': data['company_name'],
+            'queue': data['queue'],
+            'station_total': data['kpis']['station_total'],
+            'station_available': data['kpis']['station_available'],
+            'station_busy': data['kpis']['station_busy'],
+            'diagnostics': data['diagnostics'],
+        }
+
+    @api.model
+    def get_station_details(self, station_id):
+        """Return one station with all of its current jobs and queue entries."""
+        try:
+            station_id = int(station_id)
+        except (TypeError, ValueError):
+            return {'found': False, 'reason': 'invalid_station_id'}
+
+        workcenters = self._cw_station_workcenters()
+        workcenter = workcenters.filtered(lambda wc: wc.id == station_id)[:1]
+        if not workcenter:
+            return {'found': False, 'reason': 'station_not_found'}
+
+        company = self.env.company
+        Workorder = self.env['mrp.workorder']
+        today_start, today_end, _today = self._cw_day_bounds(0)
+        domain = self._cw_operations_workorder_domain(station_id=station_id)
+        workorders = Workorder.search(domain)
+
+        finished = Workorder.browse()
+        if {'duration', 'duration_expected', 'date_finished'} <= set(Workorder._fields):
+            finished = Workorder.search([
+                ('production_id.company_id', '=', company.id),
+                ('workcenter_id', '=', station_id),
+                ('state', '=', 'done'),
+                ('date_finished', '>=', today_start),
+                ('date_finished', '<', today_end),
+            ] + self._cw_workorder_wash_domain())
+
+        station_mos = workorders.mapped('production_id')
+        vehicle_cache = {mo.id: self._cw_mo_vehicle_payload(mo) for mo in station_mos}
+        station_rows = self._cw_build_station_payload(
+            workorders, finished, domain, vehicle_cache=vehicle_cache,
+        )
+        station = next((row for row in station_rows if row['id'] == station_id), False)
+        if not station:
+            return {'found': False, 'reason': 'station_not_found'}
+        queue = self._cw_build_queue_payload(workorders, [station], vehicle_cache=vehicle_cache)
+
+        running = []
+        for wo in workorders.filtered(lambda item: item.state == 'progress'):
+            running.append({
+                'workorder_id': wo.id,
+                'production_id': wo.production_id.id,
+                'mrp_state': wo.state,
+                'operation_name': wo.name or '',
+                'expected_minutes': round(wo.duration_expected or 0.0, 2)
+                    if 'duration_expected' in wo._fields else 0.0,
+                'vehicle': dict(vehicle_cache.get(wo.production_id.id) or self._cw_mo_vehicle_payload(wo.production_id)),
+            })
+
+        return {
+            'found': True,
+            'contract_version': '15.0-operations',
+            'generated_at': fields.Datetime.to_string(fields.Datetime.now()),
+            'company_id': company.id,
+            'station': station,
+            'running_jobs': running,
+            'queue': queue,
+            'active_workorder_ids': workorders.ids,
+            'done_today': station.get('done_today', 0),
         }
 
     # ------------------------------------------------------------------
@@ -1512,7 +1787,7 @@ class MrpProduction(models.Model):
         }
 
         return {
-            'dashboard_version': '14.0-station-topology',
+            'dashboard_version': '15.0-operations-contract',
             'company_id': company.id,
             'company_name': company.display_name,
             'currency_symbol': company.currency_id.symbol or '',
