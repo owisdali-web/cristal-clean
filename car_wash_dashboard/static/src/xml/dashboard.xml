@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="car_wash_dashboard.KpiCard">
+        <article t-att-class="'cw-kpi-card ' + (props.tone || '')">
+            <div t-att-class="'cw-kpi-icon ' + (props.icon || '')"><i/></div>
+            <div class="cw-kpi-copy">
+                <span class="cw-kpi-label" t-esc="props.label"/>
+                <strong class="cw-kpi-value" t-esc="props.value"/>
+                <small t-if="props.note" t-esc="props.note"/>
+            </div>
+        </article>
+    </t>
+
+    <t t-name="car_wash_dashboard.QueuePanel">
+        <section class="cw-panel cw-queue-panel">
+            <header class="cw-panel-heading">
+                <div>
+                    <span class="cw-eyebrow">GENERAL QUEUE</span>
+                    <h2>Waiting Queue</h2>
+                    <p><strong t-esc="props.total"/> cars waiting for the next available station.</p>
+                </div>
+                <span class="cw-count-badge" t-esc="props.total"/>
+            </header>
+            <div class="cw-queue-list">
+                <t t-foreach="props.queue.slice(0, 4)" t-as="item" t-key="item.id">
+                    <button type="button" class="cw-queue-row" t-on-click="() => props.onOpenCar(item.id)">
+                        <span class="cw-queue-car"><img t-att-src="vehicleImage(item)" alt=""/></span>
+                        <span class="cw-queue-main">
+                            <strong t-esc="item.plate"/>
+                            <small t-esc="item.vehicle_model || item.service_name"/>
+                            <em t-esc="item.service_name"/>
+                        </span>
+                        <span class="cw-queue-meta">
+                            <span class="cw-size-chip" t-esc="sizeLabel(item.vehicle_size)"/>
+                            <small t-esc="formatMinutes(item.waiting_minutes)"/>
+                        </span>
+                    </button>
+                </t>
+                <div t-if="!props.queue.length" class="cw-empty-state compact">
+                    <span>✓</span>
+                    <p>No cars are waiting.</p>
+                </div>
+            </div>
+            <button type="button" class="cw-secondary-wide" t-on-click="props.onOpenQueue">
+                View Full Queue <span>→</span>
+            </button>
+        </section>
+    </t>
+
+    <t t-name="car_wash_dashboard.StationCard">
+        <button type="button"
+                t-att-class="'cw-station-card status-' + props.station.status + (props.selected ? ' is-selected' : '')"
+                t-att-disabled="props.station.is_placeholder"
+                t-on-click="select">
+            <div class="cw-station-topline">
+                <div>
+                    <span class="cw-station-number">Station <t t-esc="props.station.slot_number"/></span>
+                    <strong t-esc="props.station.name"/>
+                </div>
+                <span t-att-class="'cw-type-badge type-' + props.station.station_type" t-esc="typeLabel(props.station.station_type)"/>
+            </div>
+
+            <t t-if="props.station.current_car">
+                <div class="cw-station-vehicle">
+                    <img t-att-src="vehicleImage()" alt=""/>
+                </div>
+                <div class="cw-station-car-copy">
+                    <div>
+                        <strong t-esc="props.station.current_car.plate"/>
+                        <small t-esc="props.station.current_car.vehicle_model || 'Current vehicle'"/>
+                    </div>
+                    <span t-att-class="'cw-status-chip status-' + props.station.status" t-esc="statusLabel(props.station.status)"/>
+                </div>
+                <p class="cw-service-name" t-esc="props.station.current_car.service_name"/>
+                <div class="cw-station-footer">
+                    <span class="cw-size-chip" t-esc="sizeLabel(props.station.current_car.vehicle_size)"/>
+                    <span class="cw-time-chip">◷ <t t-esc="formatMinutes(props.station.elapsed_minutes)"/></span>
+                </div>
+            </t>
+            <t t-elif="props.station.is_placeholder">
+                <div class="cw-station-empty not-configured">
+                    <span class="cw-empty-car">◇</span>
+                    <strong>Not Configured</strong>
+                    <small>Configure a real Odoo work center.</small>
+                </div>
+            </t>
+            <t t-else="">
+                <div class="cw-station-empty">
+                    <span class="cw-empty-car"><img src="/car_wash_dashboard/static/src/img/car_sedan.svg" alt=""/></span>
+                    <strong>Available</strong>
+                    <small>Ready for the next car</small>
+                    <span class="cw-status-chip status-available">Available</span>
+                </div>
+            </t>
+
+            <div t-if="props.station.status === 'conflict'" class="cw-conflict-note">
+                <strong t-esc="props.station.conflict_count"/> active cars detected — check Shop Floor.
+            </div>
+        </button>
+    </t>
+
+    <t t-name="car_wash_dashboard.StationDetail">
+        <aside class="cw-detail-drawer">
+            <header class="cw-drawer-head">
+                <div>
+                    <span class="cw-eyebrow">WORK CENTER DETAILS</span>
+                    <h2 t-esc="props.station.name"/>
+                </div>
+                <button type="button" class="cw-close" t-on-click="props.onClose">×</button>
+            </header>
+
+            <div class="cw-drawer-status-row">
+                <span t-att-class="'cw-type-badge type-' + props.station.station_type" t-esc="typeLabel(props.station.station_type)"/>
+                <span t-att-class="'cw-status-chip status-' + props.station.status" t-esc="statusLabel(props.station.status)"/>
+            </div>
+
+            <t t-if="props.station.current_car">
+                <div class="cw-detail-car">
+                    <img t-att-src="vehicleImage()" alt=""/>
+                </div>
+                <div class="cw-detail-plate-row">
+                    <div>
+                        <strong t-esc="props.station.current_car.plate"/>
+                        <small t-esc="props.station.current_car.vehicle_model || 'Current vehicle'"/>
+                    </div>
+                    <div class="cw-detail-time">
+                        <strong t-esc="formatMinutes(props.station.elapsed_minutes)"/>
+                        <small>Time in station</small>
+                    </div>
+                </div>
+                <dl class="cw-detail-list">
+                    <div><dt>Service</dt><dd t-esc="props.station.current_car.service_name"/></div>
+                    <div><dt>Vehicle Size</dt><dd t-esc="sizeLabel(props.station.current_car.vehicle_size)"/></div>
+                    <div><dt>Customer</dt><dd><span t-esc="props.station.current_car.customer_name || '—'"/><small t-if="props.station.current_car.customer_phone" t-esc="props.station.current_car.customer_phone"/></dd></div>
+                    <div><dt>Current Operation</dt><dd t-esc="props.station.current_car.stage_name || '—'"/></div>
+                    <div><dt>Service Notes</dt><dd t-esc="props.station.current_car.vehicle_notes || 'No notes'"/></div>
+                </dl>
+                <button type="button" class="cw-primary-action" t-on-click="props.onOpenShopFloor">Open Wash Screen <span>→</span></button>
+                <button type="button" class="cw-secondary-action" t-on-click="() => props.onOpenProduction(props.station.current_car.production_id)">Open Car Wash Order</button>
+                <button t-if="props.station.current_car.workorder_id" type="button" class="cw-secondary-action" t-on-click="() => props.onOpenWorkorder(props.station.current_car.workorder_id)">Open Current Operation</button>
+            </t>
+            <t t-else="">
+                <div class="cw-empty-state drawer">
+                    <img src="/car_wash_dashboard/static/src/img/car_sedan.svg" alt=""/>
+                    <h3>Station Available</h3>
+                    <p>No car is currently running in this work center.</p>
+                    <button type="button" class="cw-primary-action" t-on-click="props.onOpenShopFloor">Open Wash Screen <span>→</span></button>
+                </div>
+            </t>
+        </aside>
+    </t>
+
+    <t t-name="car_wash_dashboard.CarWashDashboard">
+        <div class="cw-dashboard-app">
+            <div t-if="state.loading" class="cw-loading-screen">
+                <span class="cw-loader"/>
+                <strong>Loading car wash dashboard…</strong>
+            </div>
+            <t t-else="">
+                <aside class="cw-sidebar">
+                    <div class="cw-brand">
+                        <span class="cw-brand-mark">💧</span>
+                        <div><strong>CleanDrive</strong><small>CAR WASH</small></div>
+                    </div>
+                    <nav class="cw-nav">
+                        <button class="is-active"><span>⌂</span>Dashboard</button>
+                        <button t-on-click="openShopFloor"><span>▣</span>Wash Screen</button>
+                        <button t-on-click="openStationSettings"><span>▦</span>Work Centers</button>
+                    </nav>
+                    <div class="cw-sidebar-card">
+                        <div class="cw-side-car"><img src="/car_wash_dashboard/static/src/img/concept_car.webp" alt=""/></div>
+                        <strong>Cleaner Cars</strong>
+                        <span>Brighter Days</span>
+                    </div>
+                </aside>
+
+                <main class="cw-main">
+                    <header class="cw-topbar">
+                        <div class="cw-title-block">
+                            <span class="cw-eyebrow">LIVE OPERATIONS</span>
+                            <h1>Car Wash Dashboard</h1>
+                            <p>Live overview of stations, queue and today’s activity.</p>
+                        </div>
+                        <div class="cw-header-tools">
+                            <label class="cw-search">
+                                <span>⌕</span>
+                                <input type="search" placeholder="Search car, plate, service or station…" t-att-value="state.searchQuery" t-on-input="onSearchInput"/>
+                            </label>
+                            <button type="button" class="cw-refresh" t-on-click="manualRefresh" title="Refresh">↻</button>
+                            <div class="cw-date-box">
+                                <small t-esc="state.dateLabel"/>
+                                <strong t-esc="state.nowLabel"/>
+                            </div>
+                            <div class="cw-company-pill"><span>●</span><t t-esc="state.data.company_name"/></div>
+                        </div>
+                    </header>
+
+                    <div t-if="state.data.station_configuration.warnings &amp;&amp; state.data.station_configuration.warnings.length" class="cw-config-banner">
+                        <span>⚙</span>
+                        <div>
+                            <strong>Station configuration needs attention</strong>
+                            <p t-esc="state.data.station_configuration.warnings.join(' ')"/>
+                        </div>
+                        <button type="button" t-on-click="openStationSettings">Configure</button>
+                    </div>
+
+                    <section class="cw-kpi-grid">
+                        <KpiCard label="'Active Cars'" value="state.data.kpis.active_cars || 0" note="'currently in stations'" icon="'car'" tone="'blue'"/>
+                        <KpiCard label="'General Waiting Queue'" value="state.data.kpis.waiting_queue || 0" note="'cars waiting'" icon="'queue'" tone="'cyan'"/>
+                        <KpiCard label="'Available Stations'" value="state.data.kpis.available_stations || 0" note="'of 10 station slots'" icon="'station'" tone="'green'"/>
+                        <KpiCard label="'Finished Today'" value="state.data.kpis.finished_today || 0" note="'completed wash orders'" icon="'done'" tone="'violet'"/>
+                    </section>
+
+                    <section class="cw-operations-layout">
+                        <QueuePanel queue="filteredQueue" total="state.data.kpis.waiting_queue || 0" onOpenQueue.bind="openQueue" onOpenCar.bind="openProduction"/>
+
+                        <section class="cw-stations-panel">
+                            <header class="cw-stations-heading">
+                                <div>
+                                    <span class="cw-eyebrow">WORK CENTERS</span>
+                                    <h2>Wash Stations <span>(10)</span></h2>
+                                    <p>Each station shows only the car currently inside.</p>
+                                </div>
+                                <div class="cw-live-pill"><i/>Live · updated <t t-esc="state.lastUpdate || '—'"/></div>
+                            </header>
+
+                            <div class="cw-station-grid">
+                                <t t-foreach="filteredStations" t-as="station" t-key="station.slot_number">
+                                    <StationCard station="station" selected="station.id === state.selectedStationId" onSelect.bind="selectStation"/>
+                                </t>
+                            </div>
+
+                            <div t-if="state.searchQuery &amp;&amp; !filteredStations.length" class="cw-empty-state search">
+                                <h3>No stations match your search.</h3>
+                            </div>
+                        </section>
+                    </section>
+                </main>
+
+                <div t-if="selectedStation" class="cw-drawer-backdrop" t-on-click="closeStation"/>
+                <StationDetail t-if="selectedStation"
+                               station="selectedStation"
+                               onClose.bind="closeStation"
+                               onOpenShopFloor.bind="openShopFloor"
+                               onOpenProduction.bind="openProduction"
+                               onOpenWorkorder.bind="openWorkorder"/>
+            </t>
+        </div>
+    </t>
+</templates>
