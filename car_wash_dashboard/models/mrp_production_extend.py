@@ -1394,6 +1394,282 @@ class MrpProduction(models.Model):
         }
 
     # ------------------------------------------------------------------
+    # Operational intelligence (V16)
+    # ------------------------------------------------------------------
+    @api.model
+    def _cw_minutes_between(self, start, end=None):
+        """Return a non-negative minute delta for two naive UTC datetimes."""
+        if not start:
+            return 0.0
+        end = end or fields.Datetime.now()
+        try:
+            return max(0.0, (end - start).total_seconds() / 60.0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @api.model
+    def _cw_workorder_runtime_metrics(self, workorder, now=None):
+        """Read-only runtime metrics for one Work Order.
+
+        ``elapsed_minutes`` is deliberately operational, not accounting time.  While a
+        Work Order is in progress we use the greater of Odoo's recorded ``duration`` and
+        elapsed wall time since ``date_start``.  This avoids reporting zero while a job is
+        currently running.  No Work Order field is written by this helper.
+        """
+        now = now or fields.Datetime.now()
+        expected = float(workorder.duration_expected or 0.0) if 'duration_expected' in workorder._fields else 0.0
+        recorded = float(workorder.duration or 0.0) if 'duration' in workorder._fields else 0.0
+        wall = 0.0
+        source = 'recorded_duration'
+
+        if workorder.state == 'progress' and 'date_start' in workorder._fields and workorder.date_start:
+            wall = self._cw_minutes_between(workorder.date_start, now)
+            source = 'max_recorded_or_running_wall_time'
+
+        elapsed = max(recorded, wall)
+        remaining = max(expected - elapsed, 0.0) if expected > 0 else 0.0
+        over_expected = bool(expected > 0 and elapsed > expected)
+        delay = max(elapsed - expected, 0.0) if expected > 0 else 0.0
+        progress_ratio = min((elapsed / expected) * 100.0, 100.0) if expected > 0 else 0.0
+
+        return {
+            'expected_minutes': round(expected, 2),
+            'recorded_duration_minutes': round(recorded, 2),
+            'running_wall_minutes': round(wall, 2),
+            'elapsed_minutes': round(elapsed, 2),
+            'remaining_minutes': round(remaining, 2),
+            'over_expected': over_expected,
+            'delay_minutes': round(delay, 2),
+            'progress_ratio': round(progress_ratio, 1),
+            'elapsed_source': source,
+            'eta_known': bool(expected > 0),
+        }
+
+    @api.model
+    def _cw_station_intelligence_payload(self, station, workorders, finished_today, finished_last_hour, vehicle_cache=None, now=None):
+        """Build throughput, delay and queue projection metrics for one station.
+
+        The queue projection never changes Odoo planning.  It is a deterministic read-only
+        simulation over the existing MRP Work Order assignment and expected durations.
+        """
+        now = now or fields.Datetime.now()
+        station_id = station['id']
+        capacity = max(int(station.get('capacity') or 1), 1)
+        station_wos = workorders.filtered(lambda wo: wo.workcenter_id and wo.workcenter_id.id == station_id)
+        running = station_wos.filtered(lambda wo: wo.state == 'progress')
+        queued = station_wos.filtered(lambda wo: wo.state in ('pending', 'waiting', 'ready'))
+        queued = self.env['mrp.workorder'].browse(
+            [wo.id for wo in sorted(queued, key=self._cw_queue_sort_key)]
+        )
+
+        running_rows = []
+        for wo in running:
+            metrics = self._cw_workorder_runtime_metrics(wo, now=now)
+            car = dict((vehicle_cache or {}).get(wo.production_id.id) or self._cw_mo_vehicle_payload(wo.production_id))
+            running_rows.append({
+                'workorder_id': wo.id,
+                'production_id': wo.production_id.id,
+                'operation_name': wo.name or '',
+                'vehicle': car,
+                **metrics,
+            })
+
+        occupancy = len(running_rows)
+        overloaded = occupancy > capacity
+        projection_reliable = not overloaded
+
+        queue_rows = []
+        projected_clear_minutes = 0.0
+        if projection_reliable:
+            lanes = [0.0] * capacity
+            for index, row in enumerate(sorted(running_rows, key=lambda r: r['remaining_minutes'], reverse=True)):
+                lane = index % capacity
+                lanes[lane] = max(lanes[lane], float(row['remaining_minutes'] or 0.0))
+
+            for position, wo in enumerate(queued, start=1):
+                expected = float(wo.duration_expected or 0.0) if 'duration_expected' in wo._fields else 0.0
+                lane = min(range(capacity), key=lambda idx: lanes[idx])
+                start_in = lanes[lane]
+                finish_in = start_in + max(expected, 0.0)
+                lanes[lane] = finish_in
+                anchor = self._cw_queue_anchor(wo)
+                age = self._cw_minutes_between(wo.create_date, now) if wo.create_date else 0.0
+                car = dict((vehicle_cache or {}).get(wo.production_id.id) or self._cw_mo_vehicle_payload(wo.production_id))
+                queue_rows.append({
+                    'workorder_id': wo.id,
+                    'production_id': wo.production_id.id,
+                    'position': position,
+                    'mrp_state': wo.state,
+                    'operation_name': wo.name or '',
+                    'vehicle': car,
+                    'queue_age_minutes': round(age, 2),
+                    'scheduled_anchor': fields.Datetime.to_string(anchor) if anchor else '',
+                    'expected_minutes': round(expected, 2),
+                    'estimated_start_in_minutes': round(start_in, 2),
+                    'estimated_finish_in_minutes': round(finish_in, 2),
+                    'estimate_reliable': True,
+                })
+            projected_clear_minutes = max(lanes) if lanes else 0.0
+        else:
+            for position, wo in enumerate(queued, start=1):
+                expected = float(wo.duration_expected or 0.0) if 'duration_expected' in wo._fields else 0.0
+                anchor = self._cw_queue_anchor(wo)
+                age = self._cw_minutes_between(wo.create_date, now) if wo.create_date else 0.0
+                car = dict((vehicle_cache or {}).get(wo.production_id.id) or self._cw_mo_vehicle_payload(wo.production_id))
+                queue_rows.append({
+                    'workorder_id': wo.id,
+                    'production_id': wo.production_id.id,
+                    'position': position,
+                    'mrp_state': wo.state,
+                    'operation_name': wo.name or '',
+                    'vehicle': car,
+                    'queue_age_minutes': round(age, 2),
+                    'scheduled_anchor': fields.Datetime.to_string(anchor) if anchor else '',
+                    'expected_minutes': round(expected, 2),
+                    'estimated_start_in_minutes': False,
+                    'estimated_finish_in_minutes': False,
+                    'estimate_reliable': False,
+                })
+
+        station_done_today = finished_today.filtered(lambda wo: wo.workcenter_id and wo.workcenter_id.id == station_id)
+        station_done_last_hour = finished_last_hour.filtered(lambda wo: wo.workcenter_id and wo.workcenter_id.id == station_id)
+        durations = [float(wo.duration or 0.0) for wo in station_done_today if 'duration' in wo._fields and (wo.duration or 0.0) > 0]
+        expected_durations = [float(wo.duration_expected or 0.0) for wo in station_done_today if 'duration_expected' in wo._fields and (wo.duration_expected or 0.0) > 0]
+        avg_duration = (sum(durations) / len(durations)) if durations else 0.0
+        avg_expected = (sum(expected_durations) / len(expected_durations)) if expected_durations else 0.0
+        delayed_running = [row for row in running_rows if row['over_expected']]
+        queue_ages = [row['queue_age_minutes'] for row in queue_rows]
+
+        return {
+            'station_id': station_id,
+            'station_code': station.get('station_code') or '',
+            'station_name': station.get('name') or '',
+            'runtime_state': station.get('runtime_state') or '',
+            'capacity': capacity,
+            'occupancy': occupancy,
+            'queue_count': len(queue_rows),
+            'over_capacity': overloaded,
+            'projection_reliable': projection_reliable,
+            'projection_reason': '' if projection_reliable else 'station_over_capacity',
+            'running_jobs': running_rows,
+            'queue': queue_rows,
+            'delayed_running_jobs': len(delayed_running),
+            'max_running_delay_minutes': round(max([row['delay_minutes'] for row in delayed_running], default=0.0), 2),
+            'queue_age_avg_minutes': round((sum(queue_ages) / len(queue_ages)) if queue_ages else 0.0, 2),
+            'queue_age_max_minutes': round(max(queue_ages, default=0.0), 2),
+            'projected_clear_minutes': round(projected_clear_minutes, 2) if projection_reliable else False,
+            'done_today': len(station_done_today),
+            'done_last_60_minutes': len(station_done_last_hour),
+            'avg_duration_today_minutes': round(avg_duration, 2),
+            'avg_expected_today_minutes': round(avg_expected, 2),
+        }
+
+    @api.model
+    def _cw_operational_intelligence_contract(self):
+        """Read-only operational intelligence contract for the future control center."""
+        company = self.env.company
+        Workorder = self.env['mrp.workorder']
+        now = fields.Datetime.now()
+        today_start, today_end, _today = self._cw_day_bounds(0)
+        hour_start = fields.Datetime.to_string(now - timedelta(minutes=60))
+
+        active_domain = self._cw_operations_workorder_domain()
+        active_wos = Workorder.search(active_domain)
+
+        finished_base = [
+            ('production_id.company_id', '=', company.id),
+            ('state', '=', 'done'),
+        ] + self._cw_workorder_wash_domain()
+        finished_today = Workorder.browse()
+        finished_last_hour = Workorder.browse()
+        if 'date_finished' in Workorder._fields:
+            finished_today = Workorder.search(finished_base + [
+                ('date_finished', '>=', today_start),
+                ('date_finished', '<', today_end),
+            ])
+            finished_last_hour = Workorder.search(finished_base + [
+                ('date_finished', '>=', hour_start),
+                ('date_finished', '<=', fields.Datetime.to_string(now)),
+            ])
+
+        active_mos = active_wos.mapped('production_id')
+        vehicle_cache = {mo.id: self._cw_mo_vehicle_payload(mo) for mo in active_mos}
+
+        topology = self.get_station_topology()
+        station_rows = []
+        for station in topology.get('stations', []):
+            station_rows.append(self._cw_station_intelligence_payload(
+                station,
+                active_wos,
+                finished_today,
+                finished_last_hour,
+                vehicle_cache=vehicle_cache,
+                now=now,
+            ))
+
+        delayed_jobs = [
+            row
+            for station in station_rows
+            for row in station['running_jobs']
+            if row['over_expected']
+        ]
+        queue_ages = [
+            row['queue_age_minutes']
+            for station in station_rows
+            for row in station['queue']
+        ]
+        reliable_clearances = [
+            float(station['projected_clear_minutes'])
+            for station in station_rows
+            if station['projection_reliable'] and station['projected_clear_minutes'] is not False
+        ]
+        unreliable_ids = [station['station_id'] for station in station_rows if not station['projection_reliable']]
+
+        done_durations = [
+            float(wo.duration or 0.0)
+            for wo in finished_today
+            if 'duration' in wo._fields and (wo.duration or 0.0) > 0
+        ]
+
+        return {
+            'contract_version': '16.0-operational-intelligence',
+            'generated_at': fields.Datetime.to_string(now),
+            'timezone': self.env.user.tz or 'UTC',
+            'company_id': company.id,
+            'company_name': company.display_name,
+            'kpis': {
+                'active_workorders': len(active_wos),
+                'running_jobs': len(active_wos.filtered(lambda wo: wo.state == 'progress')),
+                'queued_jobs': len(active_wos.filtered(lambda wo: wo.state in ('pending', 'waiting', 'ready'))),
+                'delayed_running_jobs': len(delayed_jobs),
+                'completed_today': len(finished_today),
+                'completed_last_60_minutes': len(finished_last_hour),
+                'avg_completed_duration_today_minutes': round((sum(done_durations) / len(done_durations)) if done_durations else 0.0, 2),
+                'max_queue_age_minutes': round(max(queue_ages, default=0.0), 2),
+                'projected_system_clear_minutes': round(max(reliable_clearances), 2) if reliable_clearances else 0.0,
+                'projection_reliable_for_all_stations': not unreliable_ids,
+            },
+            'stations': station_rows,
+            'diagnostics': {
+                'unreliable_projection_station_ids': unreliable_ids,
+                'overloaded_station_ids': [station['station_id'] for station in station_rows if station['over_capacity']],
+                'delayed_workorder_ids': [row['workorder_id'] for row in delayed_jobs],
+                'projection_policy': 'read_only_existing_mrp_assignment',
+            },
+            'semantics': {
+                'delay': 'A running Work Order is delayed only when elapsed operational minutes exceed duration_expected.',
+                'queue_age': 'Minutes since Work Order create_date; this is queue aging, not a promised wait SLA.',
+                'eta': 'Queue ETA is simulated from current station assignment, capacity and duration_expected; no MRP record is changed.',
+                'throughput': 'Completed Work Orders using date_finished, measured today and over the rolling last 60 minutes.',
+            },
+        }
+
+    @api.model
+    def get_operational_intelligence_data(self):
+        """Public V16 read-only intelligence API.  V15 APIs remain unchanged."""
+        return self._cw_operational_intelligence_contract()
+
+    # ------------------------------------------------------------------
     # Dashboard V2 payload
     # ------------------------------------------------------------------
     @api.model
