@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve"><t t-name="car_wash_dashboard.StartGate">
-<section class="cc_start_gate">
-    <button type="button" class="cc_display_theme" t-on-click="props.onTheme" t-att-aria-label="t.theme" t-att-title="t.theme"><span t-esc="props.theme === 'dark' ? '☀' : '☾'"/></button>
-    <div class="cc_gate_logo"><img t-if="props.company.logo_available" t-att-src="props.company.logo_url" alt=""/><span t-else="">CC</span></div>
-    <h1 t-esc="props.company.name || 'Crystal Clean'"/><p t-esc="t.subtitle"/>
-    <button type="button" class="cc_start_button" t-on-click="props.onStart"><span class="cc_start_button__icon">▶</span><span t-esc="t.start"/></button>
-</section>
-</t></templates>

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve"><t t-name="car_wash_dashboard.IntroSplash">
-<section class="cc_intro">
-    <div class="cc_intro__mark cc_motion"><img t-if="props.company.logo_available" t-att-src="props.company.logo_url" alt=""/><span t-else="">CC</span></div>
-    <h1 class="cc_motion" t-esc="props.company.name || 'Crystal Clean'"/><p t-esc="welcome"/>
-    <div class="cc_intro__ripple cc_motion" aria-hidden="true"/>
-</section>
-</t></templates>
