@@ -3,21 +3,24 @@
     <record id="view_mrp_production_car_wash_routing" model="ir.ui.view">
         <field name="name">mrp.production.car.wash.routing</field>
         <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='allow_workorder_dependencies']" position="after">
                 <field name="car_wash_routing_enabled"
-                       string="Car Wash Work Center Sequencing"
-                       invisible="state in ('done', 'cancel')"/>
+                    invisible="state in ('done', 'cancel')" />
+                <field name="car_wash_ref"
+                    invisible="not car_wash_routing_enabled"
+                    placeholder="e.g. CAR-001 / plate number" />
             </xpath>
 
             <xpath expr="//header" position="inside">
                 <button name="action_apply_car_wash_routing"
-                        type="object"
-                        string="Apply Car Wash Routing"
-                        class="btn-secondary"
-                        invisible="state in ('done', 'cancel') or not car_wash_routing_enabled"/>
+                    type="object"
+                    string="Apply Car Wash Routing"
+                    class="btn-secondary"
+                    invisible="state in ('done', 'cancel') or not car_wash_routing_enabled" />
             </xpath>
+
         </field>
     </record>
 </odoo>
