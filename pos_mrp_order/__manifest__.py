@@ -3,7 +3,7 @@
 # Reworked to create MOs through procurement rules, exactly like Sales.
 {
     'name': 'Make MRP Orders from POS',
-    'version': '18.0.2.0.0',
+    'version': '18.0.2.1.0',
     'category': 'Point of Sale',
     'summary': 'Create Manufacturing Orders from POS orders the same way Sales does.',
     'description': """Paid POS orders launch procurements on the Manufacture route,

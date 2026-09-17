@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Based on "Make MRP Orders from POS" by Cybrosys Technologies (AGPL-3).
-# Reworked to create MOs through procurement rules, exactly like Sales.
+# Reworked to create Delivery + MO through procurement rules, exactly like Sales.
 import logging
 
 from odoo import _, fields, models
@@ -25,13 +25,12 @@ class PosOrder(models.Model):
     # Hook: called by the standard POS flow once the order is paid/synced
     # ------------------------------------------------------------------
     def _create_order_picking(self):
-        res = super()._create_order_picking()
-        # "Ship later" orders already go through lines._launch_stock_rule()
-        # (the sales-like flow): products with MTO + Manufacture routes get
-        # their MO from the standard rules, so we skip them to avoid duplicates.
+        self.ensure_one()
+        # "Ship later" orders already use the standard procurement flow.
         if not self.shipping_date:
-            self._pos_launch_manufacture()
-        return res
+            self._pos_launch_mto_delivery()
+        # Standard POS picking for the remaining (non-MRP) lines.
+        return super()._create_order_picking()
 
     def _pos_get_procurement_group(self):
         self.ensure_one()
@@ -50,26 +49,33 @@ class PosOrder(models.Model):
             group.pos_order_id = self.id
         return group
 
-    def _pos_launch_manufacture(self):
+    def _pos_get_customer_location(self, picking_type):
+        return (self.partner_id.property_stock_customer
+                or picking_type.default_location_dest_id
+                or self.env.ref('stock.stock_location_customers'))
+
+    def _pos_launch_mto_delivery(self):
+        """Same as sale.order.line._action_launch_stock_rule():
+        procurement at the CUSTOMER location with MTO + Manufacture routes
+        -> Delivery (WH/OUT) waiting on a Manufacturing Order."""
         self.ensure_one()
-        lines = self.lines.filtered(
-            lambda l: l.product_id.to_make_mrp
-            and l.product_id.type == 'consu'
-            and l.qty > 0)
+        lines = self.lines.filtered(lambda l: l._is_pos_mrp_line() and not l.pos_mrp_launched)
         if not lines:
             return
 
         order = self.sudo().with_company(self.company_id)
-        route = self.env.ref('mrp.route_warehouse0_manufacture', raise_if_not_found=False)
         picking_type = order.config_id.picking_type_id
         warehouse = picking_type.warehouse_id or self.env['stock.warehouse'].sudo().search(
             [('company_id', '=', order.company_id.id)], limit=1)
-        if not route or not warehouse:
-            _logger.warning("POS MRP: no Manufacture route/warehouse for %s", order.name)
+        routes = (self.env.ref('stock.route_warehouse0_mto', raise_if_not_found=False)
+                  | self.env.ref('mrp.route_warehouse0_manufacture', raise_if_not_found=False))
+        routes = routes.sudo().with_context(active_test=False).exists()
+        if not warehouse or len(routes) < 2:
+            _logger.warning("POS MRP: MTO/Manufacture route or warehouse missing for %s", order.name)
             return
 
-        location = picking_type.default_location_src_id or warehouse.lot_stock_id
         group = order._pos_get_procurement_group()
+        location = order._pos_get_customer_location(picking_type)
         now = fields.Datetime.now()
         ProcurementGroup = self.env['procurement.group'].sudo().with_company(order.company_id)
 
@@ -79,10 +85,11 @@ class PosOrder(models.Model):
                 'group_id': group,
                 'date_planned': now,
                 'date_deadline': now,
-                'route_ids': route,
+                'route_ids': routes,
                 'warehouse_id': warehouse,
                 'partner_id': order.partner_id.id,
                 'company_id': order.company_id,
+                'product_description_variants': '',
             }
             procurements.append(ProcurementGroup.Procurement(
                 line.product_id,
@@ -90,19 +97,29 @@ class PosOrder(models.Model):
                 line.product_uom_id or line.product_id.uom_id,
                 location,
                 line.full_product_name or line.product_id.display_name,
-                order.name,          # MO origin = POS order name (like SO name)
+                order.name,
                 order.company_id,
                 values,
             ))
 
-        # Never block the cashier: a missing BoM must not fail the POS sync.
+        # Never block the cashier: on failure the lines fall back to the normal POS picking.
         try:
             with self.env.cr.savepoint():
                 ProcurementGroup.run(procurements)
+                lines.sudo().write({'pos_mrp_launched': True})
         except (UserError, ProcurementException) as e:
             msg = str(getattr(e, 'procurement_exceptions', e))
-            _logger.warning("POS MRP: could not create MO for %s: %s", order.name, msg)
-            order.message_post(body=_("Manufacturing Order could not be created: %s", msg))
+            _logger.warning("POS MRP: could not create delivery/MO for %s: %s", order.name, msg)
+            order.message_post(body=_("Delivery / Manufacturing Order could not be created: %s", msg))
+            return
+
+        pickings = self.env['stock.picking'].sudo().search([('group_id', '=', group.id)])
+        vals = {'origin': order.name}
+        if 'pos_order_id' in pickings._fields:
+            vals['pos_order_id'] = order.id
+        if 'pos_session_id' in pickings._fields:
+            vals['pos_session_id'] = order.session_id.id
+        pickings.write(vals)
 
     def action_view_mrp_productions(self):
         self.ensure_one()
