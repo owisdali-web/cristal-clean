@@ -1,0 +1,173 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* car_wash_dashboard
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-07 14:46+0000\n"
+"PO-Revision-Date: 2026-09-07 14:46+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: car_wash_dashboard
+#: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_production__wash_type__basic
+msgid "Basic"
+msgstr "الاساسي"
+
+#. module: car_wash_dashboard
+#: model:ir.ui.menu,name:car_wash_dashboard.menu_car_wash_root
+msgid "Car Wash"
+msgstr "غسيل السيارات"
+
+#. module: car_wash_dashboard
+#: model:ir.actions.client,name:car_wash_dashboard.action_car_wash_dashboard
+msgid "Car Wash Dashboard"
+msgstr "لوحة تحكم غسيل السيارات"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/dashboard.js:0
+msgid "Cars in Phase"
+msgstr "المرحلة"
+
+#. module: car_wash_dashboard
+#: model:ir.ui.menu,name:car_wash_dashboard.menu_car_wash_dashboard
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/dashboard.js:0
+msgid "Dashboard updated"
+msgstr "تحديث لوحة التحكم"
+
+#. module: car_wash_dashboard
+#: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_production__wash_type__deluxe
+msgid "Deluxe"
+msgstr "فاخر"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/dashboard.js:0
+msgid "Failed to load dashboard data"
+msgstr "خطأفي تحميل البيانات"
+
+#. module: car_wash_dashboard
+#: model:ir.model.fields,field_description:car_wash_dashboard.field_mrp_production__license_plate
+msgid "License Plate"
+msgstr "رقم اللوحة"
+
+#. module: car_wash_dashboard
+#: model:ir.model,name:car_wash_dashboard.model_mrp_production
+msgid "Manufacturing Order"
+msgstr "أوامر الغسيل"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/dashboard.js:0
+msgid "No data"
+msgstr "لا يوجد بيانات"
+
+#. module: car_wash_dashboard
+#: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_production__wash_type__premium
+msgid "Premium"
+msgstr "مميز"
+
+#. module: car_wash_dashboard
+#: model:ir.model.fields,field_description:car_wash_dashboard.field_mrp_production__wash_type
+msgid "Wash Type"
+msgstr "نوع الغسيل"
+
+#. module: car_wash_dashboard
+msgid "Waiting Queue"
+msgstr "قائمة الانتظار"
+
+#. module: car_wash_dashboard
+msgid "Active Cars"
+msgstr "السيارات قيد الخدمة"
+
+#. module: car_wash_dashboard
+msgid "Available Stations"
+msgstr "المحطات المتاحة"
+
+#. module: car_wash_dashboard
+msgid "Finished Today"
+msgstr "المكتملة اليوم"
+
+#. module: car_wash_dashboard
+#: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_workcenter__car_wash_station_type__automatic
+msgid "Automatic"
+msgstr "غسيل آلي"
+
+#. module: car_wash_dashboard
+#: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_workcenter__car_wash_station_type__polishing
+msgid "Polishing"
+msgstr "تلميع"
+
+#. module: car_wash_dashboard
+#: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_workcenter__car_wash_station_type__general
+msgid "General"
+msgstr "عام"
+
+#. module: car_wash_dashboard
+msgid "Open Wash Screen"
+msgstr "فتح شاشة الغسيل"
+
+#. module: car_wash_dashboard
+#: model:ir.ui.menu,name:car_wash_dashboard.menu_car_wash_workcenters
+msgid "Station Configuration"
+msgstr "إعداد محطات الغسيل"
+
+#. module: car_wash_dashboard
+msgid "Work Centers"
+msgstr "محطات الغسيل"
+
+#. module: car_wash_dashboard
+msgid "Automatic Station"
+msgstr "محطة الغسيل الآلي"
+
+#. module: car_wash_dashboard
+msgid "Polishing Station"
+msgstr "محطة التلميع"
+
+#. module: car_wash_dashboard
+msgid "General Station"
+msgstr "محطة عامة"
+
+#. module: car_wash_dashboard
+msgid "Available"
+msgstr "متاحة"
+
+#. module: car_wash_dashboard
+msgid "Busy"
+msgstr "قيد العمل"
+
+#. module: car_wash_dashboard
+msgid "Not Configured"
+msgstr "غير مهيأة"
+
+#. module: car_wash_dashboard
+msgid "Station Conflict"
+msgstr "تعارض في المحطة"
+
+#. module: car_wash_dashboard
+msgid "Car Wash Order"
+msgstr "أمر غسيل السيارة"
+
+#. module: car_wash_dashboard
+msgid "Wash Operation"
+msgstr "عملية الغسيل"
+
+#. module: car_wash_dashboard
+msgid "Dashboard updated."
+msgstr "تم تحديث لوحة المغسلة."
+
+#. module: car_wash_dashboard
+msgid "Could not load car wash dashboard data."
+msgstr "تعذر تحميل بيانات لوحة المغسلة."
