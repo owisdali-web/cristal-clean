@@ -1,94 +1,130 @@
 # -*- coding: utf-8 -*-
-import re
+from collections import defaultdict
 
 from odoo import api, fields, models
-
-
-_STATION_CODE_RE = re.compile(r'^CC-WC-A(\d+)(?:-(.*))?$', re.IGNORECASE)
 
 
 class MrpWorkcenter(models.Model):
     _inherit = 'mrp.workcenter'
 
-    cc_is_car_wash_station = fields.Boolean(
-        string='Car Wash Station',
+    car_wash_enabled = fields.Boolean(
+        string='Show on Car Wash Dashboard',
         default=False,
-        index=True,
-        copy=False,
-        help='Marks this Work Center as part of the Crystal Clean car-wash station topology.',
+        help='Include this work center as a physical car-wash station on the dashboard.',
     )
-    cc_station_code = fields.Char(
-        string='Car Wash Station Code',
-        index=True,
-        copy=False,
-        help='Stable dashboard code such as A1, A2, A9 or A10. It is independent from the Work Center name.',
-    )
-    cc_station_order = fields.Integer(
-        string='Car Wash Station Order',
-        default=100,
-        copy=False,
-        help='Stable display/processing order for the car-wash topology.',
-    )
-    cc_station_kind = fields.Selection(
-        selection=[
-            ('general', 'General / Flexible'),
-            ('auto', 'Automatic Wash'),
-            ('polish', 'Polish / Shine'),
+    car_wash_station_type = fields.Selection(
+        [
+            ('automatic', 'Automatic'),
+            ('polishing', 'Polishing'),
+            ('general', 'General'),
         ],
-        string='Car Wash Station Kind',
+        string='Car Wash Station Type',
         default='general',
         required=True,
-        copy=False,
     )
-    cc_station_manual_state = fields.Selection(
-        selection=[
-            ('open', 'Open'),
-            ('maintenance', 'Maintenance'),
-            ('closed', 'Closed'),
-        ],
-        string='Car Wash Manual State',
-        default='open',
-        required=True,
-        copy=False,
-        help='Administrative state only. Busy/queued/available are derived from real Work Orders at runtime.',
+    car_wash_sequence = fields.Integer(
+        string='Dashboard Sequence',
+        default=10,
+        help='Lower numbers appear first on the car-wash dashboard.',
     )
 
     @api.model
-    def _cw_topology_values_from_identifiers(self, code, name=''):
-        """Infer a one-time topology bootstrap from the established Crystal Clean code convention.
+    def get_car_wash_routing_diagnostics(self):
+        """Return a non-destructive audit of the current MRP routing.
 
-        The returned values are only bootstrap defaults. Runtime dashboard logic reads the
-        explicit cc_* fields and never assigns A9/A10 roles from their visual slot position.
+        V6.1 never deletes BoM operations. The upgrade migration archives
+        superseded operations only for the confirmed CC-OPS service BoMs. This
+        method remains a read-only audit so staging can verify the resulting
+        one-Work-Order / one-station routing contract.
         """
-        match = _STATION_CODE_RE.match((code or '').strip())
-        if not match:
-            return {}
+        company = self.env.company
+        stations = self.with_context(active_test=False).search([
+            ('company_id', '=', company.id),
+            ('car_wash_enabled', '=', True),
+        ])
+        station_by_id = {station.id: station for station in stations}
 
-        number = int(match.group(1))
-        suffix = (match.group(2) or '').strip().lower()
-        text = '%s %s' % (suffix, (name or '').lower())
+        Operation = self.env['mrp.routing.workcenter']
+        operations = Operation.search([
+            ('workcenter_id.company_id', '=', company.id),
+        ], order='bom_id, sequence, id')
 
-        kind = 'general'
-        if number == 9 or any(token in text for token in ('auto', 'آلي', 'الي')):
-            kind = 'auto'
-        elif number == 10 or any(token in text for token in ('polish', 'لمعة', 'تلميع')):
-            kind = 'polish'
+        automatic_terms = ('automatic', 'auto', 'آلي', 'الي')
+        polishing_terms = ('polish', 'polishing', 'تلميع', 'لمعة', 'باستا')
+        issues = []
+        by_bom = defaultdict(list)
+
+        for operation in operations:
+            workcenter = station_by_id.get(operation.workcenter_id.id)
+            if not workcenter:
+                continue
+            text = ' '.join(filter(None, [
+                operation.name,
+                operation.bom_id.display_name if operation.bom_id else '',
+            ])).lower()
+            by_bom[operation.bom_id.id if operation.bom_id else 0].append(operation)
+
+            if workcenter.car_wash_station_type == 'automatic' and not any(term in text for term in automatic_terms):
+                issues.append({
+                    'kind': 'non_automatic_on_automatic_station',
+                    'operation_id': operation.id,
+                    'operation_name': operation.name,
+                    'workcenter_id': workcenter.id,
+                    'workcenter_name': workcenter.name,
+                    'bom_id': operation.bom_id.id if operation.bom_id else False,
+                    'bom_name': operation.bom_id.display_name if operation.bom_id else '',
+                })
+            if workcenter.car_wash_station_type == 'polishing' and not any(term in text for term in polishing_terms):
+                issues.append({
+                    'kind': 'non_polishing_on_polishing_station',
+                    'operation_id': operation.id,
+                    'operation_name': operation.name,
+                    'workcenter_id': workcenter.id,
+                    'workcenter_name': workcenter.name,
+                    'bom_id': operation.bom_id.id if operation.bom_id else False,
+                    'bom_name': operation.bom_id.display_name if operation.bom_id else '',
+                })
+            if any(term in text for term in automatic_terms) and workcenter.car_wash_station_type != 'automatic':
+                issues.append({
+                    'kind': 'automatic_operation_outside_automatic_station',
+                    'operation_id': operation.id,
+                    'operation_name': operation.name,
+                    'workcenter_id': workcenter.id,
+                    'workcenter_name': workcenter.name,
+                    'bom_id': operation.bom_id.id if operation.bom_id else False,
+                    'bom_name': operation.bom_id.display_name if operation.bom_id else '',
+                })
+            if any(term in text for term in polishing_terms) and workcenter.car_wash_station_type != 'polishing':
+                issues.append({
+                    'kind': 'polishing_operation_outside_polishing_station',
+                    'operation_id': operation.id,
+                    'operation_name': operation.name,
+                    'workcenter_id': workcenter.id,
+                    'workcenter_name': workcenter.name,
+                    'bom_id': operation.bom_id.id if operation.bom_id else False,
+                    'bom_name': operation.bom_id.display_name if operation.bom_id else '',
+                })
+
+        multi_operation_boms = []
+        for bom_id, bom_operations in by_bom.items():
+            if bom_id and len(bom_operations) > 1:
+                multi_operation_boms.append({
+                    'bom_id': bom_id,
+                    'bom_name': bom_operations[0].bom_id.display_name,
+                    'operation_count': len(bom_operations),
+                    'operation_ids': [operation.id for operation in bom_operations],
+                    'workcenter_ids': list(dict.fromkeys(
+                        operation.workcenter_id.id for operation in bom_operations if operation.workcenter_id
+                    )),
+                })
 
         return {
-            'cc_is_car_wash_station': True,
-            'cc_station_code': 'A%s' % number,
-            'cc_station_order': number * 10,
-            'cc_station_kind': kind,
-            'cc_station_manual_state': 'open',
+            'company_id': company.id,
+            'target_model': 'one Work Order / one station per service',
+            'station_count': len(stations),
+            'operation_count': len(operations),
+            'issue_count': len(issues),
+            'issues': issues,
+            'multi_operation_boms': multi_operation_boms,
+            'read_only': True,
         }
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        prepared = []
-        for original in vals_list:
-            vals = dict(original)
-            inferred = self._cw_topology_values_from_identifiers(vals.get('code'), vals.get('name'))
-            for field_name, value in inferred.items():
-                vals.setdefault(field_name, value)
-            prepared.append(vals)
-        return super().create(prepared)

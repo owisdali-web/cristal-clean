@@ -1,164 +1,179 @@
 # -*- coding: utf-8 -*-
-"""Realtime refresh signals for Crystal Clean Dashboard V8.
+"""Refresh-only realtime notifications for the car-wash dashboard.
 
-These hooks never advance a wash stage and never modify commercial, stock or accounting
-records. They only send a small company-scoped bus signal after normal Odoo writes.
+The bus payload intentionally contains no customer, vehicle, accounting, stock,
+or service details. It is only a signal telling an already-authorized browser to
+fetch a fresh dashboard payload through normal Odoo ACLs.
 """
+
 from odoo import api, fields, models
 
-NOTIFICATION_TYPE = 'crystal_clean_dashboard_refresh'
+
+BUS_TYPE = 'car_wash_dashboard_refresh'
 
 
-def _send_refresh(env, company_ids, reason, model_name, record_ids):
-    if 'bus.bus' not in env.registry.models:
-        return
-    company_ids = sorted({int(cid) for cid in company_ids if cid})
-    if not company_ids:
-        company_ids = [env.company.id]
-    record_ids = sorted({int(rid) for rid in record_ids if rid})[:30]
-    bus = env['bus.bus']
-    dashboard = env['mrp.production']
-    for company_id in company_ids:
-        bus._sendone(
-            dashboard._cw_dashboard_channel(company_id),
-            NOTIFICATION_TYPE,
-            {
-                'company_id': company_id,
-                'reason': reason,
-                'model': model_name,
-                'record_ids': record_ids,
-                'timestamp': fields.Datetime.to_string(fields.Datetime.now()),
-            },
-        )
+def _channel(company_id):
+    return f'car_wash_dashboard_company_{int(company_id)}'
 
 
-def _wash_mos(records):
-    if not records:
+def _record_company_ids(records):
+    ids = set()
+    for record in records:
+        if 'company_id' in record._fields and record.company_id:
+            ids.add(record.company_id.id)
+        elif 'production_id' in record._fields and record.production_id and record.production_id.company_id:
+            ids.add(record.production_id.company_id.id)
+    return ids
+
+
+def _record_ids(records):
+    return [int(record_id) for record_id in records.ids if record_id]
+
+
+class MrpWorkorder(models.Model):
+    _inherit = 'mrp.workorder'
+
+    def _cw_emit_dashboard_refresh(self, reason='workorder_changed'):
+        model_name = self._name
+        record_ids = _record_ids(self)
+        timestamp = fields.Datetime.to_string(fields.Datetime.now())
+        for company_id in _record_company_ids(self):
+            # Keep this payload intentionally minimal and non-sensitive.
+            self.env['bus.bus']._sendone(
+                _channel(company_id),
+                BUS_TYPE,
+                {
+                    'company_id': company_id,
+                    'reason': reason,
+                    'model': model_name,
+                    'record_ids': record_ids,
+                    'timestamp': timestamp,
+                },
+            )
+        return True
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._cw_emit_dashboard_refresh('workorder_created')
         return records
-    tmpl = records.env['product.template']
-    if 'to_make_mrp' in tmpl._fields:
-        return records.filtered(lambda r: bool(r.product_id.product_tmpl_id.to_make_mrp))
-    if 'x_cc_is_wash_order' in records._fields:
-        return records.filtered(lambda r: bool(r.x_cc_is_wash_order))
-    return records.filtered(lambda r: (r.origin or '').startswith('POS-'))
+
+    def write(self, vals):
+        result = super().write(vals)
+        if set(vals) & {'state', 'workcenter_id', 'date_start', 'date_finished', 'duration'}:
+            self._cw_emit_dashboard_refresh('workorder_changed')
+        return result
+
+    def unlink(self):
+        companies = _record_company_ids(self)
+        record_ids = _record_ids(self)
+        result = super().unlink()
+        timestamp = fields.Datetime.to_string(fields.Datetime.now())
+        for company_id in companies:
+            self.env['bus.bus']._sendone(
+                _channel(company_id),
+                BUS_TYPE,
+                {
+                    'company_id': company_id,
+                    'reason': 'workorder_removed',
+                    'model': 'mrp.workorder',
+                    'record_ids': record_ids,
+                    'timestamp': timestamp,
+                },
+            )
+        return result
 
 
 class MrpProductionRealtime(models.Model):
     _inherit = 'mrp.production'
 
-    _CW_WATCH = {
-        'state', 'date_start', 'date_finished', 'date_deadline', 'reservation_state',
-        'workorder_ids', 'product_id', 'origin', 'x_cc_vehicle_plate',
-        'x_cc_vehicle_model', 'x_cc_vehicle_color', 'x_cc_vehicle_notes',
-    }
+    def _cw_emit_production_refresh(self, reason='production_changed'):
+        timestamp = fields.Datetime.to_string(fields.Datetime.now())
+        for company_id in _record_company_ids(self):
+            self.env['bus.bus']._sendone(
+                _channel(company_id),
+                BUS_TYPE,
+                {
+                    'company_id': company_id,
+                    'reason': reason,
+                    'model': self._name,
+                    'record_ids': _record_ids(self),
+                    'timestamp': timestamp,
+                },
+            )
+        return True
 
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        wash = _wash_mos(records)
-        if wash:
-            _send_refresh(self.env, wash.mapped('company_id').ids, 'wash_order_created', self._name, wash.ids)
+        records._cw_emit_production_refresh('production_created')
         return records
 
     def write(self, vals):
-        company_ids = _wash_mos(self).mapped('company_id').ids
         result = super().write(vals)
-        wash = _wash_mos(self)
-        company_ids += wash.mapped('company_id').ids
-        if company_ids and (set(vals) & self._CW_WATCH):
-            _send_refresh(self.env, company_ids, 'wash_order_updated', self._name, self.ids)
-        return result
-
-
-class MrpWorkorderRealtime(models.Model):
-    _inherit = 'mrp.workorder'
-
-    _CW_WATCH = {'state', 'workcenter_id', 'date_start', 'date_finished', 'duration', 'duration_expected'}
-
-    def _cw_realtime_wash(self):
-        return self.filtered(lambda w: bool(_wash_mos(w.production_id)))
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        wash = records._cw_realtime_wash()
-        if wash:
-            _send_refresh(self.env, wash.mapped('production_id.company_id').ids, 'stage_created', self._name, wash.ids)
-        return records
-
-    def write(self, vals):
-        before = self._cw_realtime_wash()
-        company_ids = before.mapped('production_id.company_id').ids
-        result = super().write(vals)
-        after = self._cw_realtime_wash()
-        company_ids += after.mapped('production_id.company_id').ids
-        if company_ids and (set(vals) & self._CW_WATCH):
-            reason = 'stage_changed' if 'state' in vals else 'stage_updated'
-            _send_refresh(self.env, company_ids, reason, self._name, self.ids)
-        return result
-
-
-class PosOrderRealtime(models.Model):
-    _inherit = 'pos.order'
-
-    _CW_WATCH = {'state', 'partner_id', 'amount_total', 'lines'}
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        if records:
-            _send_refresh(self.env, records.mapped('company_id').ids, 'pos_order_created', self._name, records.ids)
-        return records
-
-    def write(self, vals):
-        company_ids = self.mapped('company_id').ids
-        result = super().write(vals)
-        if company_ids and (set(vals) & self._CW_WATCH):
-            _send_refresh(self.env, company_ids, 'pos_order_updated', self._name, self.ids)
-        return result
-
-
-class AccountMoveRealtime(models.Model):
-    _inherit = 'account.move'
-
-    _CW_WATCH = {'state', 'payment_state', 'amount_total', 'amount_residual', 'invoice_date'}
-
-    def write(self, vals):
-        company_ids = self.mapped('company_id').ids
-        result = super().write(vals)
-        if company_ids and (set(vals) & self._CW_WATCH):
-            _send_refresh(self.env, company_ids, 'accounting_updated', self._name, self.ids)
+        # Some project automations set the textual Sale Order reference only
+        # after creating the MO. Re-sync the explicit Small/Large field at
+        # that moment without deriving it from legacy vehicle_type.
+        if 'x_cc_sale_order_ref' in vals and hasattr(self, '_cw_sync_vehicle_size_from_sale'):
+            self._cw_sync_vehicle_size_from_sale()
+        watched = {
+            'state', 'date_start', 'date_finished', 'car_wash_vehicle_size',
+            'x_cc_service_product_id', 'x_cc_sale_order_ref',
+            'x_cc_customer_name', 'x_cc_customer_phone',
+            'x_cc_vehicle_plate', 'x_cc_vehicle_model', 'x_cc_vehicle_color', 'x_cc_vehicle_notes',
+        }
+        if set(vals) & watched:
+            self._cw_emit_production_refresh('production_changed')
         return result
 
 
 class MrpWorkcenterRealtime(models.Model):
     _inherit = 'mrp.workcenter'
 
-    _CW_WATCH = {
-        'name', 'code', 'active', 'sequence', 'default_capacity',
-        'cc_is_car_wash_station', 'cc_station_code', 'cc_station_order',
-        'cc_station_kind', 'cc_station_manual_state',
-    }
+    def write(self, vals):
+        result = super().write(vals)
+        if set(vals) & {
+            'active', 'name', 'car_wash_enabled', 'car_wash_station_type',
+            'car_wash_sequence', 'company_id',
+        }:
+            timestamp = fields.Datetime.to_string(fields.Datetime.now())
+            for company_id in _record_company_ids(self):
+                self.env['bus.bus']._sendone(
+                    _channel(company_id),
+                    BUS_TYPE,
+                    {
+                        'company_id': company_id,
+                        'reason': 'station_configuration_changed',
+                        'model': self._name,
+                        'record_ids': _record_ids(self),
+                        'timestamp': timestamp,
+                    },
+                )
+        return result
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        stations = records.filtered('cc_is_car_wash_station')
-        if stations:
-            company_ids = [r.company_id.id or self.env.company.id for r in stations]
-            _send_refresh(self.env, company_ids, 'station_created', self._name, stations.ids)
-        return records
+
+class SaleOrderRealtime(models.Model):
+    _inherit = 'sale.order'
 
     def write(self, vals):
-        before_company_ids = [r.company_id.id or self.env.company.id for r in self]
         result = super().write(vals)
-        if set(vals) & self._CW_WATCH:
-            after_company_ids = [r.company_id.id or self.env.company.id for r in self]
-            _send_refresh(
-                self.env,
-                before_company_ids + after_company_ids,
-                'station_updated',
-                self._name,
-                self.ids,
-            )
+        watched = {
+            'car_wash_vehicle_size', 'vehicle_type', 'x_cc_customer_phone',
+            'x_cc_vehicle_plate', 'x_cc_vehicle_make', 'x_cc_vehicle_model',
+            'x_cc_vehicle_year', 'x_cc_vehicle_color', 'x_cc_vehicle_notes',
+        }
+        if set(vals) & watched:
+            timestamp = fields.Datetime.to_string(fields.Datetime.now())
+            for company_id in _record_company_ids(self):
+                self.env['bus.bus']._sendone(
+                    _channel(company_id),
+                    BUS_TYPE,
+                    {
+                        'company_id': company_id,
+                        'reason': 'sale_vehicle_changed',
+                        'model': self._name,
+                        'record_ids': _record_ids(self),
+                        'timestamp': timestamp,
+                    },
+                )
         return result
