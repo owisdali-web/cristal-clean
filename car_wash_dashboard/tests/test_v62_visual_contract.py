@@ -30,7 +30,7 @@ class V62VisualContractTest(unittest.TestCase):
     def test_visual_status_supports_finishing_without_mutating_workorder_state(self):
         component = (ROOT / 'static/src/js/components/station_card.js').read_text(encoding='utf-8')
         production = (ROOT / 'models/mrp_production_extend.py').read_text(encoding='utf-8')
-        self.assertIn('finishing: _t("Finishing")', component)
+        self.assertIn('finishing: this.tr("Finishing")', component)
         self.assertIn("'visual_status':", production)
         self.assertNotIn("workorder.write", production)
         self.assertNotIn("wo.write", production)

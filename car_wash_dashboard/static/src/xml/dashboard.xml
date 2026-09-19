@@ -204,9 +204,9 @@
 
                     <nav class="cw-nav">
                         <button t-att-class="state.page === 'operations' &amp;&amp; state.focusMode === 'overview' ? 'is-active' : ''" t-on-click="showOperations"><i class="fa fa-tachometer"/><t t-esc="tr('Dashboard')"/></button>
-                        <button t-on-click="openCars"><i class="fa fa-car"/><t t-esc="tr('Cars')"/></button>
+                        <button t-att-class="state.page === 'cars' ? 'is-active' : ''" t-on-click="openCars"><i class="fa fa-car"/><t t-esc="tr('Cars')"/></button>
                         <button t-att-class="state.page === 'operations' &amp;&amp; state.focusMode === 'stations' ? 'is-active' : ''" t-on-click="showStationDirectory"><i class="fa fa-th-large"/><t t-esc="tr('Work Centers')"/></button>
-                        <button t-on-click="openServices"><i class="fa fa-tint"/><t t-esc="tr('Services')"/></button>
+                        <button t-att-class="state.page === 'services' ? 'is-active' : ''" t-on-click="openServices"><i class="fa fa-tint"/><t t-esc="tr('Services')"/></button>
                         <div class="cw-nav-customer-group">
                             <button t-att-class="state.page === 'customers' ? 'is-active' : ''" t-on-click="openCustomers"><i class="fa fa-users"/><t t-esc="tr('Customers')"/></button>
                             <button t-att-class="'cw-nav-subitem' + (state.page === 'customer_display' ? ' is-active' : '')" t-on-click="showCustomerDisplay"><i class="fa fa-television"/><t t-esc="tr('Live Car Journey')"/></button>
@@ -232,7 +232,7 @@
                         <div class="cw-header-tools">
                             <label class="cw-search">
                                 <i class="fa fa-search"/>
-                                <input type="search" t-att-placeholder="tr('Search cars, customers, or plates...')" t-att-value="state.searchQuery" t-on-input="onSearchInput"/>
+                                <input type="search" t-att-placeholder="searchPlaceholder" t-att-value="state.searchQuery" t-on-input="onSearchInput"/>
                             </label>
                             <button type="button" class="cw-round-tool" t-on-click="manualRefresh" t-att-title="tr('Refresh')"><i class="fa fa-refresh"/></button>
                             <button type="button" t-att-class="'cw-round-tool cw-audio-toggle' + (state.audioEnabled ? ' is-on' : '')" t-on-click="toggleAudio" t-att-title="audioToggleTitle">
@@ -251,7 +251,94 @@
                         </div>
                     </header>
 
-                    <t t-if="state.page === 'analytics'">
+                    <t t-if="state.page === 'cars'">
+                        <section class="cw-center-page cw-cars-page">
+                            <div class="cw-center-toolbar">
+                                <div class="cw-period-switch">
+                                    <button type="button" t-att-class="state.carsPeriod === 'today' ? 'is-active' : ''" t-on-click="() => setCarsPeriod('today')" t-esc="tr('Today')"/>
+                                    <button type="button" t-att-class="state.carsPeriod === 'month' ? 'is-active' : ''" t-on-click="() => setCarsPeriod('month')" t-esc="tr('This Month')"/>
+                                </div>
+                                <div class="cw-center-period"><i class="fa fa-calendar-o"/><span t-esc="state.carsData.period_label || tr('Today')"/></div>
+                                <button type="button" class="cw-center-primary" t-on-click="openCarOrders"><i class="fa fa-external-link"/><t t-esc="tr('Open All Wash Orders')"/></button>
+                            </div>
+
+                            <div class="cw-center-kpis">
+                                <article><span class="blue"><i class="fa fa-car"/></span><div><small t-esc="tr('Cars in Period')"/><strong t-esc="carStatusCounts.all"/><em t-esc="tr('wash orders')"/></div></article>
+                                <article><span class="orange"><i class="fa fa-clock-o"/></span><div><small t-esc="tr('Waiting')"/><strong t-esc="carStatusCounts.waiting"/><em t-esc="tr('waiting for a station')"/></div></article>
+                                <article><span class="cyan"><i class="fa fa-tint"/></span><div><small t-esc="tr('In Wash')"/><strong t-esc="carStatusCounts.in_progress"/><em t-esc="tr('currently being served')"/></div></article>
+                                <article><span class="green"><i class="fa fa-check"/></span><div><small t-esc="tr('Finished')"/><strong t-esc="carStatusCounts.finished"/><em t-esc="tr('completed wash orders')"/></div></article>
+                            </div>
+
+                            <div class="cw-status-filter-bar">
+                                <button type="button" t-att-class="state.carsStatusFilter === 'all' ? 'is-active' : ''" t-on-click="() => setCarsStatusFilter('all')"><t t-esc="tr('All')"/><span t-esc="carStatusCounts.all"/></button>
+                                <button type="button" t-att-class="state.carsStatusFilter === 'waiting' ? 'is-active' : ''" t-on-click="() => setCarsStatusFilter('waiting')"><t t-esc="tr('Waiting')"/><span t-esc="carStatusCounts.waiting"/></button>
+                                <button type="button" t-att-class="state.carsStatusFilter === 'in_progress' ? 'is-active' : ''" t-on-click="() => setCarsStatusFilter('in_progress')"><t t-esc="tr('In Wash')"/><span t-esc="carStatusCounts.in_progress"/></button>
+                                <button type="button" t-att-class="state.carsStatusFilter === 'finished' ? 'is-active' : ''" t-on-click="() => setCarsStatusFilter('finished')"><t t-esc="tr('Finished')"/><span t-esc="carStatusCounts.finished"/></button>
+                            </div>
+
+                            <section class="cw-center-panel">
+                                <header><div><h2 t-esc="tr('Vehicle Activity')"/><p t-esc="tr('Plate, customer, service, station, and wash status in one place.')"/></div><span><t t-esc="carRows.length"/> <t t-esc="tr('cars')"/></span></header>
+                                <div t-if="state.carsLoading" class="cw-center-loading"><span class="cw-loader"/><strong t-esc="tr('Loading car activity…')"/></div>
+                                <div t-elif="carRows.length" class="cw-cars-table-wrap">
+                                    <table class="cw-cars-table">
+                                        <thead><tr><th t-esc="tr('Vehicle')"/><th t-esc="tr('Plate Number')"/><th t-esc="tr('Customer')"/><th t-esc="tr('Service')"/><th t-esc="tr('Station')"/><th t-esc="tr('Time')"/><th t-esc="tr('Status')"/><th/></tr></thead>
+                                        <tbody>
+                                            <tr t-foreach="carRows" t-as="row" t-key="row.id" t-on-click="() => openCarRecord(row)">
+                                                <td><div class="cw-car-cell"><span><img t-att-src="vehicleImage(row)" alt=""/></span><div><strong t-esc="row.vehicle || tr('Vehicle')"/><small t-esc="sizeLabel(row.vehicle_size)"/></div></div></td>
+                                                <td><b class="cw-plate-badge" t-esc="row.plate || '—'"/></td>
+                                                <td t-esc="row.customer || tr('Walk-in')"/>
+                                                <td t-esc="row.service || '—'"/>
+                                                <td t-esc="row.station || '—'"/>
+                                                <td><strong t-esc="row.time || '—'"/><small t-if="row.duration"><t t-esc="row.duration"/> <t t-esc="tr('min')"/></small></td>
+                                                <td><span t-att-class="'cw-car-status status-' + carStage(row)" t-esc="tr(row.status_label || 'Status')"/></td>
+                                                <td><i class="fa fa-angle-right cw-row-arrow"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div t-else="" class="cw-center-empty"><span><i class="fa fa-car"/></span><h3 t-esc="tr('No matching cars')"/><p t-esc="tr('Try changing the status filter, period, or search.')"/></div>
+                            </section>
+                        </section>
+                    </t>
+
+                    <t t-elif="state.page === 'services'">
+                        <section class="cw-center-page cw-services-page">
+                            <div class="cw-center-toolbar">
+                                <div class="cw-period-switch">
+                                    <button type="button" t-att-class="state.servicesPeriod === 'today' ? 'is-active' : ''" t-on-click="() => setServicesPeriod('today')" t-esc="tr('Today')"/>
+                                    <button type="button" t-att-class="state.servicesPeriod === 'month' ? 'is-active' : ''" t-on-click="() => setServicesPeriod('month')" t-esc="tr('This Month')"/>
+                                </div>
+                                <div class="cw-center-period"><i class="fa fa-calendar-o"/><span t-esc="state.servicesData.period_label || tr('Today')"/></div>
+                                <button type="button" class="cw-center-primary" t-on-click="manageServices"><i class="fa fa-cog"/><t t-esc="tr('Manage Wash Services')"/></button>
+                            </div>
+
+                            <div class="cw-center-kpis">
+                                <article><span class="blue"><i class="fa fa-tint"/></span><div><small t-esc="tr('Services Used')"/><strong t-esc="state.servicesData.services.length"/><em t-esc="tr('sold in period')"/></div></article>
+                                <article><span class="cyan"><i class="fa fa-car"/></span><div><small t-esc="tr('Services Sold')"/><strong t-esc="servicesSoldCount"/><em t-esc="tr('service units')"/></div></article>
+                                <article><span class="green"><i class="fa fa-money"/></span><div><small t-esc="tr('Service Revenue')"/><strong class="money" t-esc="formatServicesMoney(state.servicesData.kpis.total_revenue)"/><em t-esc="state.servicesData.period_label"/></div></article>
+                                <article><span class="orange"><i class="fa fa-star"/></span><div><small t-esc="tr('Top Service')"/><strong class="service-name" t-esc="topService ? topService.name : '—'"/><em t-if="topService"><t t-esc="topService.value"/> <t t-esc="tr('times sold')"/></em></div></article>
+                            </div>
+
+                            <section class="cw-center-panel">
+                                <header><div><h2 t-esc="tr('Service Performance')"/><p t-esc="tr('Real sales and operation metrics for the services customers actually use.')"/></div><span><t t-esc="serviceRows.length"/> <t t-esc="tr('services')"/></span></header>
+                                <div t-if="state.servicesLoading" class="cw-center-loading"><span class="cw-loader"/><strong t-esc="tr('Loading service performance…')"/></div>
+                                <div t-elif="serviceRows.length" class="cw-service-grid">
+                                    <button t-foreach="serviceRows" t-as="row" t-key="row.product_id" type="button" class="cw-service-card" t-on-click="() => openServiceRecord(row)">
+                                        <div class="cw-service-card-head"><span><i class="fa fa-tint"/></span><div><strong t-esc="row.name"/><small><t t-esc="row.value"/> <t t-esc="tr('times sold')"/></small></div><i class="fa fa-angle-right cw-row-arrow"/></div>
+                                        <div class="cw-service-metrics">
+                                            <div><small t-esc="tr('Revenue')"/><strong t-esc="formatServicesMoney(row.revenue)"/></div>
+                                            <div><small t-esc="tr('Average Duration')"/><strong><t t-esc="row.average_duration || 0"/> <t t-esc="tr('min')"/></strong></div>
+                                            <div><small t-esc="tr('Sales Share')"/><strong><t t-esc="row.sales_percent || 0"/>%</strong></div>
+                                        </div>
+                                        <div class="cw-service-share"><i t-att-style="serviceShareStyle(row)"/></div>
+                                    </button>
+                                </div>
+                                <div t-else="" class="cw-center-empty"><span><i class="fa fa-tint"/></span><h3 t-esc="tr('No matching services')"/><p t-esc="tr('No service sales match the current period or search.')"/></div>
+                            </section>
+                        </section>
+                    </t>
+
+                    <t t-elif="state.page === 'analytics'">
                         <section class="cw-analytics-page">
                             <div class="cw-analytics-toolbar">
                                 <div class="cw-analytics-period-label">
@@ -601,7 +688,7 @@
                                     <section class="cw-customer-list-panel">
                                         <header><div><h3 t-esc="tr('Customers')"/><p><t t-esc="customerRows.length"/> <t t-esc="tr('customers')"/></p></div><span t-if="state.customerBehaviorFilter" class="cw-filter-chip"><t t-esc="tr(state.customerBehaviorFilter === 'new_month' ? 'New This Month' : (state.customerBehaviorFilter === 'new' ? 'New' : (state.customerBehaviorFilter === 'frequent' ? 'Frequent' : 'Returning')))"/><button type="button" t-on-click="() => applyCustomerBehavior(state.customerBehaviorFilter)"><i class="fa fa-times"/></button></span></header>
                                         <div class="cw-customer-list">
-                                            <button t-foreach="customerRows" t-as="customer" t-key="customer.partner_id" type="button" t-att-class="'cw-customer-row' + (Number(state.selectedCustomerId) === Number(customer.partner_id) ? ' is-selected' : '')" t-on-click="() => selectCustomer(customer.partner_id)">
+                                            <button t-foreach="customerRows" t-as="customer" t-key="customer.partner_id" type="button" t-att-class="'cw-customer-row' + (isCustomerSelected(customer.partner_id) ? ' is-selected' : '')" t-on-click="() => selectCustomer(customer.partner_id)">
                                                 <span class="cw-customer-avatar"><t t-esc="(customer.name || '?').slice(0, 1).toUpperCase()"/></span>
                                                 <span class="cw-customer-main"><strong t-esc="customer.name"/><small><t t-esc="customer.phone || customer.email || tr('No contact details')"/></small><em><t t-esc="customer.preferred_service || tr('No preferred service yet')"/></em></span>
                                                 <span class="cw-customer-visits"><strong t-esc="customer.visits"/><small t-esc="tr('Visits')"/></span>

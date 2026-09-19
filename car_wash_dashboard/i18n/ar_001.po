@@ -27,7 +27,9 @@ msgid "Car Wash"
 msgstr "غسيل السيارات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
 #: model:ir.actions.client,name:car_wash_dashboard.action_car_wash_dashboard
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Car Wash Dashboard"
 msgstr "لوحة تحكم غسيل السيارات"
 
@@ -38,7 +40,9 @@ msgid "Cars in Phase"
 msgstr "المرحلة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
 #: model:ir.ui.menu,name:car_wash_dashboard.menu_car_wash_dashboard
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Dashboard"
 msgstr "لوحة التحكم"
 
@@ -86,6 +90,8 @@ msgid "Wash Type"
 msgstr "نوع الغسيل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Waiting Queue"
 msgstr "قائمة الانتظار"
 
@@ -94,29 +100,41 @@ msgid "Active Cars"
 msgstr "السيارات قيد الخدمة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Available Stations"
 msgstr "المحطات المتاحة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Finished Today"
 msgstr "المكتملة اليوم"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_workcenter__car_wash_station_type__automatic
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Automatic"
 msgstr "غسيل آلي"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_workcenter__car_wash_station_type__polishing
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Polishing"
 msgstr "تلميع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
 #: model:ir.model.fields.selection,name:car_wash_dashboard.selection__mrp_workcenter__car_wash_station_type__general
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "General"
 msgstr "عام"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Open Wash Screen"
 msgstr "فتح شاشة الغسيل"
 
@@ -126,50 +144,74 @@ msgid "Station Configuration"
 msgstr "إعداد محطات الغسيل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Work Centers"
 msgstr "محطات الغسيل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Automatic Station"
 msgstr "محطة الغسيل الآلي"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Polishing Station"
 msgstr "محطة التلميع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "General Station"
 msgstr "محطة عامة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Available"
 msgstr "متاحة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Busy"
 msgstr "قيد العمل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Not Configured"
 msgstr "غير مهيأة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station Conflict"
 msgstr "تعارض في المحطة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Car Wash Order"
 msgstr "أمر غسيل السيارة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Wash Operation"
 msgstr "عملية الغسيل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Dashboard updated."
 msgstr "تم تحديث لوحة المغسلة."
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Could not load car wash dashboard data."
 msgstr "تعذر تحميل بيانات لوحة المغسلة."
 
@@ -180,11 +222,13 @@ msgstr "كريستال كلين"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "WASH CENTER"
 msgstr "مركز الغسيل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Cars"
 msgstr "السيارات"
 
@@ -195,641 +239,769 @@ msgstr "محطات الغسيل (10)"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Services"
 msgstr "الخدمات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Customers"
 msgstr "العملاء"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Analytics"
 msgstr "التحليلات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Reports"
 msgstr "التقارير"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Settings"
 msgstr "الإعدادات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Cleaner Cars"
 msgstr "سيارات أنظف"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Brighter Days"
 msgstr "أيام أكثر إشراقًا"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Business Analytics"
 msgstr "تحليلات الأعمال"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Insights for a cleaner, more profitable tomorrow."
 msgstr "رؤى لعمل أنظف وأكثر ربحية."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Live overview of stations, queue and today’s activity."
 msgstr "نظرة مباشرة على المحطات وقائمة الانتظار ونشاط اليوم."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Search cars, customers, or plates..."
 msgstr "ابحث عن سيارة أو عميل أو رقم لوحة..."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Refresh"
 msgstr "تحديث"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Live notifications"
 msgstr "التحديثات المباشرة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Today"
 msgstr "اليوم"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "This Month"
 msgstr "هذا الشهر"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Loading car wash dashboard…"
 msgstr "جارٍ تحميل لوحة مركز الغسيل…"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Loading business analytics…"
 msgstr "جارٍ تحميل تحليلات الأعمال…"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Loading detail…"
 msgstr "جارٍ تحميل التفاصيل…"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Loading relevant information…"
 msgstr "جارٍ تحميل المعلومات المرتبطة…"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Today's Revenue"
 msgstr "إيراد اليوم"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Monthly Revenue"
 msgstr "إيراد الشهر"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Total Washes Today"
 msgstr "إجمالي عمليات الغسيل اليوم"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Active Customers"
 msgstr "العملاء النشطون"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Average Ticket"
 msgstr "متوسط قيمة الطلب"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "vs. yesterday"
 msgstr "مقارنة بالأمس"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "vs. last month"
 msgstr "مقارنة بالشهر الماضي"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "paid POS visits"
 msgstr "زيارات نقطة البيع المدفوعة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "today"
 msgstr "اليوم"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Daily Washes"
 msgstr "عمليات الغسيل اليومية"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Cars Washed"
 msgstr "السيارات المغسولة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No wash activity today."
 msgstr "لا توجد عمليات غسيل اليوم."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Popular Services"
 msgstr "الخدمات الأكثر استخدامًا"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "By Volume"
 msgstr "حسب العدد"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No service sales in this period."
 msgstr "لا توجد مبيعات خدمات في هذه الفترة."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station Utilization"
 msgstr "استخدام المحطات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Overall"
 msgstr "الإجمالي"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Utilization"
 msgstr "الاستخدام"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Top Customers"
 msgstr "أكثر العملاء تكرارًا"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "By Washes"
 msgstr "حسب عدد مرات الغسيل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "washes"
 msgstr "عمليات غسيل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No customer history in this period."
 msgstr "لا يوجد سجل عملاء في هذه الفترة."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Supplies Near Depletion"
 msgstr "مواد التنظيف قاربت على النفاد"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Low Stock"
 msgstr "مخزون منخفض"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "left · min"
 msgstr "متبقي · الحد الأدنى"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No car-wash supply is below a configured reorder minimum."
 msgstr "لا توجد مواد غسيل أقل من حد إعادة الطلب المحدد."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Revenue Trend"
 msgstr "اتجاه الإيرادات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "New vs Returning Customers"
 msgstr "العملاء الجدد مقابل العائدين"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Returning"
 msgstr "عائدون"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "New"
 msgstr "جدد"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Returning Customers"
 msgstr "العملاء العائدون"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "New Customers"
 msgstr "العملاء الجدد"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Revenue by Service Category"
 msgstr "الإيراد حسب فئة الخدمة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Recent Activity"
 msgstr "النشاط الأخير"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Live"
 msgstr "مباشر"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No recent activity."
 msgstr "لا يوجد نشاط حديث."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Analytics Drill-down"
 msgstr "تفاصيل التحليلات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Open in Odoo"
 msgstr "فتح في أودو"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No matching records"
 msgstr "لا توجد سجلات مطابقة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "There is no underlying data for this item in the selected period."
 msgstr "لا توجد بيانات أساسية لهذا العنصر في الفترة المحددة."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station configuration needs attention"
 msgstr "إعداد المحطات يحتاج إلى مراجعة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Configure"
 msgstr "إعداد"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "General Waiting Queue"
 msgstr "قائمة الانتظار العامة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Cars In Stations"
 msgstr "السيارات داخل المحطات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station Details"
 msgstr "تفاصيل المحطات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Dashboard Overview"
 msgstr "نظرة عامة على اللوحة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Dashboard overview"
 msgstr "نظرة عامة على اللوحة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Only cars currently running inside a wash station."
 msgstr "السيارات الموجودة حاليًا داخل محطات الغسيل فقط."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Only cars waiting for the next available station."
 msgstr "السيارات المنتظرة للمحطة المتاحة التالية فقط."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Only stations ready to receive the next car."
 msgstr "المحطات الجاهزة لاستقبال السيارة التالية فقط."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Only wash orders completed today."
 msgstr "أوامر الغسيل المكتملة اليوم فقط."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Live status and current car for every wash station."
 msgstr "الحالة المباشرة والسيارة الحالية لكل محطة غسيل."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Grid View"
 msgstr "عرض شبكي"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "List View"
 msgstr "عرض قائمة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Grid view"
 msgstr "عرض شبكي"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "List view"
 msgstr "عرض قائمة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No active cars"
 msgstr "لا توجد سيارات قيد الخدمة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No car is currently inside a station."
 msgstr "لا توجد سيارة داخل أي محطة حاليًا."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Queue is clear"
 msgstr "قائمة الانتظار فارغة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No cars are waiting for a station."
 msgstr "لا توجد سيارات بانتظار محطة."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No available stations"
 msgstr "لا توجد محطات متاحة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "All configured stations are currently occupied."
 msgstr "جميع المحطات المهيأة مشغولة حاليًا."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Finished"
 msgstr "مكتمل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No completed washes today"
 msgstr "لا توجد عمليات غسيل مكتملة اليوم"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Completed wash orders will appear here."
 msgstr "ستظهر أوامر الغسيل المكتملة هنا."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Each station handles one car at a time."
 msgstr "كل محطة تستقبل سيارة واحدة في كل مرة."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No stations match your search."
 msgstr "لا توجد محطات مطابقة لبحثك."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "cars waiting for next available station"
 msgstr "سيارات بانتظار المحطة المتاحة التالية"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No cars are waiting."
 msgstr "لا توجد سيارات في الانتظار."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "View Full Queue"
 msgstr "عرض قائمة الانتظار كاملة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "View full queue"
 msgstr "عرض قائمة الانتظار كاملة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station"
 msgstr "المحطة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Details"
 msgstr "التفاصيل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Configure a real Odoo work center."
 msgstr "قم بتهيئة محطة عمل فعلية في أودو."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Ready for next car"
 msgstr "جاهزة للسيارة التالية"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Finishing"
 msgstr "في مرحلة الإنهاء"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Check Station"
 msgstr "تحقق من المحطة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "active cars detected — check Shop Floor."
 msgstr "سيارات نشطة مكتشفة — تحقق من شاشة أرضية العمل."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Time in station"
 msgstr "الوقت داخل المحطة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Service"
 msgstr "الخدمة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Vehicle Size"
 msgstr "حجم السيارة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Customer"
 msgstr "العميل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Current Operation"
 msgstr "العملية الحالية"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Service Notes"
 msgstr "ملاحظات الخدمة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Open Car Wash Order"
 msgstr "فتح أمر غسيل السيارة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Open Current Operation"
 msgstr "فتح العملية الحالية"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station Available"
 msgstr "المحطة متاحة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No car is currently running in this work center."
 msgstr "لا توجد سيارة تعمل حاليًا في هذه المحطة."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Current vehicle"
 msgstr "السيارة الحالية"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No notes"
 msgstr "لا توجد ملاحظات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Large"
 msgstr "كبيرة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Small"
 msgstr "صغيرة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "min"
 msgstr "د"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "h"
 msgstr "س"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "m"
 msgstr "د"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Light mode"
 msgstr "الوضع الفاتح"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Dark mode"
 msgstr "الوضع الداكن"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Switch to light mode"
 msgstr "التبديل إلى الوضع الفاتح"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Switch to dark mode"
 msgstr "التبديل إلى الوضع الداكن"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Mute sound feedback"
 msgstr "كتم أصوات التفاعل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Enable sound feedback"
 msgstr "تشغيل أصوات التفاعل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Sound feedback on"
 msgstr "تم تشغيل أصوات التفاعل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Sound feedback off"
 msgstr "تم إيقاف أصوات التفاعل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Live station updates are connected."
 msgstr "التحديثات المباشرة للمحطات متصلة."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Could not load car wash business analytics."
 msgstr "تعذر تحميل تحليلات أعمال مركز الغسيل."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Could not load analytics detail."
 msgstr "تعذر تحميل تفاصيل التحليلات."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Analytics Detail"
 msgstr "تفاصيل التحليلات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "POS Order"
 msgstr "طلب نقطة البيع"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Car Wash Orders"
 msgstr "أوامر غسيل السيارات"
 
@@ -840,21 +1012,25 @@ msgstr "أوامر الغسيل المكتملة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Odoo Record"
 msgstr "سجل أودو"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Odoo User"
 msgstr "مستخدم أودو"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Operator"
 msgstr "مشغّل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Product"
 msgstr "المنتج"
 
@@ -900,6 +1076,7 @@ msgstr "زيارات الغسيل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Revenue"
 msgstr "الإيراد"
 
@@ -1095,21 +1272,25 @@ msgstr "ديسمبر"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Back to dashboard"
 msgstr "العودة إلى لوحة التحكم"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Close"
 msgstr "إغلاق"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Elapsed time compared with Odoo expected duration"
 msgstr "الوقت المنقضي مقارنة بالمدة المتوقعة في أودو"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "waiting"
 msgstr "في الانتظار"
 
@@ -1139,21 +1320,25 @@ msgstr "%(count)s زيارة غسيل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Daily washes chart"
 msgstr "مخطط عمليات الغسيل اليومية"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Total Active Cars"
 msgstr "إجمالي السيارات النشطة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "in stations now"
 msgstr "داخل المحطات الآن"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "cars waiting"
 msgstr "سيارات منتظرة"
 
@@ -1164,6 +1349,7 @@ msgstr "من أصل 10 محطات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "completed wash orders"
 msgstr "أوامر غسيل مكتملة"
 
@@ -1185,300 +1371,361 @@ msgstr "قم بتهيئة ثماني محطات عامة."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station details"
 msgstr "تفاصيل المحطة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Live Car Journey"
 msgstr "رحلة السيارة المباشرة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "LIVE CAR JOURNEY"
 msgstr "رحلة السيارة المباشرة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "A live customer view from check-in to ready for pickup."
 msgstr "عرض مباشر للعميل من الاستلام حتى الجاهزية للاستلام."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "vehicles in today’s journey"
 msgstr "سيارات في رحلة اليوم"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Full Screen / TV Mode"
 msgstr "ملء الشاشة / وضع التلفاز"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Exit TV Mode"
 msgstr "الخروج من وضع التلفاز"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "TV Mode"
 msgstr "وضع التلفاز"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Featured Car"
 msgstr "السيارة المميزة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Auto rotates every 2 min"
 msgstr "تتبدل تلقائيًا كل دقيقتين"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Your Vehicle"
 msgstr "سيارتك"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Plate"
 msgstr "اللوحة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Ticket"
 msgstr "التذكرة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Car Wash Service"
 msgstr "خدمة غسيل السيارة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Waiting"
 msgstr "انتظار"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Washing"
 msgstr "غسيل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Drying / Finishing"
 msgstr "تجفيف / تشطيب"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Ready for Pickup"
 msgstr "جاهزة للاستلام"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Elapsed"
 msgstr "المنقضي"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Expected"
 msgstr "المتوقع"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Welcome to Crystal Clean"
 msgstr "مرحبًا بكم في كريستال كلين"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Relax while we take care of your car."
 msgstr "استرخِ بينما نعتني بسيارتك."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "In queue to start"
 msgstr "في قائمة الانتظار للبدء"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Up Next"
 msgstr "التالي"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No vehicles waiting"
 msgstr "لا توجد سيارات منتظرة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Currently in wash"
 msgstr "قيد الغسيل الآن"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No vehicles washing"
 msgstr "لا توجد سيارات قيد الغسيل"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Final touches"
 msgstr "اللمسات النهائية"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No vehicles finishing"
 msgstr "لا توجد سيارات في مرحلة التشطيب"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Your car is ready"
 msgstr "سيارتك جاهزة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Ready Now"
 msgstr "جاهزة الآن"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No vehicles ready yet"
 msgstr "لا توجد سيارات جاهزة بعد"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Premium Care"
 msgstr "عناية متميزة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "For every journey"
 msgstr "لكل رحلة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Eco-Friendly"
 msgstr "صديق للبيئة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Thoughtful products and care"
 msgstr "منتجات وعناية مدروسة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "A Cleaner Community"
 msgstr "مجتمع أنظف"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "A brighter tomorrow"
 msgstr "غد أكثر إشراقًا"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Thank You"
 msgstr "شكرًا لكم"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "For choosing Crystal Clean"
 msgstr "لاختياركم كريستال كلين"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Vehicle ready for pickup"
 msgstr "السيارة جاهزة للاستلام"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Could not enter TV mode."
 msgstr "تعذر الدخول إلى وضع التلفاز."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Ready now"
 msgstr "جاهزة الآن"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Est. remaining"
 msgstr "الوقت المتبقي المتوقع"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Finishing now"
 msgstr "يتم التشطيب الآن"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "In progress"
 msgstr "قيد التنفيذ"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Drive Happy"
 msgstr "قد بسعادة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "of %s stations"
 msgstr "من أصل %s محطة"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Preparing PDF…"
 msgstr "جارٍ تجهيز ملف PDF…"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Preparing Excel…"
 msgstr "جارٍ تجهيز ملف Excel…"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Report Drill-down"
 msgstr "تفاصيل التقرير"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "records"
 msgstr "سجلات"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "POS"
 msgstr "نقطة البيع"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Amount"
 msgstr "المبلغ"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Try another report item or adjust the active filters."
 msgstr "جرّب عنصر تقرير آخر أو عدّل عوامل التصفية الحالية."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Preparing management workbook…"
 msgstr "جارٍ تجهيز ملف الإدارة…"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Preparing PDF report…"
 msgstr "جارٍ تجهيز تقرير PDF…"
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Excel report exported successfully."
 msgstr "تم تصدير تقرير Excel بنجاح."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "PDF report exported successfully."
 msgstr "تم تصدير تقرير PDF بنجاح."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Could not export the report."
 msgstr "تعذر تصدير التقرير."
 
@@ -1489,354 +1736,529 @@ msgstr "اسمح بالنوافذ المنبثقة لطباعة التقرير."
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Report Details"
 msgstr "تفاصيل التقرير"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "% of Total Sales"
 msgstr "٪ من إجمالي المبيعات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Actions"
 msgstr "الإجراءات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "All"
 msgstr "الكل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "All Customers"
 msgstr "جميع العملاء"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "All Services"
 msgstr "جميع الخدمات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "All Stations"
 msgstr "جميع المحطات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Apply Filters"
 msgstr "تطبيق عوامل التصفية"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Average Duration"
 msgstr "متوسط المدة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Average Spend"
 msgstr "متوسط الإنفاق"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Busy Time"
 msgstr "وقت الانشغال"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Cancelled"
 msgstr "ملغي"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Cars Served"
 msgstr "السيارات المخدومة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Cars by Service"
 msgstr "السيارات حسب الخدمة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Center Summary"
 msgstr "ملخص المركز"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Cleaning Supplies Report"
 msgstr "تقرير مواد التنظيف"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Complete reports for your car wash operations."
 msgstr "تقارير متكاملة لعمليات مركز غسيل السيارات."
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Could not load report center data."
 msgstr "تعذر تحميل بيانات مركز التقارير."
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Critical"
 msgstr "حرج"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Custom Range"
 msgstr "فترة مخصصة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Customer Report"
 msgstr "تقرير العملاء"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Daily Center Report"
 msgstr "التقرير اليومي للمركز"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Date"
 msgstr "التاريخ"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Delayed, cancelled, or overdue washes will appear here."
 msgstr "ستظهر هنا عمليات الغسيل المتأخرة أو الملغاة أو المتجاوزة للوقت المتوقع."
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Duration"
 msgstr "المدة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Exceptions"
 msgstr "الاستثناءات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Exceptions Report"
 msgstr "تقرير الاستثناءات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Export Excel"
 msgstr "تصدير Excel"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Export PDF"
 msgstr "تصدير PDF"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Finished Cars"
 msgstr "السيارات المكتملة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "In Progress"
 msgstr "قيد التنفيذ"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Inventory Report"
 msgstr "تقرير المخزون"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Inventory Usage"
 msgstr "استخدام المخزون"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Issue"
 msgstr "المشكلة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Issues & Delays"
 msgstr "المشكلات والتأخيرات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Last Visit"
 msgstr "آخر زيارة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Loading reports…"
 msgstr "جارٍ تحميل التقارير…"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Low"
 msgstr "منخفض"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Loyalty & Visits"
 msgstr "الولاء والزيارات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Material"
 msgstr "المادة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Minimum"
 msgstr "الحد الأدنى"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Monthly Management"
 msgstr "الإدارة الشهرية"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Most Used Service"
 msgstr "الخدمة الأكثر استخدامًا"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No exceptions in this period"
 msgstr "لا توجد استثناءات خلال هذه الفترة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No revenue in this period."
 msgstr "لا توجد إيرادات خلال هذه الفترة."
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "On Hand"
 msgstr "المتوفر"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Operations"
 msgstr "العمليات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Overview"
 msgstr "نظرة عامة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "POS Sales"
 msgstr "مبيعات نقطة البيع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Payment Methods"
 msgstr "طرق الدفع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Performance"
 msgstr "الأداء"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Period"
 msgstr "الفترة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Plate Number"
 msgstr "رقم اللوحة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Print Report"
 msgstr "طباعة التقرير"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Recent Wash Operations"
 msgstr "عمليات الغسيل الأخيرة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Reference"
 msgstr "المرجع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Remaining"
 msgstr "المتبقي"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Report filters applied."
 msgstr "تم تطبيق عوامل تصفية التقرير."
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Report filters reset."
 msgstr "تمت إعادة ضبط عوامل تصفية التقرير."
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Reset"
 msgstr "إعادة ضبط"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Revenue Report"
 msgstr "تقرير الإيرادات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Saved Reports"
 msgstr "التقارير المحفوظة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Services Performance Report"
 msgstr "تقرير أداء الخدمات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station Performance"
 msgstr "أداء المحطات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Station Performance Report"
 msgstr "تقرير أداء المحطات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Stations"
 msgstr "المحطات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Status"
 msgstr "الحالة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Supplies"
 msgstr "المواد"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "This Week"
 msgstr "هذا الأسبوع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Time"
 msgstr "الوقت"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Times Sold"
 msgstr "مرات البيع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Total Cars"
 msgstr "إجمالي السيارات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Total Revenue"
 msgstr "إجمالي الإيرادات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Total Spend"
 msgstr "إجمالي الإنفاق"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Type"
 msgstr "النوع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Unique Customers"
 msgstr "العملاء الفريدون"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "UoM"
 msgstr "وحدة القياس"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Vehicle"
 msgstr "السيارة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "View All"
 msgstr "عرض الكل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Visits"
 msgstr "الزيارات"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Waiting Cars"
 msgstr "السيارات المنتظرة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Wash Details"
 msgstr "تفاصيل الغسيل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Wash Operations Report"
 msgstr "تقرير عمليات الغسيل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Yesterday"
 msgstr "أمس"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "in queue"
 msgstr "في الانتظار"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "paid POS orders"
 msgstr "طلبات نقطة البيع المدفوعة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "per POS order"
 msgstr "لكل طلب نقطة بيع"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "selected period"
 msgstr "الفترة المحددة"
 
@@ -1881,6 +2303,7 @@ msgid "Management Highlights"
 msgstr "أبرز مؤشرات الإدارة"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
 msgid "Top Service"
 msgstr "الخدمة الأعلى"
 
@@ -1921,6 +2344,7 @@ msgid "Wash Operations"
 msgstr "عمليات الغسيل"
 
 #. module: car_wash_dashboard
+#. odoo-javascript
 msgid "Service Performance"
 msgstr "أداء الخدمات"
 
@@ -2075,6 +2499,7 @@ msgstr "انتظار لأكثر من 30 دقيقة"
 
 
 #. module: car_wash_dashboard
+#. odoo-javascript
 msgid "Walk-in"
 msgstr "عميل مباشر"
 
@@ -2140,332 +2565,572 @@ msgstr "حجم السيارة التشغيلي لغسيل السيارات وا�
 
 
 #. module: car_wash_dashboard
-#: model:ir.module.module,description:car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Paid POS Visit"
 msgstr "زيارة مدفوعة عبر نقطة البيع"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Activity"
 msgstr "النشاط"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Adjust the customer filters and try again."
 msgstr "عدّل عوامل تصفية العملاء وحاول مرة أخرى."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "All Activity"
 msgstr "كل النشاط"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "All Segments"
 msgstr "كل الشرائح"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "By visits"
 msgstr "حسب الزيارات"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Could not load customer details."
 msgstr "تعذر تحميل تفاصيل العميل."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Could not load customer intelligence."
 msgstr "تعذر تحميل بيانات العملاء."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Customer 360"
 msgstr "ملف العميل 360°"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Customer Intelligence"
 msgstr "تحليلات العملاء"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Customer Search"
 msgstr "بحث العملاء"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Customer filters reset."
 msgstr "تمت إعادة ضبط عوامل تصفية العملاء."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Customer mix"
 msgstr "مزيج العملاء"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Frequent"
 msgstr "متكرر"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Frequent Customers"
 msgstr "العملاء المتكررون"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "High Value"
 msgstr "عالي القيمة"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Inactive"
 msgstr "غير نشط"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Inactive Customers"
 msgstr "العملاء غير النشطين"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Known Vehicles"
 msgstr "السيارات المعروفة"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Last 12 Months"
 msgstr "آخر 12 شهرًا"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Last 30 Days"
 msgstr "آخر 30 يومًا"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Last 90 Days"
 msgstr "آخر 90 يومًا"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Loading customer details…"
 msgstr "جارٍ تحميل تفاصيل العميل…"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Loading customer intelligence…"
 msgstr "جارٍ تحميل بيانات العملاء…"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Most Frequent Customers"
 msgstr "العملاء الأكثر زيارة"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "New This Month"
 msgstr "جدد هذا الشهر"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "New vs Returning"
 msgstr "الجدد مقابل العائدين"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No contact details"
 msgstr "لا توجد بيانات اتصال"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No customer history yet."
 msgstr "لا يوجد سجل للعملاء بعد."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No customers match the filters."
 msgstr "لا يوجد عملاء مطابقون لعوامل التصفية."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No known vehicles yet."
 msgstr "لا توجد سيارات معروفة بعد."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No plate"
 msgstr "بدون لوحة"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No preferred service yet"
 msgstr "لا توجد خدمة مفضلة بعد"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No service history yet."
 msgstr "لا يوجد سجل خدمات بعد."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No service preferences yet."
 msgstr "لا توجد تفضيلات خدمات بعد."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "No visit history yet."
 msgstr "لا يوجد سجل زيارات بعد."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Open Customer in Odoo"
 msgstr "فتح العميل في أودو"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Paid POS revenue"
 msgstr "إيرادات نقطة البيع المدفوعة"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Regular"
 msgstr "منتظم"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Search by name, phone, plate, or service..."
 msgstr "ابحث بالاسم أو الهاتف أو اللوحة أو الخدمة..."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Segment"
 msgstr "الشريحة"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Select a customer to view vehicles, visits, services, and spending."
 msgstr "اختر عميلاً لعرض السيارات والزيارات والخدمات والإنفاق."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Service Preferences"
 msgstr "تفضيلات الخدمات"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Services Used"
 msgstr "الخدمات المستخدمة"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Top Customers by Revenue"
 msgstr "أعلى العملاء حسب الإيراد"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Total Customers"
 msgstr "إجمالي العملاء"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Understand visits, value, vehicles, and customer loyalty."
 msgstr "تعرّف على الزيارات والقيمة والسيارات وولاء العملاء."
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Visit Timeline"
 msgstr "الخط الزمني للزيارات"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "customers"
 msgstr "عملاء"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "days"
 msgstr "أيام"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "per customer"
 msgstr "لكل عميل"
 
 
 #. module: car_wash_dashboard
 #. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "visits"
 msgstr "زيارات"
 
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Draft"
 msgstr "مسودة"
 
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Confirmed"
 msgstr "مؤكد"
 
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "To Close"
 msgstr "بانتظار الإغلاق"
 
 
 #. module: car_wash_dashboard
+#. odoo-javascript
+#: code:addons/car_wash_dashboard/static/src/js/ui_translations.js:0
 msgid "Done"
 msgstr "مكتمل"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Cars & Wash Orders"
+msgstr "السيارات وأوامر الغسيل"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Wash Services"
+msgstr "خدمات الغسيل"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Track every vehicle from waiting to completed wash."
+msgstr "تابع كل سيارة من الانتظار حتى اكتمال الغسيل."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "See which wash services are used, earning, and taking time."
+msgstr "تابع استخدام خدمات الغسيل وإيراداتها والوقت الذي تستغرقه."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Search services..."
+msgstr "البحث في الخدمات..."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Search plate, customer, vehicle, or service..."
+msgstr "ابحث برقم اللوحة أو العميل أو السيارة أو الخدمة..."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Search customers..."
+msgstr "البحث في العملاء..."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Could not load car activity."
+msgstr "تعذر تحميل حركة السيارات."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Could not load service performance."
+msgstr "تعذر تحميل أداء الخدمات."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Open All Wash Orders"
+msgstr "فتح جميع أوامر الغسيل"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Cars in Period"
+msgstr "السيارات خلال الفترة"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "wash orders"
+msgstr "أوامر غسيل"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "waiting for a station"
+msgstr "بانتظار محطة"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "In Wash"
+msgstr "قيد الغسيل"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "currently being served"
+msgstr "تتم خدمتها حاليًا"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Vehicle Activity"
+msgstr "حركة السيارات"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Plate, customer, service, station, and wash status in one place."
+msgstr "رقم اللوحة والعميل والخدمة والمحطة وحالة الغسيل في مكان واحد."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "cars"
+msgstr "سيارات"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Loading car activity…"
+msgstr "جارٍ تحميل حركة السيارات…"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "No matching cars"
+msgstr "لا توجد سيارات مطابقة"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Try changing the status filter, period, or search."
+msgstr "جرّب تغيير الحالة أو الفترة أو عبارة البحث."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Manage Wash Services"
+msgstr "إدارة خدمات الغسيل"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Active Services"
+msgstr "الخدمات النشطة"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "sold in period"
+msgstr "مباعة خلال الفترة"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Services Sold"
+msgstr "الخدمات المباعة"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "service units"
+msgstr "وحدات خدمة"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Service Revenue"
+msgstr "إيراد الخدمات"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "times sold"
+msgstr "مرات بيع"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Real sales and operation metrics for the services customers actually use."
+msgstr "مؤشرات فعلية للمبيعات والتشغيل للخدمات التي يستخدمها العملاء."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "services"
+msgstr "خدمات"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Loading service performance…"
+msgstr "جارٍ تحميل أداء الخدمات…"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Sales Share"
+msgstr "حصة المبيعات"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "No matching services"
+msgstr "لا توجد خدمات مطابقة"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "No service sales match the current period or search."
+msgstr "لا توجد مبيعات خدمات مطابقة للفترة الحالية أو البحث."
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Issues &amp; Delays"
+msgstr "المشكلات والتأخيرات"
+
+#. module: car_wash_dashboard
+#. odoo-javascript
+msgid "Loyalty &amp; Visits"
+msgstr "الولاء والزيارات"

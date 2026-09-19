@@ -49,8 +49,9 @@ class V67IdentityI18nThemeContractTest(unittest.TestCase):
             'static/src/js/components/station_detail.js',
         ):
             source = (ROOT / rel).read_text(encoding='utf-8')
-            self.assertIn('@web/core/l10n/translation', source, msg=rel)
-            self.assertIn('_t(', source, msg=rel)
+            self.assertIn('translateUi', source, msg=rel)
+            self.assertIn('this.tr(', source, msg=rel)
+            self.assertNotIn('_t(', source, msg=rel)
 
     def test_arabic_catalog_covers_operational_and_analytics_surfaces(self):
         po = (ROOT / 'i18n/ar_001.po').read_text(encoding='utf-8')

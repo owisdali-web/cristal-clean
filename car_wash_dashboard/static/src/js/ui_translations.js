@@ -3,6 +3,45 @@
 import { _t } from "@web/core/l10n/translation";
 
 const AR_UI_TRANSLATIONS = Object.freeze({
+    "Issues &amp; Delays": "المشكلات والتأخيرات",
+    "Loyalty &amp; Visits": "الولاء والزيارات",
+    "Walk-in": "عميل مباشر",
+    "Cars & Wash Orders": "السيارات وأوامر الغسيل",
+    "Wash Services": "خدمات الغسيل",
+    "Track every vehicle from waiting to completed wash.": "تابع كل سيارة من الانتظار حتى اكتمال الغسيل.",
+    "See which wash services are used, earning, and taking time.": "تابع استخدام خدمات الغسيل وإيراداتها والوقت الذي تستغرقه.",
+    "Search services...": "البحث في الخدمات...",
+    "Search plate, customer, vehicle, or service...": "ابحث برقم اللوحة أو العميل أو السيارة أو الخدمة...",
+    "Search customers...": "البحث في العملاء...",
+    "Could not load car activity.": "تعذر تحميل حركة السيارات.",
+    "Could not load service performance.": "تعذر تحميل أداء الخدمات.",
+    "Open All Wash Orders": "فتح جميع أوامر الغسيل",
+    "Cars in Period": "السيارات خلال الفترة",
+    "wash orders": "أوامر غسيل",
+    "waiting for a station": "بانتظار محطة",
+    "In Wash": "قيد الغسيل",
+    "currently being served": "تتم خدمتها حاليًا",
+    "Vehicle Activity": "حركة السيارات",
+    "Plate, customer, service, station, and wash status in one place.": "رقم اللوحة والعميل والخدمة والمحطة وحالة الغسيل في مكان واحد.",
+    "cars": "سيارات",
+    "Loading car activity…": "جارٍ تحميل حركة السيارات…",
+    "No matching cars": "لا توجد سيارات مطابقة",
+    "Try changing the status filter, period, or search.": "جرّب تغيير الحالة أو الفترة أو عبارة البحث.",
+    "Manage Wash Services": "إدارة خدمات الغسيل",
+    "Active Services": "الخدمات النشطة",
+    "sold in period": "مباعة خلال الفترة",
+    "Services Sold": "الخدمات المباعة",
+    "service units": "وحدات خدمة",
+    "Service Revenue": "إيراد الخدمات",
+    "Top Service": "الخدمة الأكثر طلبًا",
+    "times sold": "مرات بيع",
+    "Service Performance": "أداء الخدمات",
+    "Real sales and operation metrics for the services customers actually use.": "مؤشرات فعلية للمبيعات والتشغيل للخدمات التي يستخدمها العملاء.",
+    "services": "خدمات",
+    "Loading service performance…": "جارٍ تحميل أداء الخدمات…",
+    "Sales Share": "حصة المبيعات",
+    "No matching services": "لا توجد خدمات مطابقة",
+    "No service sales match the current period or search.": "لا توجد مبيعات خدمات مطابقة للفترة الحالية أو البحث.",
     "Preparing PDF…": "جارٍ تجهيز ملف PDF…",
     "Preparing Excel…": "جارٍ تجهيز ملف Excel…",
     "Report Drill-down": "تفاصيل التقرير",
@@ -306,9 +345,116 @@ const AR_UI_TRANSLATIONS = Object.freeze({
     "Confirmed": "مؤكد",
     "To Close": "بانتظار الإغلاق",
     "Done": "مكتمل",
+    "Allow pop-ups to print the report.": "اسمح بالنوافذ المنبثقة لطباعة التقرير.",
+    "Analytics Detail": "تفاصيل التحليلات",
+    "Automatic": "غسيل آلي",
+    "Automatic Station": "محطة الغسيل الآلي",
+    "Business Analytics": "تحليلات الأعمال",
+    "Busy": "قيد العمل",
+    "Car Wash Dashboard": "لوحة تحكم غسيل السيارات",
+    "Car Wash Order": "أمر غسيل السيارة",
+    "Car Wash Orders": "أوامر غسيل السيارات",
+    "Cars In Stations": "السيارات داخل المحطات",
+    "Check Station": "تحقق من المحطة",
+    "Could not enter TV mode.": "تعذر الدخول إلى وضع التلفاز.",
+    "Could not export the report.": "تعذر تصدير التقرير.",
+    "Could not load analytics detail.": "تعذر تحميل تفاصيل التحليلات.",
+    "Could not load car wash business analytics.": "تعذر تحميل تحليلات أعمال مركز الغسيل.",
+    "Could not load car wash dashboard data.": "تعذر تحميل بيانات لوحة المغسلة.",
+    "Current vehicle": "السيارة الحالية",
+    "Dark mode": "الوضع الداكن",
+    "Dashboard Overview": "نظرة عامة على اللوحة",
+    "Dashboard overview": "نظرة عامة على اللوحة",
+    "Dashboard updated.": "تم تحديث لوحة المغسلة.",
+    "Enable sound feedback": "تشغيل أصوات التفاعل",
+    "Est. remaining": "الوقت المتبقي المتوقع",
+    "Excel report exported successfully.": "تم تصدير تقرير Excel بنجاح.",
+    "Finishing": "في مرحلة الإنهاء",
+    "Finishing now": "يتم التشطيب الآن",
+    "General": "عام",
+    "General Station": "محطة عامة",
+    "Grid View": "عرض شبكي",
+    "Grid view": "عرض شبكي",
+    "In progress": "قيد التنفيذ",
+    "Insights for a cleaner, more profitable tomorrow.": "رؤى لعمل أنظف وأكثر ربحية.",
+    "Light mode": "الوضع الفاتح",
+    "List View": "عرض قائمة",
+    "List view": "عرض قائمة",
+    "Live overview of stations, queue and today’s activity.": "نظرة مباشرة على المحطات وقائمة الانتظار ونشاط اليوم.",
+    "Live station updates are connected.": "التحديثات المباشرة للمحطات متصلة.",
+    "Live status and current car for every wash station.": "الحالة المباشرة والسيارة الحالية لكل محطة غسيل.",
+    "Loading relevant information…": "جارٍ تحميل المعلومات المرتبطة…",
+    "Mute sound feedback": "كتم أصوات التفاعل",
+    "No notes": "لا توجد ملاحظات",
+    "Odoo User": "مستخدم أودو",
+    "Only cars currently running inside a wash station.": "السيارات الموجودة حاليًا داخل محطات الغسيل فقط.",
+    "Only cars waiting for the next available station.": "السيارات المنتظرة للمحطة المتاحة التالية فقط.",
+    "Only stations ready to receive the next car.": "المحطات الجاهزة لاستقبال السيارة التالية فقط.",
+    "Only wash orders completed today.": "أوامر الغسيل المكتملة اليوم فقط.",
+    "Operator": "مشغّل",
+    "PDF report exported successfully.": "تم تصدير تقرير PDF بنجاح.",
+    "POS Order": "طلب نقطة البيع",
+    "Polishing": "تلميع",
+    "Polishing Station": "محطة التلميع",
+    "Preparing PDF report…": "جارٍ تجهيز تقرير PDF…",
+    "Preparing management workbook…": "جارٍ تجهيز ملف الإدارة…",
+    "Product": "المنتج",
+    "Ready now": "جاهزة الآن",
+    "Report Details": "تفاصيل التقرير",
+    "Sound feedback off": "تم إيقاف أصوات التفاعل",
+    "Sound feedback on": "تم تشغيل أصوات التفاعل",
+    "Station Conflict": "تعارض في المحطة",
+    "Station Details": "تفاصيل المحطات",
+    "Station details": "تفاصيل المحطة",
+    "Switch to dark mode": "التبديل إلى الوضع الداكن",
+    "Switch to light mode": "التبديل إلى الوضع الفاتح",
+    "Vehicle ready for pickup": "السيارة جاهزة للاستلام",
+    "Wash Operation": "عملية الغسيل",
+    "h": "س",
+    "m": "د",
+    "of %s stations": "من أصل %s محطة",
 });
 
 const UI_TRANSLATIONS = Object.freeze({
+    "Issues &amp; Delays": _t("Issues &amp; Delays"),
+    "Loyalty &amp; Visits": _t("Loyalty &amp; Visits"),
+    "Walk-in": _t("Walk-in"),
+    "Cars & Wash Orders": _t("Cars & Wash Orders"),
+    "Wash Services": _t("Wash Services"),
+    "Track every vehicle from waiting to completed wash.": _t("Track every vehicle from waiting to completed wash."),
+    "See which wash services are used, earning, and taking time.": _t("See which wash services are used, earning, and taking time."),
+    "Search services...": _t("Search services..."),
+    "Search plate, customer, vehicle, or service...": _t("Search plate, customer, vehicle, or service..."),
+    "Search customers...": _t("Search customers..."),
+    "Could not load car activity.": _t("Could not load car activity."),
+    "Could not load service performance.": _t("Could not load service performance."),
+    "Open All Wash Orders": _t("Open All Wash Orders"),
+    "Cars in Period": _t("Cars in Period"),
+    "wash orders": _t("wash orders"),
+    "waiting for a station": _t("waiting for a station"),
+    "In Wash": _t("In Wash"),
+    "currently being served": _t("currently being served"),
+    "Vehicle Activity": _t("Vehicle Activity"),
+    "Plate, customer, service, station, and wash status in one place.": _t("Plate, customer, service, station, and wash status in one place."),
+    "cars": _t("cars"),
+    "Loading car activity…": _t("Loading car activity…"),
+    "No matching cars": _t("No matching cars"),
+    "Try changing the status filter, period, or search.": _t("Try changing the status filter, period, or search."),
+    "Manage Wash Services": _t("Manage Wash Services"),
+    "Active Services": _t("Active Services"),
+    "sold in period": _t("sold in period"),
+    "Services Sold": _t("Services Sold"),
+    "service units": _t("service units"),
+    "Service Revenue": _t("Service Revenue"),
+    "Top Service": _t("Top Service"),
+    "times sold": _t("times sold"),
+    "Service Performance": _t("Service Performance"),
+    "Real sales and operation metrics for the services customers actually use.": _t("Real sales and operation metrics for the services customers actually use."),
+    "services": _t("services"),
+    "Loading service performance…": _t("Loading service performance…"),
+    "Sales Share": _t("Sales Share"),
+    "No matching services": _t("No matching services"),
+    "No service sales match the current period or search.": _t("No service sales match the current period or search."),
     "Preparing PDF…": _t("Preparing PDF…"),
     "Preparing Excel…": _t("Preparing Excel…"),
     "Report Drill-down": _t("Report Drill-down"),
@@ -612,6 +758,74 @@ const UI_TRANSLATIONS = Object.freeze({
     "Confirmed": _t("Confirmed"),
     "To Close": _t("To Close"),
     "Done": _t("Done"),
+    "Allow pop-ups to print the report.": _t("Allow pop-ups to print the report."),
+    "Analytics Detail": _t("Analytics Detail"),
+    "Automatic": _t("Automatic"),
+    "Automatic Station": _t("Automatic Station"),
+    "Business Analytics": _t("Business Analytics"),
+    "Busy": _t("Busy"),
+    "Car Wash Dashboard": _t("Car Wash Dashboard"),
+    "Car Wash Order": _t("Car Wash Order"),
+    "Car Wash Orders": _t("Car Wash Orders"),
+    "Cars In Stations": _t("Cars In Stations"),
+    "Check Station": _t("Check Station"),
+    "Could not enter TV mode.": _t("Could not enter TV mode."),
+    "Could not export the report.": _t("Could not export the report."),
+    "Could not load analytics detail.": _t("Could not load analytics detail."),
+    "Could not load car wash business analytics.": _t("Could not load car wash business analytics."),
+    "Could not load car wash dashboard data.": _t("Could not load car wash dashboard data."),
+    "Current vehicle": _t("Current vehicle"),
+    "Dark mode": _t("Dark mode"),
+    "Dashboard Overview": _t("Dashboard Overview"),
+    "Dashboard overview": _t("Dashboard overview"),
+    "Dashboard updated.": _t("Dashboard updated."),
+    "Enable sound feedback": _t("Enable sound feedback"),
+    "Est. remaining": _t("Est. remaining"),
+    "Excel report exported successfully.": _t("Excel report exported successfully."),
+    "Finishing": _t("Finishing"),
+    "Finishing now": _t("Finishing now"),
+    "General": _t("General"),
+    "General Station": _t("General Station"),
+    "Grid View": _t("Grid View"),
+    "Grid view": _t("Grid view"),
+    "In progress": _t("In progress"),
+    "Insights for a cleaner, more profitable tomorrow.": _t("Insights for a cleaner, more profitable tomorrow."),
+    "Light mode": _t("Light mode"),
+    "List View": _t("List View"),
+    "List view": _t("List view"),
+    "Live overview of stations, queue and today’s activity.": _t("Live overview of stations, queue and today’s activity."),
+    "Live station updates are connected.": _t("Live station updates are connected."),
+    "Live status and current car for every wash station.": _t("Live status and current car for every wash station."),
+    "Loading relevant information…": _t("Loading relevant information…"),
+    "Mute sound feedback": _t("Mute sound feedback"),
+    "No notes": _t("No notes"),
+    "Odoo User": _t("Odoo User"),
+    "Only cars currently running inside a wash station.": _t("Only cars currently running inside a wash station."),
+    "Only cars waiting for the next available station.": _t("Only cars waiting for the next available station."),
+    "Only stations ready to receive the next car.": _t("Only stations ready to receive the next car."),
+    "Only wash orders completed today.": _t("Only wash orders completed today."),
+    "Operator": _t("Operator"),
+    "PDF report exported successfully.": _t("PDF report exported successfully."),
+    "POS Order": _t("POS Order"),
+    "Polishing": _t("Polishing"),
+    "Polishing Station": _t("Polishing Station"),
+    "Preparing PDF report…": _t("Preparing PDF report…"),
+    "Preparing management workbook…": _t("Preparing management workbook…"),
+    "Product": _t("Product"),
+    "Ready now": _t("Ready now"),
+    "Report Details": _t("Report Details"),
+    "Sound feedback off": _t("Sound feedback off"),
+    "Sound feedback on": _t("Sound feedback on"),
+    "Station Conflict": _t("Station Conflict"),
+    "Station Details": _t("Station Details"),
+    "Station details": _t("Station details"),
+    "Switch to dark mode": _t("Switch to dark mode"),
+    "Switch to light mode": _t("Switch to light mode"),
+    "Vehicle ready for pickup": _t("Vehicle ready for pickup"),
+    "Wash Operation": _t("Wash Operation"),
+    "h": _t("h"),
+    "m": _t("m"),
+    "of %s stations": _t("of %s stations"),
 });
 
 function isArabicUi() {
@@ -619,15 +833,50 @@ function isArabicUi() {
         return false;
     }
     const root = document.documentElement;
-    const lang = String(root?.getAttribute("lang") || root?.lang || "").toLowerCase();
-    const dir = String(root?.getAttribute("dir") || "").toLowerCase();
-    return lang.startsWith("ar") || dir === "rtl";
+    const body = document.body;
+    const rootLanguage = String(root?.getAttribute("lang") || root?.lang || "").toLowerCase();
+    const bodyLanguage = String(body?.getAttribute("lang") || body?.lang || "").toLowerCase();
+    if (rootLanguage.startsWith("ar") || bodyLanguage.startsWith("ar")) {
+        return true;
+    }
+    const rootDirection = String(root?.getAttribute("dir") || "").toLowerCase();
+    const bodyDirection = String(body?.getAttribute("dir") || "").toLowerCase();
+    if (rootDirection === "rtl" || bodyDirection === "rtl") {
+        return true;
+    }
+    if (body?.classList?.contains("o_rtl") || root?.classList?.contains("o_rtl")) {
+        return true;
+    }
+    try {
+        const rootComputed = globalThis.getComputedStyle?.(root)?.direction || "";
+        const bodyComputed = body ? (globalThis.getComputedStyle?.(body)?.direction || "") : "";
+        return rootComputed === "rtl" || bodyComputed === "rtl";
+    } catch {
+        return false;
+    }
 }
 
-export function translateUi(text) {
-    const translated = UI_TRANSLATIONS[text] || text;
-    if (isArabicUi() && translated === text) {
-        return AR_UI_TRANSLATIONS[text] || translated;
+function formatUiTranslation(template, args) {
+    if (!args.length) {
+        return template;
     }
-    return translated;
+    let index = 0;
+    return String(template).replace(/%[sd]/g, (token) => {
+        if (index >= args.length) {
+            return token;
+        }
+        const value = args[index++];
+        return token === "%d" ? String(Number(value)) : String(value);
+    });
+}
+
+export function translateUi(text, ...args) {
+    if (isArabicUi()) {
+        const arabic = AR_UI_TRANSLATIONS[text];
+        if (arabic) {
+            return formatUiTranslation(arabic, args);
+        }
+    }
+    const translated = UI_TRANSLATIONS[text] || _t(text);
+    return formatUiTranslation(translated || text, args);
 }

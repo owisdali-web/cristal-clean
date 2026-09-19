@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mrp_workcenter_car_wash_sequence" model="ir.ui.view">
+        <field name="name">mrp.workcenter.car.wash.sequence</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="car_wash_sequence"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mrp_workcenter_tree_car_wash_sequence" model="ir.ui.view">
+        <field name="name">mrp.workcenter.list.car.wash.sequence</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sequence']" position="after">
+                <field name="car_wash_sequence" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

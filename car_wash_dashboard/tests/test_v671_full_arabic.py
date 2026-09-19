@@ -21,12 +21,9 @@ class V671FullArabicTranslationTest(unittest.TestCase):
         )
         for rel in files:
             source = (ROOT / rel).read_text(encoding='utf-8')
-            self.assertIn('@web/core/l10n/translation', source, msg=rel)
-            self.assertRegex(source, r'\btr\s*\(\s*text\s*\)', msg=rel)
-            self.assertTrue(
-                'return _t(text);' in source or 'return translateUi(text);' in source,
-                msg=rel,
-            )
+            self.assertIn('translateUi', source, msg=rel)
+            self.assertRegex(source, r'\btr\s*\(\s*text\s*,\s*\.\.\.args\s*\)', msg=rel)
+            self.assertIn('return translateUi(text, ...args);', source, msg=rel)
 
     def test_no_visible_english_literals_remain_in_dashboard_template(self):
         path = ROOT / 'static/src/xml/dashboard.xml'

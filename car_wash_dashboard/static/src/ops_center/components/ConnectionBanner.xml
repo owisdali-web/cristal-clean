@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve"><t t-name="car_wash_dashboard.ConnectionBanner">
-<div t-if="!props.online" class="cc_connection_banner" role="status"><span class="fa fa-plug" aria-hidden="true"/><span t-esc="text"/></div>
-</t></templates>

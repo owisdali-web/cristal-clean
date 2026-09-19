@@ -3,7 +3,6 @@
 import { Component, onMounted, onWillStart, onWillUnmount, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { _t } from "@web/core/l10n/translation";
 
 import { KpiCard } from "./components/kpi_card";
 import { QueuePanel } from "./components/queue_panel";
@@ -19,8 +18,8 @@ const THEME_STORAGE_KEY = "car_wash_dashboard_theme";
 const CUSTOMER_FEATURE_ROTATION_MS = 120000;
 
 export class CarWashDashboard extends Component {
-    tr(text) {
-        return translateUi(text);
+    tr(text, ...args) {
+        return translateUi(text, ...args);
     }
 
     setup() {
@@ -99,6 +98,24 @@ export class CarWashDashboard extends Component {
                 new_vs_returning: [],
                 service_preferences: [],
                 filter_options: { services: [], segments: [] },
+            },
+            carsLoading: false,
+            carsPeriod: "today",
+            carsStatusFilter: "all",
+            carsData: {
+                period_label: "",
+                kpis: { total_cars: 0, finished_cars: 0, waiting_cars: 0, total_revenue: 0 },
+                operations: [],
+            },
+            servicesLoading: false,
+            servicesPeriod: "today",
+            servicesData: {
+                period_label: "",
+                currency_code: "LYD",
+                currency_symbol: "",
+                kpis: { total_revenue: 0 },
+                services: [],
+                filter_options: { services: [] },
             },
             reportsLoading: false,
             reportsLoaded: false,
@@ -202,7 +219,16 @@ export class CarWashDashboard extends Component {
         this.manualRefresh = this.manualRefresh.bind(this);
         this.openQueue = this.openQueue.bind(this);
         this.openCars = this.openCars.bind(this);
+        this.fetchCars = this.fetchCars.bind(this);
+        this.setCarsPeriod = this.setCarsPeriod.bind(this);
+        this.setCarsStatusFilter = this.setCarsStatusFilter.bind(this);
+        this.openCarRecord = this.openCarRecord.bind(this);
+        this.openCarOrders = this.openCarOrders.bind(this);
         this.openServices = this.openServices.bind(this);
+        this.fetchServices = this.fetchServices.bind(this);
+        this.setServicesPeriod = this.setServicesPeriod.bind(this);
+        this.openServiceRecord = this.openServiceRecord.bind(this);
+        this.manageServices = this.manageServices.bind(this);
         this.openCustomers = this.openCustomers.bind(this);
         this.fetchCustomers = this.fetchCustomers.bind(this);
         this.onCustomerFilterChange = this.onCustomerFilterChange.bind(this);
@@ -246,6 +272,10 @@ export class CarWashDashboard extends Component {
                     this.fetchReports({ silent: true });
                 } else if (this.state.page === "customers") {
                     this.fetchCustomers({ silent: true });
+                } else if (this.state.page === "cars") {
+                    this.fetchCars({ silent: true });
+                } else if (this.state.page === "services") {
+                    this.fetchServices({ silent: true });
                 } else {
                     this.fetchData({ silent: true });
                 }
@@ -320,21 +350,29 @@ export class CarWashDashboard extends Component {
         this.saveThemePreference(this.state.theme);
         this.playUiTone("tap");
         this.showFeedback(
-            this.state.theme === "dark" ? _t("Dark mode") : _t("Light mode")
+            this.state.theme === "dark" ? this.tr("Dark mode") : this.tr("Light mode")
         );
     }
 
     get pageTitle() {
-        if (this.state.page === "analytics") return _t("Business Analytics");
+        if (this.state.page === "cars") return this.tr("Cars & Wash Orders");
+        if (this.state.page === "services") return this.tr("Wash Services");
+        if (this.state.page === "analytics") return this.tr("Business Analytics");
         if (this.state.page === "reports") return this.tr("Reports");
         if (this.state.page === "customers") return this.tr("Customer Intelligence");
         if (this.state.page === "customer_display") return this.tr("Live Car Journey");
-        return _t("Car Wash Dashboard");
+        return this.tr("Car Wash Dashboard");
     }
 
     get pageSubtitle() {
+        if (this.state.page === "cars") {
+            return this.tr("Track every vehicle from waiting to completed wash.");
+        }
+        if (this.state.page === "services") {
+            return this.tr("See which wash services are used, earning, and taking time.");
+        }
         if (this.state.page === "analytics") {
-            return _t("Insights for a cleaner, more profitable tomorrow.");
+            return this.tr("Insights for a cleaner, more profitable tomorrow.");
         }
         if (this.state.page === "reports") {
             return this.tr("Complete reports for your car wash operations.");
@@ -343,25 +381,32 @@ export class CarWashDashboard extends Component {
             return this.tr("Understand visits, value, vehicles, and customer loyalty.");
         }
         if (this.state.page === "customer_display") {
-            return _t("A live customer view from check-in to ready for pickup.");
+            return this.tr("A live customer view from check-in to ready for pickup.");
         }
-        return _t("Live overview of stations, queue and today’s activity.");
+        return this.tr("Live overview of stations, queue and today’s activity.");
+    }
+
+    get searchPlaceholder() {
+        if (this.state.page === "services") return this.tr("Search services...");
+        if (this.state.page === "cars") return this.tr("Search plate, customer, vehicle, or service...");
+        if (this.state.page === "customers") return this.tr("Search customers...");
+        return this.tr("Search cars, customers, or plates...");
     }
 
     get viewModeLabel() {
-        return this.state.viewMode === "grid" ? _t("Grid View") : _t("List View");
+        return this.state.viewMode === "grid" ? this.tr("Grid View") : this.tr("List View");
     }
 
     get analyticsPeriodLabel() {
-        return this.state.analyticsPeriod === "month" ? _t("This Month") : _t("Today");
+        return this.state.analyticsPeriod === "month" ? this.tr("This Month") : this.tr("Today");
     }
 
     get themeToggleTitle() {
-        return this.state.theme === "dark" ? _t("Switch to light mode") : _t("Switch to dark mode");
+        return this.state.theme === "dark" ? this.tr("Switch to light mode") : this.tr("Switch to dark mode");
     }
 
     get audioToggleTitle() {
-        return this.state.audioEnabled ? _t("Mute sound feedback") : _t("Enable sound feedback");
+        return this.state.audioEnabled ? this.tr("Mute sound feedback") : this.tr("Enable sound feedback");
     }
 
     get analyticsDisplayPeriodLabel() {
@@ -382,15 +427,15 @@ export class CarWashDashboard extends Component {
     }
 
     currentVehicleLabel() {
-        return _t("Current vehicle");
+        return this.tr("Current vehicle");
     }
 
     get defaultUserName() {
-        return _t("Odoo User");
+        return this.tr("Odoo User");
     }
 
     get defaultUserRole() {
-        return _t("Operator");
+        return this.tr("Operator");
     }
 
     ensureBusChannel() {
@@ -417,6 +462,14 @@ export class CarWashDashboard extends Component {
         this.realtimeDebounceTimer = setTimeout(() => {
             if (this.state.page === "analytics") {
                 this.fetchAnalytics({ silent: true });
+            } else if (this.state.page === "reports") {
+                this.fetchReports({ silent: true });
+            } else if (this.state.page === "customers") {
+                this.fetchCustomers({ silent: true });
+            } else if (this.state.page === "cars") {
+                this.fetchCars({ silent: true });
+            } else if (this.state.page === "services") {
+                this.fetchServices({ silent: true });
             } else {
                 this.fetchData({ silent: true });
             }
@@ -451,7 +504,7 @@ export class CarWashDashboard extends Component {
         } catch (error) {
             console.error("Car wash dashboard fetch failed", error);
             if (!silent) {
-                this.notification.add(_t("Could not load car wash dashboard data."), {
+                this.notification.add(this.tr("Could not load car wash dashboard data."), {
                     type: "danger",
                 });
             }
@@ -490,7 +543,7 @@ export class CarWashDashboard extends Component {
         } catch (error) {
             console.error("Car wash business analytics fetch failed", error);
             if (!silent) {
-                this.notification.add(_t("Could not load car wash business analytics."), {
+                this.notification.add(this.tr("Could not load car wash business analytics."), {
                     type: "danger",
                 });
             }
@@ -505,7 +558,7 @@ export class CarWashDashboard extends Component {
         this.state.selectedStationId = false;
         this.state.focusMode = "overview";
         this.playUiTone("nav");
-        this.showFeedback(_t("Business Analytics"));
+        this.showFeedback(this.tr("Business Analytics"));
         await this.fetchAnalytics();
     }
 
@@ -539,7 +592,7 @@ export class CarWashDashboard extends Component {
             this.state.lastUpdate = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         } catch (error) {
             console.error("Car wash report center fetch failed", error);
-            if (!silent) this.notification.add(_t("Could not load report center data."), { type: "danger" });
+            if (!silent) this.notification.add(this.tr("Could not load report center data."), { type: "danger" });
         } finally {
             this.state.reportsLoading = false;
         }
@@ -552,7 +605,7 @@ export class CarWashDashboard extends Component {
         this.state.selectedStationId = false;
         this.state.focusMode = "overview";
         this.playUiTone("nav");
-        this.showFeedback(_t("Reports"));
+        this.showFeedback(this.tr("Reports"));
         await this.fetchReports();
     }
 
@@ -571,7 +624,7 @@ export class CarWashDashboard extends Component {
     async applyReportFilters() {
         await this.fetchReports();
         this.playUiTone("success");
-        this.showFeedback(_t("Report filters applied."), "success");
+        this.showFeedback(this.tr("Report filters applied."), "success");
     }
 
     async resetReportFilters() {
@@ -581,7 +634,7 @@ export class CarWashDashboard extends Component {
         this.state.reportTab = "overview";
         this.state.reportDetail = false;
         await this.fetchReports();
-        this.showFeedback(_t("Report filters reset."));
+        this.showFeedback(this.tr("Report filters reset."));
     }
 
     async applyReportPreset(preset) {
@@ -618,7 +671,7 @@ export class CarWashDashboard extends Component {
             : `/car_wash_dashboard/reports/pdf?${this.reportQueryString()}`;
         this.state.reportExporting = true;
         this.state.reportExportFormat = format;
-        this.showFeedback(isExcel ? _t("Preparing management workbook…") : _t("Preparing PDF report…"));
+        this.showFeedback(isExcel ? this.tr("Preparing management workbook…") : this.tr("Preparing PDF report…"));
         try {
             const response = await fetch(url, { credentials: "same-origin" });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -635,10 +688,10 @@ export class CarWashDashboard extends Component {
             link.remove();
             window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
             this.playUiTone("success");
-            this.showFeedback(isExcel ? _t("Excel report exported successfully.") : _t("PDF report exported successfully."), "success");
+            this.showFeedback(isExcel ? this.tr("Excel report exported successfully.") : this.tr("PDF report exported successfully."), "success");
         } catch (error) {
             console.error("Car wash report export failed", error);
-            this.notification.add(_t("Could not export the report."), { type: "danger" });
+            this.notification.add(this.tr("Could not export the report."), { type: "danger" });
         } finally {
             this.state.reportExporting = false;
             this.state.reportExportFormat = "";
@@ -650,7 +703,7 @@ export class CarWashDashboard extends Component {
         if (typeof window === "undefined") return;
         const url = `/car_wash_dashboard/reports/print?${this.reportQueryString()}`;
         const popup = window.open(url, "_blank", "noopener");
-        if (!popup) this.notification.add(_t("Allow pop-ups to print the report."), { type: "warning" });
+        if (!popup) this.notification.add(this.tr("Allow pop-ups to print the report."), { type: "warning" });
     }
 
     openReportDetail(kind, key = false, label = "") {
@@ -684,10 +737,10 @@ export class CarWashDashboard extends Component {
         if (!detail) return "";
         if (detail.label) return detail.label;
         const titles = {
-            total_cars: _t("Total Cars"), finished_cars: _t("Finished Cars"), waiting_cars: _t("Waiting Cars"),
-            total_revenue: _t("Total Revenue"), average_ticket: _t("Average Ticket"), unique_customers: _t("Unique Customers"),
+            total_cars: this.tr("Total Cars"), finished_cars: this.tr("Finished Cars"), waiting_cars: this.tr("Waiting Cars"),
+            total_revenue: this.tr("Total Revenue"), average_ticket: this.tr("Average Ticket"), unique_customers: this.tr("Unique Customers"),
         };
-        return titles[detail.key] || _t("Report Details");
+        return titles[detail.key] || this.tr("Report Details");
     }
 
     get reportDetailRows() {
@@ -731,7 +784,7 @@ export class CarWashDashboard extends Component {
     openReportRecord(row) {
         if (!row?.model || !row?.res_id) return;
         this.playUiTone("nav");
-        this.action.doAction({ type: "ir.actions.act_window", name: _t("Odoo Record"), res_model: row.model, res_id: Number(row.res_id), views: [[false, "form"]], target: "current" });
+        this.action.doAction({ type: "ir.actions.act_window", name: this.tr("Odoo Record"), res_model: row.model, res_id: Number(row.res_id), views: [[false, "form"]], target: "current" });
     }
 
     get reportRevenueMax() {
@@ -774,6 +827,10 @@ export class CarWashDashboard extends Component {
         return rows;
     }
 
+    isCustomerSelected(partnerId) {
+        return Number(this.state.selectedCustomerId || 0) === Number(partnerId || 0);
+    }
+
     customerSegmentLabel(segment) {
         return {
             new: this.tr("New"),
@@ -805,7 +862,7 @@ export class CarWashDashboard extends Component {
         this.state.focusMode = "overview";
         this.state.searchQuery = "";
         this.playUiTone("nav");
-        this.showFeedback(_t("Live Car Journey"));
+        this.showFeedback(this.tr("Live Car Journey"));
         await this.fetchData({ silent: true });
         this.state.customerFeaturedIndex = 0;
     }
@@ -834,7 +891,7 @@ export class CarWashDashboard extends Component {
         );
         this.state.customerFeaturedIndex = index >= 0 ? index : 0;
         this.playUiTone("success");
-        this.showFeedback(_t("Vehicle ready for pickup"), "success");
+        this.showFeedback(this.tr("Vehicle ready for pickup"), "success");
     }
 
     async toggleCustomerTvMode() {
@@ -850,7 +907,7 @@ export class CarWashDashboard extends Component {
             }
         } catch (error) {
             console.error("Customer display fullscreen failed", error);
-            this.notification.add(_t("Could not enter TV mode."), { type: "warning" });
+            this.notification.add(this.tr("Could not enter TV mode."), { type: "warning" });
         }
     }
 
@@ -865,7 +922,7 @@ export class CarWashDashboard extends Component {
         this.state.focusMode = "overview";
         this.state.selectedStationId = false;
         this.playUiTone("nav");
-        this.showFeedback(_t("Car Wash Dashboard"));
+        this.showFeedback(this.tr("Car Wash Dashboard"));
     }
 
     async setAnalyticsPeriod(period) {
@@ -886,8 +943,8 @@ export class CarWashDashboard extends Component {
         this.state.analyticsDetailLoading = true;
         this.state.analyticsDetail = {
             detail_type: detailType,
-            title: label || _t("Analytics Detail"),
-            subtitle: _t("Loading relevant information…"),
+            title: label || this.tr("Analytics Detail"),
+            subtitle: this.tr("Loading relevant information…"),
             summary: [],
             rows: [],
         };
@@ -900,7 +957,7 @@ export class CarWashDashboard extends Component {
             );
             this.state.analyticsDetail = {
                 detail_type: detailType,
-                title: result.title || label || _t("Analytics Detail"),
+                title: result.title || label || this.tr("Analytics Detail"),
                 subtitle: result.subtitle || "",
                 summary: result.summary || [],
                 rows: result.rows || [],
@@ -909,7 +966,7 @@ export class CarWashDashboard extends Component {
         } catch (error) {
             console.error("Car wash analytics drill-down failed", error);
             this.state.analyticsDetail = false;
-            this.notification.add(_t("Could not load analytics detail."), { type: "danger" });
+            this.notification.add(this.tr("Could not load analytics detail."), { type: "danger" });
         } finally {
             this.state.analyticsDetailLoading = false;
         }
@@ -925,15 +982,15 @@ export class CarWashDashboard extends Component {
         if (!row?.model || !row?.res_id) return;
         this.playUiTone("nav");
         const names = {
-            "pos.order": _t("POS Order"),
-            "mrp.production": _t("Car Wash Order"),
-            "mrp.workorder": _t("Wash Operation"),
-            "res.partner": _t("Customer"),
-            "product.product": _t("Product"),
+            "pos.order": this.tr("POS Order"),
+            "mrp.production": this.tr("Car Wash Order"),
+            "mrp.workorder": this.tr("Wash Operation"),
+            "res.partner": this.tr("Customer"),
+            "product.product": this.tr("Product"),
         };
         this.action.doAction({
             type: "ir.actions.act_window",
-            name: names[row.model] || _t("Odoo Record"),
+            name: names[row.model] || this.tr("Odoo Record"),
             res_model: row.model,
             res_id: Number(row.res_id),
             views: [[false, "form"]],
@@ -1131,11 +1188,11 @@ export class CarWashDashboard extends Component {
 
     customerStageLabel(stage) {
         return {
-            waiting: _t("Waiting"),
-            washing: _t("Washing"),
-            finishing: _t("Drying / Finishing"),
-            ready: _t("Ready for Pickup"),
-        }[stage] || _t("Waiting");
+            waiting: this.tr("Waiting"),
+            washing: this.tr("Washing"),
+            finishing: this.tr("Drying / Finishing"),
+            ready: this.tr("Ready for Pickup"),
+        }[stage] || this.tr("Waiting");
     }
 
     customerStageIcon(stage) {
@@ -1165,22 +1222,22 @@ export class CarWashDashboard extends Component {
 
     customerEtaLabel(item) {
         if (!item) return "—";
-        if (item.customer_stage === "ready") return _t("Ready now");
+        if (item.customer_stage === "ready") return this.tr("Ready now");
         if (item.customer_stage === "waiting") {
-            if (item.customer_queue_index === 0) return _t("Up Next");
+            if (item.customer_queue_index === 0) return this.tr("Up Next");
             return item.waiting_minutes !== false && item.waiting_minutes !== undefined
-                ? `${_t("Waiting")} ${this.formatMinutes(item.waiting_minutes)}`
-                : _t("Waiting");
+                ? `${this.tr("Waiting")} ${this.formatMinutes(item.waiting_minutes)}`
+                : this.tr("Waiting");
         }
         const expected = Number(item.expected_minutes);
         const elapsed = Number(item.elapsed_minutes);
         if (Number.isFinite(expected) && expected > 0 && Number.isFinite(elapsed)) {
             const remaining = Math.max(0, Math.round(expected - elapsed));
             return remaining > 0
-                ? `${_t("Est. remaining")}: ${this.formatMinutes(remaining)}`
-                : _t("Finishing now");
+                ? `${this.tr("Est. remaining")}: ${this.formatMinutes(remaining)}`
+                : this.tr("Finishing now");
         }
-        return _t("In progress");
+        return this.tr("In progress");
     }
 
     customerProgressPercent(item) {
@@ -1208,6 +1265,61 @@ export class CarWashDashboard extends Component {
                 (station) => station.id && station.id === this.state.selectedStationId
             ) || false
         );
+    }
+
+    carStage(row) {
+        const stage = String(row?.report_stage || row?.status || "");
+        if (stage === "done" || stage === "finished") return "finished";
+        if (stage === "cancel" || stage === "cancelled") return "cancelled";
+        if (stage === "progress") return "in_progress";
+        return stage || "unknown";
+    }
+
+    get carRows() {
+        const query = this.state.searchQuery.trim().toLowerCase();
+        const status = this.state.carsStatusFilter || "all";
+        return (this.state.carsData.operations || []).filter((row) => {
+            if (status !== "all" && this.carStage(row) !== status) return false;
+            if (!query) return true;
+            return [row.plate, row.vehicle, row.customer, row.service, row.station, row.ticket, row.status_label]
+                .some((value) => String(value || "").toLowerCase().includes(query));
+        });
+    }
+
+    get carStatusCounts() {
+        const rows = this.state.carsData.operations || [];
+        const counts = { all: rows.length, waiting: 0, in_progress: 0, finished: 0, cancelled: 0 };
+        rows.forEach((row) => {
+            const key = this.carStage(row);
+            if (key in counts) counts[key] += 1;
+        });
+        return counts;
+    }
+
+    get serviceRows() {
+        const query = this.state.searchQuery.trim().toLowerCase();
+        const rows = this.state.servicesData.services || [];
+        if (!query) return rows;
+        return rows.filter((row) => String(row.name || "").toLowerCase().includes(query));
+    }
+
+    get servicesSoldCount() {
+        return (this.state.servicesData.services || []).reduce((sum, row) => sum + Number(row.value || 0), 0);
+    }
+
+    get topService() {
+        return (this.state.servicesData.services || [])[0] || false;
+    }
+
+    formatServicesMoney(value) {
+        const amount = Number(value || 0);
+        const symbol = this.state.servicesData.currency_symbol || this.state.servicesData.currency_code || "";
+        return `${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${symbol}`.trim();
+    }
+
+    serviceShareStyle(row) {
+        const width = Math.max(0, Math.min(100, Number(row?.sales_percent || 0)));
+        return `width:${width}%`;
     }
 
     get filteredQueue() {
@@ -1244,11 +1356,11 @@ export class CarWashDashboard extends Component {
     }
 
     get workCentersTitle() {
-        return `${_t("Work Centers")} (${this.realStationCount})`;
+        return `${this.tr("Work Centers")} (${this.realStationCount})`;
     }
 
     get stationCapacityLabel() {
-        return _t("of %s stations", this.realStationCount);
+        return this.tr("of %s stations", this.realStationCount);
     }
 
     get stationGridClass() {
@@ -1267,21 +1379,21 @@ export class CarWashDashboard extends Component {
 
     get focusTitle() {
         return {
-            active: _t("Cars In Stations"),
-            waiting: _t("General Waiting Queue"),
-            available: _t("Available Stations"),
-            finished: _t("Finished Today"),
-            stations: _t("Station Details"),
-        }[this.state.focusMode] || _t("Dashboard Overview");
+            active: this.tr("Cars In Stations"),
+            waiting: this.tr("General Waiting Queue"),
+            available: this.tr("Available Stations"),
+            finished: this.tr("Finished Today"),
+            stations: this.tr("Station Details"),
+        }[this.state.focusMode] || this.tr("Dashboard Overview");
     }
 
     get focusSubtitle() {
         return {
-            active: _t("Only cars currently running inside a wash station."),
-            waiting: _t("Only cars waiting for the next available station."),
-            available: _t("Only stations ready to receive the next car."),
-            finished: _t("Only wash orders completed today."),
-            stations: _t("Live status and current car for every wash station."),
+            active: this.tr("Only cars currently running inside a wash station."),
+            waiting: this.tr("Only cars waiting for the next available station."),
+            available: this.tr("Only stations ready to receive the next car."),
+            finished: this.tr("Only wash orders completed today."),
+            stations: this.tr("Live status and current car for every wash station."),
         }[this.state.focusMode] || "";
     }
 
@@ -1312,34 +1424,34 @@ export class CarWashDashboard extends Component {
     }
 
     sizeLabel(value) {
-        return value === "large" ? _t("Large") : value === "small" ? _t("Small") : "—";
+        return value === "large" ? this.tr("Large") : value === "small" ? this.tr("Small") : "—";
     }
 
     stationTypeLabel(value) {
         return {
-            automatic: _t("Automatic"),
-            polishing: _t("Polishing"),
-            general: _t("General"),
-        }[value] || _t("General");
+            automatic: this.tr("Automatic"),
+            polishing: this.tr("Polishing"),
+            general: this.tr("General"),
+        }[value] || this.tr("General");
     }
 
     stationStatusLabel(value) {
         return {
-            available: _t("Available"),
-            busy: _t("Busy"),
-            finishing: _t("Finishing"),
-            conflict: _t("Check Station"),
-            not_configured: _t("Not Configured"),
-        }[value] || _t("Available");
+            available: this.tr("Available"),
+            busy: this.tr("Busy"),
+            finishing: this.tr("Finishing"),
+            conflict: this.tr("Check Station"),
+            not_configured: this.tr("Not Configured"),
+        }[value] || this.tr("Available");
     }
 
     formatMinutes(value) {
         const minutes = Number(value);
         if (!Number.isFinite(minutes) || minutes < 0) return "—";
-        if (minutes < 60) return `${minutes} ${_t("min")}`;
+        if (minutes < 60) return `${minutes} ${this.tr("min")}`;
         const hours = Math.floor(minutes / 60);
         const rest = minutes % 60;
-        return rest ? `${hours}${_t("h")} ${rest}${_t("m")}` : `${hours}${_t("h")}`;
+        return rest ? `${hours}${this.tr("h")} ${rest}${this.tr("m")}` : `${hours}${this.tr("h")}`;
     }
 
     formatFinishedAt(value) {
@@ -1398,7 +1510,7 @@ export class CarWashDashboard extends Component {
         this.state.focusMode = "overview";
         this.state.selectedStationId = false;
         this.playUiTone("close");
-        this.showFeedback(_t("Dashboard overview"));
+        this.showFeedback(this.tr("Dashboard overview"));
     }
 
     showStationDirectory() {
@@ -1410,7 +1522,7 @@ export class CarWashDashboard extends Component {
         this.state.viewMode = this.state.viewMode === "grid" ? "list" : "grid";
         this.playUiTone("tap");
         this.showFeedback(
-            this.state.viewMode === "grid" ? _t("Grid view") : _t("List view")
+            this.state.viewMode === "grid" ? this.tr("Grid view") : this.tr("List view")
         );
     }
 
@@ -1420,13 +1532,13 @@ export class CarWashDashboard extends Component {
             this.playUiTone("success");
         }
         this.showFeedback(
-            this.state.audioEnabled ? _t("Sound feedback on") : _t("Sound feedback off")
+            this.state.audioEnabled ? this.tr("Sound feedback on") : this.tr("Sound feedback off")
         );
     }
 
     showLiveStatus() {
         this.playUiTone("tap");
-        this.showFeedback(_t("Live station updates are connected."), "success");
+        this.showFeedback(this.tr("Live station updates are connected."), "success");
     }
 
     selectStation(id) {
@@ -1436,7 +1548,7 @@ export class CarWashDashboard extends Component {
         this.playUiTone("nav");
         const station = this.state.data.stations.find((item) => item.id === id);
         this.showFeedback(
-            station ? `${_t("Station details")}: ${station.name}` : _t("Station details")
+            station ? `${this.tr("Station details")}: ${station.name}` : this.tr("Station details")
         );
     }
 
@@ -1452,18 +1564,22 @@ export class CarWashDashboard extends Component {
             await this.fetchReports();
         } else if (this.state.page === "customers") {
             await this.fetchCustomers();
+        } else if (this.state.page === "cars") {
+            await this.fetchCars();
+        } else if (this.state.page === "services") {
+            await this.fetchServices();
         } else {
             await this.fetchData();
         }
         this.playUiTone("success");
-        this.showFeedback(_t("Dashboard updated."), "success");
+        this.showFeedback(this.tr("Dashboard updated."), "success");
     }
 
     openQueue() {
         this.playUiTone("nav");
         this.action.doAction({
             type: "ir.actions.act_window",
-            name: _t("Waiting Queue"),
+            name: this.tr("Waiting Queue"),
             res_model: "mrp.production",
             views: [[false, "list"], [false, "form"]],
             domain: this.state.data.queue_domain || [],
@@ -1471,12 +1587,66 @@ export class CarWashDashboard extends Component {
         });
     }
 
-    openCars() {
+    async fetchCars({ silent = false } = {}) {
+        this.state.carsLoading = true;
+        try {
+            const result = await this.orm.call(
+                "mrp.production",
+                "get_report_center_data",
+                [{ period: this.state.carsPeriod }]
+            );
+            this.state.carsData = {
+                ...this.state.carsData,
+                period_label: result.period_label || "",
+                kpis: result.kpis || this.state.carsData.kpis,
+                operations: result.operations || [],
+            };
+            this.state.lastUpdate = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        } catch (error) {
+            console.error("Car center fetch failed", error);
+            if (!silent) this.notification.add(this.tr("Could not load car activity."), { type: "danger" });
+        } finally {
+            this.state.carsLoading = false;
+        }
+    }
+
+    async openCars() {
+        this.state.page = "cars";
+        this.state.searchQuery = "";
+        this.state.selectedStationId = false;
+        this.state.focusMode = "overview";
+        this.state.analyticsDetail = false;
+        this.state.reportDetail = false;
+        this.playUiTone("nav");
+        this.showFeedback(this.tr("Cars & Wash Orders"));
+        await this.fetchCars();
+    }
+
+    async setCarsPeriod(period) {
+        const normalized = period === "month" ? "month" : "today";
+        if (this.state.carsPeriod === normalized && this.state.carsData.operations.length) return;
+        this.state.carsPeriod = normalized;
+        this.state.carsStatusFilter = "all";
+        await this.fetchCars();
+        this.playUiTone("tap");
+    }
+
+    setCarsStatusFilter(status) {
+        const allowed = ["all", "waiting", "in_progress", "finished", "cancelled"];
+        this.state.carsStatusFilter = allowed.includes(status) ? status : "all";
+        this.playUiTone("tap");
+    }
+
+    openCarRecord(row) {
+        this.openReportRecord(row);
+    }
+
+    openCarOrders() {
         this.playUiTone("nav");
         const domain = this.state.data.wash_order_domain || [["company_id", "=", this.state.data.company_id]];
         this.action.doAction({
             type: "ir.actions.act_window",
-            name: _t("Car Wash Orders"),
+            name: this.tr("Car Wash Orders"),
             res_model: "mrp.production",
             views: [[false, "list"], [false, "form"]],
             domain,
@@ -1484,14 +1654,68 @@ export class CarWashDashboard extends Component {
         });
     }
 
-    openServices() {
+    async fetchServices({ silent = false } = {}) {
+        this.state.servicesLoading = true;
+        try {
+            const result = await this.orm.call(
+                "mrp.production",
+                "get_report_center_data",
+                [{ period: this.state.servicesPeriod }]
+            );
+            this.state.servicesData = {
+                ...this.state.servicesData,
+                period_label: result.period_label || "",
+                currency_code: result.currency_code || this.state.servicesData.currency_code,
+                currency_symbol: result.currency_symbol || this.state.servicesData.currency_symbol,
+                kpis: result.kpis || this.state.servicesData.kpis,
+                services: result.services || [],
+                filter_options: result.filter_options || this.state.servicesData.filter_options,
+            };
+            this.state.lastUpdate = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        } catch (error) {
+            console.error("Services center fetch failed", error);
+            if (!silent) this.notification.add(this.tr("Could not load service performance."), { type: "danger" });
+        } finally {
+            this.state.servicesLoading = false;
+        }
+    }
+
+    async openServices() {
+        this.state.page = "services";
+        this.state.searchQuery = "";
+        this.state.selectedStationId = false;
+        this.state.focusMode = "overview";
+        this.state.analyticsDetail = false;
+        this.state.reportDetail = false;
+        this.playUiTone("nav");
+        this.showFeedback(this.tr("Wash Services"));
+        await this.fetchServices();
+    }
+
+    async setServicesPeriod(period) {
+        const normalized = period === "month" ? "month" : "today";
+        if (this.state.servicesPeriod === normalized && this.state.servicesData.services.length) return;
+        this.state.servicesPeriod = normalized;
+        await this.fetchServices();
+        this.playUiTone("tap");
+    }
+
+    openServiceRecord(row) {
+        this.openReportRecord(row);
+    }
+
+    manageServices() {
+        const ids = (this.state.servicesData.filter_options?.services || [])
+            .map((item) => Number(item.id || 0))
+            .filter(Boolean);
+        const domain = ids.length ? [["id", "in", ids]] : [["sale_ok", "=", true], ["type", "=", "service"]];
         this.playUiTone("nav");
         this.action.doAction({
             type: "ir.actions.act_window",
-            name: _t("Services"),
+            name: this.tr("Manage Wash Services"),
             res_model: "product.product",
             views: [[false, "list"], [false, "form"]],
-            domain: [["sale_ok", "=", true]],
+            domain,
             target: "current",
         });
     }
@@ -1625,7 +1849,7 @@ export class CarWashDashboard extends Component {
         this.playUiTone("nav");
         this.action.doAction({
             type: "ir.actions.act_window",
-            name: _t("Car Wash Order"),
+            name: this.tr("Car Wash Order"),
             res_model: "mrp.production",
             res_id: id,
             views: [[false, "form"]],
@@ -1638,7 +1862,7 @@ export class CarWashDashboard extends Component {
         this.playUiTone("nav");
         this.action.doAction({
             type: "ir.actions.act_window",
-            name: _t("Wash Operation"),
+            name: this.tr("Wash Operation"),
             res_model: "mrp.workorder",
             res_id: id,
             views: [[false, "form"]],

@@ -139,7 +139,7 @@ class V697Customers360Test(unittest.TestCase):
 
     def test_manifest_version_is_valid_v697(self):
         manifest = ast.literal_eval((ROOT / '__manifest__.py').read_text(encoding='utf-8'))
-        self.assertEqual(manifest['version'], '18.0.6.9.7')
+        self.assertGreaterEqual(tuple(map(int, manifest['version'].split('.'))), (18, 0, 6, 9, 7))
 
 
 if __name__ == '__main__':

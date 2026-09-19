@@ -1,52 +1,51 @@
 /** @odoo-module **/
 
 import { Component } from "@odoo/owl";
-import { _t } from "@web/core/l10n/translation";
 import { translateUi } from "../ui_translations";
 import { vehicleImagePath } from "../vehicle_visuals";
 
 export class StationDetail extends Component {
-    tr(text) {
-        return translateUi(text);
+    tr(text, ...args) {
+        return translateUi(text, ...args);
     }
 
     typeLabel(value) {
         return {
-            automatic: _t("Automatic Station"),
-            polishing: _t("Polishing Station"),
-            general: _t("General Station"),
-        }[value] || _t("General Station");
+            automatic: this.tr("Automatic Station"),
+            polishing: this.tr("Polishing Station"),
+            general: this.tr("General Station"),
+        }[value] || this.tr("General Station");
     }
 
     statusLabel(value) {
         return {
-            available: _t("Available"),
-            busy: _t("Busy"),
-            finishing: _t("Finishing"),
-            conflict: _t("Station Conflict"),
-            not_configured: _t("Not Configured"),
-        }[value] || _t("Available");
+            available: this.tr("Available"),
+            busy: this.tr("Busy"),
+            finishing: this.tr("Finishing"),
+            conflict: this.tr("Station Conflict"),
+            not_configured: this.tr("Not Configured"),
+        }[value] || this.tr("Available");
     }
 
     sizeLabel(value) {
-        return value === "large" ? _t("Large") : value === "small" ? _t("Small") : "—";
+        return value === "large" ? this.tr("Large") : value === "small" ? this.tr("Small") : "—";
     }
 
     formatMinutes(value) {
         const minutes = Number(value);
         if (!Number.isFinite(minutes) || minutes < 0) return "—";
-        if (minutes < 60) return `${minutes} ${_t("min")}`;
+        if (minutes < 60) return `${minutes} ${this.tr("min")}`;
         const hours = Math.floor(minutes / 60);
         const rest = minutes % 60;
-        return rest ? `${hours}${_t("h")} ${rest}${_t("m")}` : `${hours}${_t("h")}`;
+        return rest ? `${hours}${this.tr("h")} ${rest}${this.tr("m")}` : `${hours}${this.tr("h")}`;
     }
 
     currentVehicleLabel() {
-        return _t("Current vehicle");
+        return this.tr("Current vehicle");
     }
 
     noNotesLabel() {
-        return _t("No notes");
+        return this.tr("No notes");
     }
 
     vehicleImage() {

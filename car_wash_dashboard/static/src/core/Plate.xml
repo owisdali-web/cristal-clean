@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">
-    <t t-name="car_wash_dashboard.Plate">
-        <span t-att-class="classes" role="img" t-att-aria-label="text">
-            <span class="cc_plate__band" t-esc="libyaLabel"/>
-            <span class="cc_plate__text" t-esc="text"/>
-        </span>
-    </t>
-</templates>

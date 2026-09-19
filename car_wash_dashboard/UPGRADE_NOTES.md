@@ -1,3 +1,43 @@
+# 18.0.6.9.9 — Arabic Runtime + OWL Template Hotfix
+
+- Fixed the Customer 360 OWL crash caused by calling JavaScript `Number()` directly inside QWeb.
+- Routed all dashboard/component visible copy through the shared `translateUi()` gateway.
+- Hardened Arabic detection for Odoo RTL using Arabic `lang`, `dir=rtl`, the `o_rtl` body class, and computed CSS direction.
+- Expanded the runtime Arabic fallback to cover all frontend literals used by Dashboard, Analytics, Reports, Live Car Journey, and Customers 360.
+- Marked translation-gateway PO terms as `odoo-javascript` so Odoo's native frontend translation bundle can load them too.
+- English/LTR behavior remains unchanged; the Crystal Clean brand remains untranslated.
+
+# 18.0.6.9.8 — Arabic PO Occurrence Hotfix
+
+## Build fix
+
+- Removed an invalid PO occurrence incorrectly attached to `Paid POS Visit`: `model:ir.module.module,description:car_wash_dashboard`.
+- `Paid POS Visit` remains a module-scoped Arabic translation and continues to be used by Customer 360 in both backend and frontend code.
+- Added a regression test that rejects unsupported `ir.module.module,description:*` occurrences.
+
+## Preserved behavior
+
+- No Dashboard, Customers 360, POS, MRP, stock, accounting, report, or analytics behavior was changed.
+- Arabic/English localization logic from 18.0.6.9.7 is preserved.
+
+---
+
+# 18.0.6.9.7 — Arabic Runtime Hardening + Customers 360
+
+## Customers 360
+
+- Customers sidebar now opens an internal customer intelligence page while Live Car Journey remains a nested customer-facing display.
+- Added customer KPIs, segmentation, filters, customer list, Customer 360 detail, known vehicles, service usage, visit timeline, POS history, and interactive customer charts.
+- Customer revenue/visit analytics are read-only and based on paid/done/invoiced POS orders.
+
+## Arabic runtime hardening
+
+- Runtime Arabic fallback map is executable rather than commented out.
+- Arabic labels for Customers 360 and dynamic customer states are included in the catalog and runtime fallback.
+- Crystal Clean branding remains unchanged.
+
+---
+
 # 18.0.6.9.5 — Full Arabic / English Localization
 
 ## Language behavior
@@ -73,3 +113,9 @@ It includes Crystal Clean branding, report period, generated-by/time metadata, a
 
 - Each car-wash service remains designed to produce **one active Work Order** for the current operation flow.
 - Upgrade/migration logic does not delete historical MRP production or Work Order history; inactive legacy routing records remain preserved.
+
+## 18.0.6.9.10
+- Mirrors the dashboard sidebar to the right automatically when the active Odoo UI direction is RTL/Arabic; LTR/English remains on the left.
+- Replaces the generic Cars navigation action with an in-dashboard Cars & Wash Orders center using real report-center data, status filters, search, period switching, and direct record access.
+- Replaces the generic Services navigation action with an in-dashboard Wash Services performance center showing sold count, revenue, average duration, sales share, and direct product access.
+- Keeps deeper Odoo list/form access through Open All Wash Orders and Manage Wash Services actions.

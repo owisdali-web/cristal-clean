@@ -1,6 +1,6 @@
 {
     'name': 'Crystal Clean Car Wash Dashboard',
-    'version': '18.0.6.9.7',
+    'version': '18.0.6.9.10',
     'category': 'Operations/Car Wash',
     'summary': 'Crystal Clean operations, analytics, customer lounge and report center dashboards',
     'author': 'Crystal Clean',
