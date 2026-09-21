@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="whatsapp_composer_view_form" model="ir.ui.view">
+        <field name="name">whatsapp.composer.form</field>
+        <field name="model">whatsapp.composer</field>
+        <field name="arch" type="xml">
+            <form string="Send by WhatsApp">
+                <sheet>
+                    <group>
+                        <field name="phone"/>
+                        <field name="body"/>
+                    </group>
+                     <footer>
+                        <button name="action_send_whatsapp_with_pdf" string="Send" type="object" class="btn-primary"/>
+                        <button string="cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

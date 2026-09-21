@@ -1,0 +1,42 @@
+
+<odoo>
+    <record id="view_account_move_form_whatsapp_button" model="ir.ui.view">
+        <field name="name">account.move.form.whatsapp.button</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_send_whatsapp" 
+                        type="object" 
+                        string="Send WhatsApp" 
+                        class="btn-primary" 
+                        icon="fa-whatsapp"/>
+                <button name="action_send_whatsapp_account"
+                        string="Send Invoice"
+                        type="object"
+                        class="oe_highlight"/>
+            </header>
+        </field>
+    </record>
+
+
+        <record id="view_account_payment_form_whatsapp_button" model="ir.ui.view">
+        <field name="name">account.payment.form.whatsapp.button</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_send_whatsapp_payment"
+                        string="Send WhatsApp"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-whatsapp"/>
+                <button name="action_send_whatsapp_payment"
+                        string="Send Invoice"
+                        type="object"
+                        class="oe_highlight"/>
+            </header>
+        </field>
+    </record>
+
+</odoo>

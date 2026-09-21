@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_whatsapp_multi_recipient_wizard_form" model="ir.ui.view">
+            <field name="name">whatsapp.multi.recipient.wizard.form</field>
+            <field name="model">whatsapp.multi.recipient.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Send WhatsApp with PDF">
+                    <group>
+                        <field name="recipient_ids" widget="many2many_tags" options="{'no_create_edit': True}"/>
+                        <field name="message" nolabel="1" placeholder="Write your message here..."/>
+                        <!-- حقل لعرض اسم المرفق -->
+                        <field name="attachment_name" readonly="1" force_save="1"/>
+                        <!-- إخفاء الحقل الذي يحتوي على بيانات الملف -->
+                        <field name="attachment_data" invisible="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_send_whatsapp_multi" string="Send" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- لا حاجة لتعديل الـ action -->
+        <record id="action_whatsapp_multi_recipient_wizard" model="ir.actions.act_window">
+            <field name="name">Send WhatsApp with PDF</field>
+            <field name="res_model">whatsapp.multi.recipient.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>
