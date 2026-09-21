@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_whatsapp" model="ir.ui.view">
+        <field name="name">res.partner.form.whatsapp</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- استخدام xpath متوافق مع Odoo 19 -->
+            <xpath expr="//sheet" position="inside">
+                <group>
+                    <button name="action_send_statement_whatsapp"
+                            string="إرسال للعميل / المورد"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-whatsapp"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

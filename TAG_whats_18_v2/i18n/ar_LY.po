@@ -1,0 +1,428 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* TAG_whats_18
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-09-20 09:36+0000\n"
+"PO-Revision-Date: 2025-09-20 09:36+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: TAG_whats_18
+#: model:ir.ui.menu,name:TAG_whats_18.adv_root_menu
+msgid "Adv Notifications"
+msgstr "إشعارات متقدمة"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__attachment_data
+msgid "Attachment Data"
+msgstr "بيانات المرفق"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__attachment_name
+msgid "Attachment Name"
+msgstr "اسم المرفق"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__attempts
+msgid "Attempts"
+msgstr "المحاولات"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_stock_alert
+msgid "Automatic Stock Alerts"
+msgstr "تنبيهات المخزون التلقائية"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__body
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.adv_whatsapp_out_treeview
+msgid "Body"
+msgstr "المحتوى"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_whatsapp_multi_recipient_wizard_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: TAG_whats_18
+#: model:ir.actions.server,name:TAG_whats_18.ir_cron_check_stock_levels_ir_actions_server
+msgid "Check Stock Levels (WhatsApp)"
+msgstr "التحقق من مستويات المخزون (واتساب)"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_res_config_settings
+msgid "Config Settings"
+msgstr "تهيئة الإعدادات"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__create_uid
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_alert__create_uid
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__create_uid
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__create_date
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_alert__create_date
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__create_date
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__create_date
+msgid "Created on"
+msgstr "أنشئ في"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__display_name
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_alert__display_name
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__display_name
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_res_config_settings__enable_receipt_notify
+msgid "Enable Receipt WhatsApp Notifications"
+msgstr "تفعيل إشعارات واتساب للاستلامات"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields.selection,name:TAG_whats_18.selection__adv_whatsapp_out__status__failed
+msgid "Failed"
+msgstr "فشل"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_res_config_settings__receipt_notify_phone
+msgid "Fallback Phone Number"
+msgstr "رقم هاتف بديل"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__id
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_alert__id
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__id
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_account_move
+msgid "Journal Entry"
+msgstr "قيد اليومية"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__last_error
+msgid "Last Error"
+msgstr "الخطأ الأخير"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__write_uid
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_alert__write_uid
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__write_uid
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__write_date
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_alert__write_date
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__write_date
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.adv_whatsapp_out_treeview
+msgid "Last error"
+msgstr "الخطأ الأخير"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_warehouse__is_main
+msgid "Main Warehouse"
+msgstr "المستودع الرئيسي"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_res_config_settings__receipt_notify_max_lines
+msgid "Max Lines before Attachment"
+msgstr "الحد الأقصى للأسطر قبل الإرفاق"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__media
+msgid "Media File"
+msgstr "ملف وسائط"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__media_filename
+msgid "Media Filename"
+msgstr "اسم ملف الوسائط"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields.selection,name:TAG_whats_18.selection__adv_whatsapp_out__type__media
+msgid "Media Message"
+msgstr "رسالة وسائط"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__message
+msgid "Message"
+msgstr "الرسالة"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__body
+msgid "Message Body"
+msgstr "محتوى الرسالة"
+
+#. module: TAG_whats_18
+#: model:ir.ui.menu,name:TAG_whats_18.adv_whatsapp_out_menu
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__next_try
+msgid "Next Try"
+msgstr "المحاولة التالية"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_res_config_settings__receipt_notify_only_po
+msgid "Only for PO-related Receipts"
+msgstr "فقط للاستلامات المرتبطة بأمر شراء"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_account_payment
+msgid "Payments"
+msgstr "الدفعات"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields.selection,name:TAG_whats_18.selection__adv_whatsapp_out__status__pending
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__phone
+msgid "Phone"
+msgstr "الهاتف"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__phone
+msgid "Phone Number"
+msgstr "رقم الهاتف"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_purchase_order
+msgid "Purchase Order"
+msgstr "أمر شراء"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__recipient_ids
+msgid "Recipients"
+msgstr "المستلمون"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__res_id
+msgid "Related Document ID"
+msgstr "معرف المستند المرتبط"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_multi_recipient_wizard__res_model
+msgid "Related Document Model"
+msgstr "نموذج المستند المرتبط"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.adv_whatsapp_out_formview
+msgid "Resend"
+msgstr "إعادة الإرسال"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_warehouse__partner_id
+msgid "Responsible Person"
+msgstr "الشخص المسؤول"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_sale_order
+msgid "Sales Order"
+msgstr "أمر البيع"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_whatsapp_multi_recipient_wizard_form
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.whatsapp_composer_view_form
+msgid "Send"
+msgstr "إرسال"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_account_move_form_whatsapp_button
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_account_payment_form_whatsapp_button
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_order_form_whatsapp
+msgid "Send Invoice"
+msgstr "إرسال الفاتورة"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_purchase_order_form_whatsapp
+msgid "Send PO PDF"
+msgstr "إرسال أمر الشراء (PDF)"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_account_move_form_whatsapp_button
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_account_payment_form_whatsapp_button
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_order_form_whatsapp
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_purchase_order_form_whatsapp
+msgid "Send WhatsApp"
+msgstr "إرسال عبر واتساب"
+
+#. module: TAG_whats_18
+#: model:ir.actions.act_window,name:TAG_whats_18.action_whatsapp_multi_recipient_wizard
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_whatsapp_multi_recipient_wizard_form
+msgid "Send WhatsApp with PDF"
+msgstr "إرسال واتساب مع PDF"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.whatsapp_composer_view_form
+msgid "Send by WhatsApp"
+msgstr "إرسال بواسطة واتساب"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields.selection,name:TAG_whats_18.selection__adv_whatsapp_out__status__sent
+msgid "Sent"
+msgstr "تم الإرسال"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__status
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.adv_whatsapp_out_treeview
+msgid "Status"
+msgstr "الحالة"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.adv_whatsapp_out_formview
+msgid "Technical information"
+msgstr "معلومات تقنية"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields.selection,name:TAG_whats_18.selection__adv_whatsapp_out__type__text
+msgid "Text Message"
+msgstr "رسالة نصية"
+
+#. module: TAG_whats_18
+#: model_terms:ir.actions.act_window,help:TAG_whats_18.adv_whatsapp_out_action
+msgid "There are no WhatsApp messages to show."
+msgstr "لا توجد رسائل واتساب لعرضها."
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_stock_picking
+msgid "Transfer"
+msgstr "تحويل"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_adv_whatsapp_out__type
+msgid "Type"
+msgstr "النوع"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_stock_warehouse
+msgid "Warehouse"
+msgstr "المستودع"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_picking__x_whatsapp_out_id
+msgid "WhatsApp Message"
+msgstr "رسالة واتساب"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_whatsapp_composer
+msgid "WhatsApp Message Composer"
+msgstr "محرر رسائل واتساب"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_whatsapp_multi_recipient_wizard
+msgid "WhatsApp Multi-Recipient Wizard"
+msgstr "معالج إرسال واتساب لعدة مستلمين"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_picking_form_inherit_wh_notify
+msgid "WhatsApp Notification"
+msgstr "إشعار واتساب"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.res_config_settings_view_form_tag_whats_18
+msgid "WhatsApp Notifications"
+msgstr "إشعارات واتساب"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_picking__x_whatsapp_notified
+msgid "WhatsApp Notified"
+msgstr "تم الإشعار عبر واتساب"
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_stock_picking__x_whatsapp_notified_on
+msgid "WhatsApp Notified On"
+msgstr "تاريخ الإشعار عبر واتساب"
+
+#. module: TAG_whats_18
+#: model:ir.model,name:TAG_whats_18.model_adv_whatsapp_out
+msgid "WhatsApp out message"
+msgstr "رسالة واتساب صادرة"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.res_config_settings_view_form_tag_whats_18
+msgid "WhatsApp – إشعارات الاستلام"
+msgstr "واتساب – إشعارات الاستلام"
+
+#. module: TAG_whats_18
+#: model:ir.actions.server,name:TAG_whats_18.ir_cron_send_pending_whatsapp_ir_actions_server
+msgid "WhatsApp: Send Pending Messages"
+msgstr "واتساب: إرسال الرسائل المعلقة"
+
+#. module: TAG_whats_18
+#: model:ir.actions.act_window,name:TAG_whats_18.adv_whatsapp_out_action
+msgid "Whatsapp Messages"
+msgstr "رسائل واتساب"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.adv_whatsapp_out_formview
+msgid "Whatsapp Notification"
+msgstr "إشعار واتساب"
+
+#. module: TAG_whats_18
+#: model:ir.ui.menu,name:TAG_whats_18.adv_whatsapp_notifications_menu
+msgid "Whatsapp Notifications"
+msgstr "إشعارات واتساب"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.view_whatsapp_multi_recipient_wizard_form
+msgid "Write your message here..."
+msgstr "اكتب رسالتك هنا..."
+
+#. module: TAG_whats_18
+#: model:ir.model.fields,field_description:TAG_whats_18.field_whatsapp_composer__attachment_id
+msgid "attachment"
+msgstr "مرفق"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.whatsapp_composer_view_form
+msgid "cancel"
+msgstr "إلغاء"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.adv_whatsapp_out_treeview
+msgid "creation date"
+msgstr "تاريخ الإنشاء"
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.res_config_settings_view_form_tag_whats_18
+msgid "أرسل فقط للاستلامات المرتبطة بأوامر شراء (PO)."
+msgstr "أرسل فقط للاستلامات المرتبطة بأوامر شراء (PO)."
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.res_config_settings_view_form_tag_whats_18
+msgid "الحد الأقصى لسطور الرسالة قبل التحويل إلى مرفق CSV."
+msgstr "الحد الأقصى لسطور الرسالة قبل التحويل إلى مرفق CSV."
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.res_config_settings_view_form_tag_whats_18
+msgid "تفعيل إرسال إشعارات واتساب تلقائيًا عند اعتماد الاستلامات (incoming)."
+msgstr "تفعيل إرسال إشعارات واتساب تلقائيًا عند اعتماد الاستلامات (incoming)."
+
+#. module: TAG_whats_18
+#: model_terms:ir.ui.view,arch_db:TAG_whats_18.res_config_settings_view_form_tag_whats_18
+msgid "رقم بديل عند عدم توفر رقم لمسؤول المخزن أو للشركة."
+msgstr "رقم بديل عند عدم توفر رقم لمسؤول المخزن أو للشركة."

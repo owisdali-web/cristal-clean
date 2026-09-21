@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_inherit_wh_notify" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.wh.notify</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+
+        <field name="arch" type="xml">
+
+            <!-- استهداف آمن -->
+            <xpath expr="//field[@name='origin']" position="after">
+
+                <group>
+                    <div class="o_form_label">WhatsApp Notification</div>
+
+                    <field name="x_whatsapp_notified" readonly="1"/>
+                    <field name="x_whatsapp_notified_on" readonly="1"/>
+                    <field name="x_whatsapp_out_id" readonly="1"/>
+                </group>
+
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

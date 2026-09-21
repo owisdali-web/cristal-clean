@@ -1,0 +1,40 @@
+{
+    "name": "Tag_Whatsapp22",
+    "version": "1.0.0",
+    "category": "Tools",
+    "summary": "Send WhatsApp via WasenderAPI ",
+    "author": "Tag Technology",
+    "depends": ["base", "mail", "sale", "account"],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/scheduled_actions.xml',
+        'data/stock_alert_cron.xml',
+        'views/adv_whatsapp_out_views.xml',
+        'views/adv_whatsapp_group_views.xml',
+        'views/whatsapp_autoreply_rule_views.xml',
+        'views/whatsapp_dashboard_views.xml',
+        'views/sale_order_view.xml',
+        'views/purchase_order_view.xml',
+        'views/stock_warehouse_view.xml',
+        'views/stock_picking_view_inherit.xml',
+        'views/res_config_settings_view.xml',
+        "views/invoices_whatsapp_button.xml",
+        "views/whatsapp_multi_recipient_wizard_view.xml",
+        "views/whatsapp_composer_view.xml",
+        'views/partner_view.xml',
+        'views/send_statement_wizard_views.xml'
+
+    ],
+    'assets': {
+        'web.assets_backend': [
+            'TAG_whats_18_v2/static/src/dashboard/*.js',
+            'TAG_whats_18_v2/static/src/dashboard/*.xml',
+            'TAG_whats_18_v2/static/src/dashboard/*.scss',
+            'TAG_whats_18_v2/static/src/chat/*.js',
+            'TAG_whats_18_v2/static/src/chat/*.xml',
+            'TAG_whats_18_v2/static/src/chat/*.scss',
+        ],
+    },
+    'installable': True,
+    'application': True,
+}

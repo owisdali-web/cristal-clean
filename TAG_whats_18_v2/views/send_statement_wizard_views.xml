@@ -1,0 +1,33 @@
+<odoo>
+    <!-- Wizard View -->
+    <record id="view_send_statement_wizard_form" model="ir.ui.view">
+        <field name="name">send.statement.wizard.form</field>
+        <field name="model">send.statement.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send Statement">
+                <group>
+                    <field name="partner_id"/>
+                </group>
+                <footer>
+                    <button string="Send" type="object" name="action_send" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- زر جديد في Partner -->
+    <record id="res_partner_form_inherit_statement" model="ir.ui.view">
+        <field name="name">res.partner.form.statement.whatsapp</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <button name="action_send_statement_whatsapp" position="after">
+                <button name="action_open_send_statement_wizard"
+                        string="إرسال لجهة إتصال"
+                        type="object"
+                        class="oe_highlight"/>
+            </button>
+        </field>
+    </record>
+</odoo>

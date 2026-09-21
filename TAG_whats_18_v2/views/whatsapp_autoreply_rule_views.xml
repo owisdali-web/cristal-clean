@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="adv_whatsapp_autoreply_rule_treeview" model="ir.ui.view">
+        <field name="name">adv.whatsapp.autoreply.rule.list</field>
+        <field name="model">adv.whatsapp.autoreply.rule</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="match_type"/>
+                <field name="keyword"/>
+                <field name="reply_body"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="adv_whatsapp_autoreply_rule_formview" model="ir.ui.view">
+        <field name="name">adv.whatsapp.autoreply.rule.form</field>
+        <field name="model">adv.whatsapp.autoreply.rule</field>
+        <field name="arch" type="xml">
+            <form string="Auto-Reply Rule">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="active"/>
+                        <field name="sequence"/>
+                        <field name="match_type"/>
+                        <field name="keyword"/>
+                    </group>
+                    <group>
+                        <field name="reply_body"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="adv_whatsapp_autoreply_rule_action" model="ir.actions.act_window">
+        <field name="name">Auto-Reply Rules</field>
+        <field name="res_model">adv.whatsapp.autoreply.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create keyword-based auto-reply rules for incoming WhatsApp messages.</p>
+        </field>
+    </record>
+
+    <menuitem id="adv_whatsapp_autoreply_menu"
+              name="Auto-Reply Rules"
+              parent="adv_whatsapp_notifications_menu"
+              action="adv_whatsapp_autoreply_rule_action"
+              sequence="30"/>
+
+</odoo>

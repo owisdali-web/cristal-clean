@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="TAG_whats_18_v2.WhatsappChat">
+        <div class="o_wa_chat_app">
+            <div class="o_wa_sidebar">
+                <div class="o_wa_sidebar_header">
+                    <input type="text" class="form-control" placeholder="Search contacts..."
+                           t-att-value="state.search" t-on-input="onSearchInput"/>
+                </div>
+                <div class="o_wa_thread_list">
+                    <div t-if="state.loadingThreads" class="text-muted p-3">Loading...</div>
+                    <div t-if="!state.loadingThreads and !state.threads.length" class="text-muted p-3">No conversations yet</div>
+                    <t t-foreach="state.threads" t-as="thread" t-key="thread.key">
+                        <div class="o_wa_thread_item"
+                             t-att-class="{ active: thread.key === state.activeKey }"
+                             t-on-click="() => this.selectThread(thread)">
+                            <div class="o_wa_thread_avatar">
+                                <t t-esc="(thread.name || '?').charAt(0).toUpperCase()"/>
+                            </div>
+                            <div class="o_wa_thread_info">
+                                <div class="o_wa_thread_name"><t t-esc="thread.name"/></div>
+                                <div class="o_wa_thread_last"><t t-esc="thread.last_message"/></div>
+                            </div>
+                            <div class="o_wa_thread_badge" t-if="thread.unread">
+                                <t t-esc="thread.unread"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+
+            <div class="o_wa_conversation">
+                <div t-if="!state.activeKey" class="o_wa_empty_state">
+                    Select a conversation to start chatting
+                </div>
+                <t t-if="state.activeKey">
+                    <div class="o_wa_conversation_header">
+                        <div class="o_wa_thread_avatar">
+                            <t t-esc="(state.activeThread.name || '?').charAt(0).toUpperCase()"/>
+                        </div>
+                        <div>
+                            <div class="o_wa_thread_name"><t t-esc="state.activeThread.name"/></div>
+                            <div class="text-muted small"><t t-esc="state.activeThread.phone"/></div>
+                        </div>
+                    </div>
+                    <div class="o_wa_messages">
+                        <t t-foreach="state.messages" t-as="msg" t-key="msg.id">
+                            <div class="o_wa_bubble_row" t-att-class="msg.direction === 'out' ? 'o_wa_row_out' : 'o_wa_row_in'">
+                                <div class="o_wa_bubble" t-att-class="msg.direction === 'out' ? 'o_wa_bubble_out' : 'o_wa_bubble_in'">
+                                    <div class="o_wa_bubble_body"><t t-esc="msg.body"/></div>
+                                    <div class="o_wa_bubble_meta">
+                                        <t t-esc="msg.date"/>
+                                        <t t-if="msg.direction === 'out'"> · <t t-esc="msg.status"/></t>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                        <div t-ref="messagesEnd"/>
+                    </div>
+                    <div class="o_wa_composer">
+                        <textarea class="form-control" rows="1" placeholder="Type a message..."
+                                  t-att-value="state.draft" t-on-input="onDraftInput" t-on-keydown="onKeydown"/>
+                        <button class="btn btn-success" t-on-click="sendMessage" t-att-disabled="state.sending">
+                            <i class="fa fa-paper-plane"/>
+                        </button>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

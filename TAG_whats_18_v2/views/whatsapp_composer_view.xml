@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="whatsapp_composer_view_form" model="ir.ui.view">
+        <field name="name">adv.whatsapp.composer.form</field>
+        <field name="model">adv.whatsapp.composer</field>
+        <field name="arch" type="xml">
+            <form string="إرسال واتساب">
+                <sheet>
+                    <group>
+                        <!-- رقم الهاتف -->
+                        <field name="phone" string="رقم الهاتف"/>
+
+                        <!-- نوع الرسالة -->
+                        <field name="send_type" widget="radio"
+                               options="{'horizontal': True}"
+                               string="نوع الرسالة"/>
+                    </group>
+
+                    <!-- نص الرسالة — يظهر دائماً -->
+                    <group>
+                        <field name="body" string="نص الرسالة"
+                               nolabel="1"
+                               placeholder="اكتب رسالتك هنا..."/>
+                    </group>
+
+                    <!-- حقل الفيديو — يظهر فقط عند اختيار فيديو -->
+                    <group invisible="send_type != 'video'">
+                        <field name="video_file"
+                               string="ملف الفيديو"
+                               widget="binary"
+                               filename="video_filename"/>
+                        <field name="video_filename" invisible="1"/>
+                    </group>
+
+                    <footer>
+                        <button name="action_send_whatsapp_with_pdf"
+                                string="إرسال"
+                                type="object"
+                                class="btn-primary"/>
+                        <button string="إلغاء"
+                                class="btn-secondary"
+                                special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

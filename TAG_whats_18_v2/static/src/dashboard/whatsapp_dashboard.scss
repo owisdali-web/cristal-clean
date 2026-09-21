@@ -1,0 +1,86 @@
+.o_wa_dashboard {
+    .o_wa_stat_card {
+        border-radius: 8px;
+        padding: 16px 20px;
+        color: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+
+        .o_wa_stat_value {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .o_wa_stat_label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+    }
+
+    .o_wa_stat_sent { background: #25d366; }
+    .o_wa_stat_pending { background: #f0ad4e; }
+    .o_wa_stat_failed { background: #d9534f; }
+    .o_wa_stat_received { background: #128c7e; }
+
+    .o_wa_panel {
+        background: #fff;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        height: 100%;
+    }
+
+    .o_wa_chart {
+        display: flex;
+        align-items: flex-end;
+        height: 180px;
+        gap: 6px;
+        padding-top: 12px;
+    }
+
+    .o_wa_bar_group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        justify-content: flex-end;
+    }
+
+    .o_wa_bar_stack {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 100%;
+    }
+
+    .o_wa_bar {
+        width: 8px;
+        border-radius: 2px 2px 0 0;
+        min-height: 2px;
+    }
+
+    .o_wa_bar_sent { background: #25d366; }
+    .o_wa_bar_received { background: #128c7e; }
+
+    .o_wa_bar_label {
+        font-size: 10px;
+        color: #888;
+        margin-top: 4px;
+    }
+
+    .o_wa_legend {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #666;
+    }
+
+    .o_wa_legend_dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        vertical-align: middle;
+        margin-right: 4px;
+    }
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_warehouse_form_inherit_main" model="ir.ui.view">
+        <field name="name">stock.warehouse.form.inherit.is.main</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+
+        <field name="arch" type="xml">
+
+            <!-- استهدف group الثاني -->
+            <xpath expr="//group/group[2]" position="inside">
+                
+                <group>
+                    <div class="o_form_label">Main Warehouse Info</div>
+
+                    <field name="is_main"/>
+                    <field name="partner_id"/>
+                </group>
+
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

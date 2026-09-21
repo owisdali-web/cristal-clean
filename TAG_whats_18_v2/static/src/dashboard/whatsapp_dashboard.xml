@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="TAG_whats_18_v2.WhatsappDashboard">
+        <div class="o_wa_dashboard p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">WhatsApp Dashboard</h1>
+                <div>
+                    <button class="btn btn-outline-success me-2" t-on-click="openChat">
+                        <i class="fa fa-comments me-1"/> Open Chat
+                    </button>
+                    <button class="btn btn-outline-secondary" t-on-click="openMessages">
+                        <i class="fa fa-list me-1"/> All Messages
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="o_wa_stat_card o_wa_stat_sent">
+                        <div class="o_wa_stat_value"><t t-esc="state.total_sent"/></div>
+                        <div class="o_wa_stat_label">Sent</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="o_wa_stat_card o_wa_stat_pending">
+                        <div class="o_wa_stat_value"><t t-esc="state.total_pending"/></div>
+                        <div class="o_wa_stat_label">Pending</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="o_wa_stat_card o_wa_stat_failed">
+                        <div class="o_wa_stat_value"><t t-esc="state.total_failed"/></div>
+                        <div class="o_wa_stat_label">Failed</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="o_wa_stat_card o_wa_stat_received">
+                        <div class="o_wa_stat_value"><t t-esc="state.total_received"/></div>
+                        <div class="o_wa_stat_label">Received</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <div class="o_wa_panel">
+                        <h5>Messages – Last 14 Days</h5>
+                        <div class="o_wa_chart">
+                            <t t-foreach="state.series" t-as="day" t-key="day.date">
+                                <div class="o_wa_bar_group" t-att-title="day.label + ': ' + (day.sent + day.received) + ' messages'">
+                                    <div class="o_wa_bar_stack">
+                                        <div class="o_wa_bar o_wa_bar_sent" t-attf-style="height: {{barHeight(day.sent)}}%"/>
+                                        <div class="o_wa_bar o_wa_bar_received" t-attf-style="height: {{barHeight(day.received)}}%"/>
+                                    </div>
+                                    <div class="o_wa_bar_label"><t t-esc="day.label"/></div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="o_wa_legend">
+                            <span class="o_wa_legend_dot o_wa_bar_sent"/> Sent
+                            <span class="o_wa_legend_dot o_wa_bar_received ms-3"/> Received
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="o_wa_panel">
+                        <h5>Top Contacts</h5>
+                        <ul class="list-group list-group-flush">
+                            <li t-foreach="state.top_contacts" t-as="c" t-key="c.partner_id" class="list-group-item d-flex justify-content-between">
+                                <span><t t-esc="c.name"/></span>
+                                <span class="badge bg-success rounded-pill"><t t-esc="c.count"/></span>
+                            </li>
+                            <li t-if="!state.top_contacts.length" class="list-group-item text-muted">No data yet</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>
