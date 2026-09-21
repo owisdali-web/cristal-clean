@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="pos_mandatory_phone.PartnerDetailsEdit.Buttons"
+       t-inherit="point_of_sale.PartnerDetailsEdit"
+       t-inherit-mode="extension">
+
+        <!-- Insert the new button just before the primary "Save" button -->
+        <xpath expr="//button[contains(@class, 'btn-primary')]" position="before">
+            <button class="btn btn-outline-secondary me-2"
+                    t-on-click="onUseExistingContact">
+                <i class="fa fa-search me-1"/>
+                Use Existing Contact
+            </button>
+        </xpath>
+
+    </t>
+</templates>
